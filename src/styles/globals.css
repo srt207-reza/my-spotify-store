@@ -1,0 +1,37 @@
+/* 1. فراخوانی هسته اصلی Tailwind v4 */
+@import "tailwindcss";
+
+/* 2. متصل کردن فایل کانفیگ نسخه 3 به تیلویند نسخه 4 */
+/* توجه: اگر فایل globals.css در پوشه src/app است، مسیر زیر درست است */
+@config "../../tailwind.config.ts";
+
+/* 3. ایمپورت فونت ایران‌سنس */
+@import "../../public/assets/fonts/iransans/style.css";
+
+@layer base {
+    :root {
+        --background: #ffffff;
+        --foreground: #0f172a;
+        --border: #e2e8f0;
+    }
+
+    .dark {
+        --background: #0a0a0a;
+        --foreground: #ededed;
+    }
+}
+
+@layer base {
+    body {
+        background-color: var(--background);
+        color: var(--foreground);
+        /* تنظیم فونت ایران‌سنس به عنوان فونت اصلی و سراسری */
+        font-family: "IRANSans", "Vazirmatn", Tahoma, sans-serif;
+        direction: rtl;
+    }
+
+    html {
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+    }
+}
