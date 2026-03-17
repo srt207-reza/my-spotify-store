@@ -110,7 +110,7 @@ export default function HomePage() {
                         className="text-sm font-medium text-salona-500 hover:text-salona-600 flex items-center gap-1"
                     >
                         مشاهده همه
-                        <ArrowLeft className="w-4 h-4" />
+                        <ArrowLeft className="w-4 h-4 mt-1" />
                     </Link>
                 </div>
 

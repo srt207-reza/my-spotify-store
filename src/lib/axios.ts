@@ -47,7 +47,7 @@ axiosInstance.interceptors.response.use(
         // ۱. مدیریت خطای ۴۰۱ (عدم دسترسی / توکن نامعتبر یا منقضی شده)
         if (error.response?.status === 401) {
             
-            if (!isAuthAlertShown && typeof window !== "undefined") {
+            if (!isAuthAlertShown && typeof window !== "undefined" && !window.location.href.includes("login")) {
                 isAuthAlertShown = true;
 
                 Swal.fire({
@@ -67,7 +67,7 @@ axiosInstance.interceptors.response.use(
                     isAuthAlertShown = false;
 
                     if (result.isConfirmed) {
-                        window.location.href = "/auth"; 
+                        window.location.href = "/login"; 
                     }
                 });
             }

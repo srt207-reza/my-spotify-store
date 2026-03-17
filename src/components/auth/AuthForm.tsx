@@ -42,10 +42,7 @@ export default function AuthForm() {
     const { mutate: registerUser, isPending: isRegisterPending } = useRegister();
     const { mutate: verifyOtp, isPending: isVerifyPending } = useVerifyLogin();
 
-    const {
-        register,
-        handleSubmit,
-    } = useForm<PhoneFormValues>();
+    const { register, handleSubmit } = useForm<PhoneFormValues>();
 
     useEffect(() => {
         let timer: NodeJS.Timeout;
@@ -115,7 +112,7 @@ export default function AuthForm() {
                         if (!token) throw new Error("توکنی از سمت سرور دریافت نشد");
 
                         await setAuthCookie(token);
-                        localStorage.setItem('user',JSON.stringify(data))
+                        localStorage.setItem("user", JSON.stringify(data));
 
                         toast.success(
                             mode === "REGISTER"
@@ -124,7 +121,7 @@ export default function AuthForm() {
                         );
 
                         router.push("/");
-                        router.refresh(); 
+                        router.refresh();
                     } catch (err) {
                         toast.error("خطا در ذخیره‌سازی اطلاعات ورود");
                         console.error(err);
@@ -276,7 +273,9 @@ export default function AuthForm() {
                                 value={otpCode}
                                 onChange={setOtpCode}
                                 render={({ slots }) => (
-                                    <div className="flex gap-2 sm:gap-3 justify-center"> {/* اصلاح فاصله برای جاگیری بهتر ۶ رقم */}
+                                    <div className="flex gap-2 sm:gap-3 justify-center">
+                                        {" "}
+                                        {/* اصلاح فاصله برای جاگیری بهتر ۶ رقم */}
                                         {slots.map((slot, idx) => (
                                             <div
                                                 key={idx}
