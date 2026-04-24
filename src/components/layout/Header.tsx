@@ -9,7 +9,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // افکت شیشه‌ای شدن هدر هنگام اسکرول
+  // افکت هدر هنگام اسکرول
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
@@ -17,17 +17,17 @@ export default function Header() {
   }, []);
 
   const navLinks = [
-    { name: "صفحه اصلی", href: "/" },
-    { name: "اسپاتیفای شخصی", href: "/spotify/individual", icon: <Music className="w-4 h-4 text-green-400" /> },
-    { name: "اسپاتیفای فمیلی", href: "/spotify/family", icon: <Users className="w-4 h-4 text-green-500" /> },
-    { name: "قوانین و مقررات", href: "/terms", icon: <FileText className="w-4 h-4 text-purple-400" /> },
+    { name: "صفحه اصلی", href: "/", icon: null },
+    { name: "اسپاتیفای شخصی", href: "/spotify/individual", icon: <Music className="w-4 h-4" /> },
+    { name: "اسپاتیفای فمیلی", href: "/spotify/family", icon: <Users className="w-4 h-4" /> },
+    { name: "قوانین و مقررات", href: "/terms", icon: <FileText className="w-4 h-4" /> },
   ];
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-store-panel backdrop-blur-lg border-b border-store-border shadow-2xl"
+          ? "bg-store-panel/95 backdrop-blur-md border-b border-store-border shadow-2xl"
           : "bg-transparent border-b border-transparent"
       }`}
     >
@@ -36,10 +36,10 @@ export default function Header() {
           
           {/* لوگو */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="bg-gradient-to-tr from-green-500 to-blue-500 p-2.5 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-500/20">
-              <ShoppingBag className="w-5 h-5 text-white" />
+            <div className="bg-spotify p-2.5 rounded-full group-hover:scale-105 group-hover:bg-spotify-light transition-all duration-300 shadow-lg shadow-spotify/20 box-glow-spotify">
+              <ShoppingBag className="w-5 h-5 text-store-base" />
             </div>
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300">
+            <span className="text-xl font-bold text-store-text tracking-tight transition-colors group-hover:text-white">
               دیجیتال استور
             </span>
           </Link>
@@ -50,9 +50,13 @@ export default function Header() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-white transition-all hover:-translate-y-0.5 duration-200 group"
+                className="flex items-center gap-2 text-sm font-bold text-store-muted hover:text-store-text transition-all hover:-translate-y-0.5 duration-200 group"
               >
-                <span className="group-hover:animate-bounce">{link.icon}</span>
+                {link.icon && (
+                  <span className="text-store-muted group-hover:text-spotify-light transition-colors group-hover:animate-bounce">
+                    {link.icon}
+                  </span>
+                )}
                 {link.name}
               </Link>
             ))}
@@ -64,7 +68,7 @@ export default function Header() {
               href="https://t.me/getSpotify_Support" 
               target="_blank"
               rel="noreferrer"
-              className="px-6 py-2.5 rounded-full bg-slate-800/50 border border-slate-700 text-sm font-medium hover:bg-slate-700 hover:border-slate-500 hover:shadow-lg hover:shadow-slate-700/50 transition-all duration-300"
+              className="px-6 py-2.5 rounded-full bg-transparent border border-store-muted text-store-text text-sm font-bold hover:border-store-text hover:scale-105 transition-all duration-300"
             >
               پشتیبانی تلگرام
             </a>
@@ -72,7 +76,7 @@ export default function Header() {
 
           {/* دکمه همبرگری موبایل */}
           <button
-            className="md:hidden p-2 text-slate-300 hover:text-white transition-colors"
+            className="md:hidden p-2 text-store-muted hover:text-store-text transition-colors"
             onClick={() => setIsOpen(!isOpen)}
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -88,7 +92,7 @@ export default function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden absolute top-full left-0 right-0 border-b border-slate-800 bg-slate-900/95 backdrop-blur-xl shadow-2xl"
+            className="md:hidden absolute top-full left-0 right-0 border-b border-store-border bg-store-panel shadow-2xl"
           >
             <div className="px-4 py-6 flex flex-col gap-2">
               {navLinks.map((link, i) => (
@@ -101,10 +105,14 @@ export default function Header() {
                   <Link
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white active:bg-slate-700 transition-all"
+                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-store-muted hover:bg-store-hover hover:text-store-text active:bg-store-border transition-all font-bold group"
                   >
-                    {link.icon}
-                    <span className="font-medium">{link.name}</span>
+                    {link.icon && (
+                      <span className="group-hover:text-spotify-light transition-colors">
+                        {link.icon}
+                      </span>
+                    )}
+                    <span>{link.name}</span>
                   </Link>
                 </motion.div>
               ))}
@@ -115,7 +123,7 @@ export default function Header() {
                 href="https://t.me/getSpotify_Support" 
                 target="_blank"
                 rel="noreferrer"
-                className="mt-4 text-center px-4 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium shadow-lg shadow-blue-500/25 active:scale-95 transition-all"
+                className="mt-4 text-center px-4 py-3.5 rounded-full bg-spotify text-store-base hover:bg-spotify-light hover:scale-105 active:bg-spotify-press font-bold shadow-lg shadow-spotify/20 transition-all duration-300"
               >
                 ارتباط با پشتیبانی
               </motion.a>

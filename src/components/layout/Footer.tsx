@@ -37,7 +37,7 @@ export default function Footer() {
             <h3 className="text-lg font-bold text-white">پشتیبانی تلگرام</h3>
             <div className="flex flex-col gap-3">
               <a href="https://t.me/getSpotify_Support" target="_blank" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-                <Send className="w-4 h-4 text-blue-400" /> ارتباط با پشتیبانی اسپاتیفای
+                <Send className="w-4 h-4 text-green-400" /> ارتباط با پشتیبانی اسپاتیفای
               </a>
             </div>
           </div>
