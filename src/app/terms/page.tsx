@@ -1,110 +1,136 @@
 "use client";
 
-import { Scale, ShoppingBag, CalendarCheck, ShieldAlert, CheckCircle2 } from "lucide-react";
-
-const TERMS_SECTIONS = [
-    {
-        id: "general",
-        title: "۱. شرایط و قوانین عمومی",
-        icon: <Scale className="w-6 h-6" />,
-        content: [
-            "کاربر گرامی، لطفاً موارد زیر را جهت استفاده بهینه از خدمات و برنامه‌های کاربردی سالونا به دقت ملاحظه فرمایید.",
-            "ورود کاربران به وب‌سایت سالونا هنگام استفاده از پروفایل شخصی، و سایر خدمات ارائه شده توسط سالونا به معنای آگاه بودن و پذیرفتن شرایط و قوانین و همچنین نحوه استفاده از سرویس‌ها و خدمات سالونا است.",
-            "توجه داشته باشید که ثبت سفارش و یا رزرو نوبت نیز در هر زمان به معنی پذیرفتن کامل کلیه شرایط و قوانین سالونا از سوی کاربر است. قوانین مندرج، جایگزین کلیه توافق‌های قبلی محسوب می‌شود.",
-        ],
-    },
-    {
-        id: "shop",
-        title: "۲. قوانین فروشگاه و ارسال محصولات",
-        icon: <ShoppingBag className="w-6 h-6" />,
-        content: [
-            "روز کاری به معنی روز شنبه تا پنج‌شنبه هر هفته، به استثنای تعطیلات عمومی در ایران است و کلیه سفارش‌های ثبت شده در طول روزهای کاری و اولین روز پس از تعطیلات پردازش می‌شوند.",
-            "سالونا همواره در ارسال و تحویل کلیه سفارش‌های ثبت شده، نهایت دقت و تلاش خود را انجام می‌دهد. با وجود این، در صورتی که موجودی محصولی در سالونا به پایان برسد، حتی پس از اقدام مشتری به سفارش‌گذاری، حق کنسل کردن آن سفارش و یا استرداد وجه سفارش برای سالونا محفوظ است.",
-            "در صورت بروز مشکل در پردازش نهایی سبد خرید مانند اتمام موجودی کالا یا انصراف مشتری، مبلغ پرداخت شده طی ۲۴ الی ۴۸ ساعت کاری به حساب مشتری واریز خواهد شد.",
-            "کالاهای آرایشی و بهداشتی به دلیل رعایت اصول بهداشتی، تنها در صورت باز نشدن پلمپ و تطابق با شرایط مرجوعی، تا ۷ روز قابل بازگشت هستند.",
-        ],
-    },
-    {
-        id: "booking",
-        title: "۳. قوانین رزرو نوبت آرایشگاه",
-        icon: <CalendarCheck className="w-6 h-6" />,
-        content: [
-            "رزرو نوبت تنها با پرداخت بیعانه (مبلغ مشخص شده در درگاه) قطعی می‌گردد و پیامک تایید برای شما ارسال خواهد شد.",
-            "در صورت لغو نوبت تا ۲۴ ساعت پیش از زمان مقرر، کل مبلغ بیعانه به کیف پول کاربری یا حساب بانکی شما عودت داده می‌شود.",
-            "لغو نوبت در کمتر از ۲۴ ساعت مانده به زمان رزرو، مشمول کسر هزینه لغو (برابر با مبلغ بیعانه) خواهد شد.",
-            "لطفاً ۱۵ دقیقه پیش از زمان تعیین شده در آرایشگاه حضور داشته باشید. تأخیر بیش از ۲۰ دقیقه ممکن است منجر به لغو نوبت شما توسط سالن گردد.",
-        ],
-    },
-    {
-        id: "privacy",
-        title: "۴. حریم خصوصی و امنیت داده‌ها",
-        icon: <ShieldAlert className="w-6 h-6" />,
-        content: [
-            "سالونا به اطلاعات خصوصی اشخاصی که از خدمات سایت استفاده می‌کنند، احترام گذاشته و از آن محافظت می‌کند.",
-            "ما متعهد می‌شویم در حد توان از حریم شخصی شما دفاع کنیم و در این راستا، تکنولوژی مورد نیاز برای هرچه مطمئن‌تر و امن‌تر شدن استفاده شما از سایت را توسعه دهیم.",
-            "حفظ و نگهداری رمز عبور و نام کاربری بر عهده کاربران است و لذا برای جلوگیری از هرگونه سوء استفاده احتمالی، کاربران نباید آن اطلاعات را برای شخص دیگری فاش کنند.",
-        ],
-    },
-];
+import { motion } from "framer-motion";
+import { AlertTriangle, MapPin, Shield, CreditCard, PlayCircle, Clock, Users, FileText } from "lucide-react";
 
 export default function TermsPage() {
+    const terms = [
+        {
+            id: 1,
+            icon: <MapPin className="w-6 h-6 text-rose-400" />,
+            title: "محدودیت‌های آدرس اینترنتی (IP Address)",
+            desc: "طبق قوانین و شرایط استفاده (Terms of Use) اسپاتیفای، موقعیت مکانی ثبت‌شده در حساب کاربری باید با موقعیت مکانی اتصال اینترنتی (IP Address) دستگاه کاربر یکسان باشد. بنابراین، استفاده از سرویس VPN متناسب با کشور ثبت‌شده در حساب کاربری هنگام استفاده از اسپاتیفای الزامی است.",
+            warning:
+                "⚠️ در صورت عدم رعایت این قانون، اسپاتیفای می‌تواند بدون اطلاع قبلی اشتراک را لغو کند و امکان جبران خسارت یا بازگشت وجه وجود ندارد. مسئولیت رعایت این شرط بر عهده کاربر است.",
+        },
+        {
+            id: 2,
+            icon: <Clock className="w-6 h-6 text-amber-400" />,
+            title: "زمان فعال‌سازی اشتراک",
+            desc: "اشتراک پرمیوم ظرف کمتر از ۲۴ ساعت پس از پرداخت و ارسال اطلاعات حساب کاربری به‌صورت خودکار فعال خواهد شد. پس از فعال‌سازی، پیام تأیید از طریق ایمیل یا تلگرام ارسال می‌گردد.",
+        },
+        {
+            id: 3,
+            icon: <Shield className="w-6 h-6 text-green-400" />,
+            title: "حفظ اطلاعات حساب کاربری",
+            desc: "در فعال‌سازی طرح‌های شخصی (Individual Plans)، کلیه اطلاعات حساب کاربری از جمله موزیک‌های ذخیره‌شده، پلی‌لیست‌ها، پادکست‌ها و تنظیمات شخصی بدون هیچ تغییری حفظ می‌گردد. اشتراک مستقیماً روی همان حساب فعلی شما فعال می‌شود و نیازی به ایجاد حساب جدید نیست.",
+        },
+        {
+            id: 4,
+            icon: <Users className="w-6 h-6 text-cyan-400" />,
+            title: "طرح‌های خانوادگی (Family Plans)",
+            desc: "در طرح‌های خانوادگی، تا ۶ نفر می‌توانند از اشتراک پرمیوم استفاده کنند. تمامی اعضا باید در یک آدرس مشترک ساکن باشند و موقعیت مکانی یکسانی داشته باشند. هر عضو حساب کاربری مستقل و پلی‌لیست‌های جداگانه خواهد داشت.",
+        },
+        {
+            id: 5,
+            icon: <PlayCircle className="w-6 h-6 text-purple-400" />,
+            title: "قوانین حق پخش و محدودیت‌های محتوا",
+            desc: "در دسترس نبودن یا غیرفعال شدن موقت برخی قابلیت‌ها، آهنگ‌ها یا محتواها امری طبیعی بوده و طبق سیاست‌های داخلی اسپاتیفای، قوانین کپی‌رایت و تصمیم ناشران و هنرمندان صورت می‌گیرد. این موارد خارج از کنترل ما بوده و دلیل بازپس‌گیری وجه نمی‌باشد.",
+        },
+        {
+            id: 6,
+            icon: <CreditCard className="w-6 h-6 text-blue-400" />,
+            title: "پرداخت قانونی و امن",
+            desc: "پرداخت‌های مربوط به فعال‌سازی اشتراک، به‌صورت کاملاً قانونی و با استفاده از کارت‌های بانکی ارزی معتبر در کشورهایی نظیر هند، ترکیه، نیجریه، فیلیپین و سایر کشورهای مجاز انجام می‌گردد. تمامی تراکنش‌ها از طریق درگاه‌های پرداخت رسمی اسپاتیفای صورت می‌پذیرد.",
+        },
+        {
+            id: 7,
+            icon: <FileText className="w-6 h-6 text-indigo-400" />,
+            title: "عدم امکان استرداد وجه",
+            desc: "با توجه به ماهیت دیجیتالی خدمات و فعال‌سازی فوری اشتراک، امکان استرداد وجه پس از فعال‌سازی وجود ندارد. لطفاً پیش از خرید، از صحت اطلاعات حساب کاربری و انتخاب طرح مناسب اطمینان حاصل فرمایید.",
+        },
+    ];
+
     return (
-        <main className="min-h-screen bg-gray-50/50 font-vazir pb-24" dir="rtl">
-            {/* هدر صفحه */}
-            <div className="bg-white border-b border-gray-100 py-16 mb-12">
-                <div className="container flex flex-col items-center text-center">
-                    <div className="p-4 bg-salona-50 text-salona-500 rounded-2xl mb-6 animate-fade-in">
-                        <Scale className="w-12 h-12" />
+        <main className="min-h-screen pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-5xl mx-auto">
+                {/* هدر صفحه */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center mb-16"
+                >
+                    <div className="inline-flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 rounded-full px-4 py-2 mb-6">
+                        <AlertTriangle className="w-4 h-4 text-rose-400" />
+                        <span className="text-rose-300 text-sm font-medium">مطالعه الزامی</span>
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-black text-gray-900 font-iransans mb-4">
-                        قوانین و مقررات <span className="text-salona-500">سالونا</span>
+                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                        قوانین و مقررات استفاده
                     </h1>
-                    <p className="text-gray-500 text-lg mb-4">
-                        لطفاً پیش از استفاده از خدمات سایت، موارد زیر را به دقت مطالعه فرمایید.
+                    <p className="text-slate-400 text-lg leading-relaxed max-w-2xl mx-auto">
+                        لطفاً پیش از خرید یا فعال‌سازی اشتراک، قوانین زیر را با دقت مطالعه نمایید. استفاده از خدمات
+                        GetSpotify به منزله پذیرش کامل این شرایط و مقررات می‌باشد.
                     </p>
-                    <div className="inline-flex items-center gap-2 bg-gray-50 text-gray-500 px-4 py-2 rounded-full text-sm">
-                        <CalendarCheck className="w-4 h-4" />
-                        <span>آخرین به‌روزرسانی: ۲۶ اسفند ۱۴۰۴</span>
-                    </div>
-                </div>
-            </div>
+                </motion.div>
 
-            <div className="container max-w-4xl">
-                {/* محتوای قوانین */}
-                <div className="space-y-10 animate-fade-in">
-                    {TERMS_SECTIONS.map((section) => (
-                        <div
-                            key={section.id}
-                            className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100"
+                {/* لیست قوانین */}
+                <div className="space-y-6">
+                    {terms.map((term, index) => (
+                        <motion.div
+                            key={term.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 md:p-8 hover:bg-slate-800/50 transition-colors group"
                         >
-                            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-50">
-                                <div className="p-3 bg-salona-50 text-salona-500 rounded-xl">{section.icon}</div>
-                                <h2 className="text-2xl font-bold text-gray-800 font-iransans">{section.title}</h2>
-                            </div>
+                            <div className="flex flex-col md:flex-row gap-6 items-start">
+                                <div className="bg-slate-800 p-4 rounded-2xl shrink-0 group-hover:scale-110 transition-transform">
+                                    {term.icon}
+                                </div>
 
-                            <ul className="space-y-4">
-                                {section.content.map((paragraph, index) => (
-                                    <li key={index} className="flex items-start gap-3">
-                                        <CheckCircle2 className="w-5 h-5 text-salona-300 shrink-0 mt-1" />
-                                        <p className="text-gray-600 leading-loose text-justify">{paragraph}</p>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                                <div className="flex-1">
+                                    <h3 className="text-xl font-bold text-slate-100 mb-3">
+                                        {term.title}
+                                    </h3>
+
+                                    <p className="text-slate-400 leading-relaxed text-justify">
+                                        {term.desc}
+                                    </p>
+
+                                    {term.warning && (
+                                        <div className="mt-5 flex gap-3 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-200">
+                                            <AlertTriangle className="w-5 h-5 shrink-0 text-rose-400" />
+                                            <p className="text-sm leading-relaxed">
+                                                {term.warning}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
                     ))}
                 </div>
 
-                {/* پیام پایانی */}
-                <div className="mt-12 text-center bg-salona-50/50 rounded-2xl p-6 border border-salona-100">
-                    <p className="text-gray-600 leading-relaxed">
-                        عضویت در سایت سالونا و استفاده از خدمات آن به منزله مطالعه دقیق و پذیرش تمامی قوانین فوق
-                        می‌باشد. در صورت داشتن هرگونه ابهام، با{" "}
-                        <a href="tel:08691009185" className="text-salona-500 font-bold hover:underline">
-                            پشتیبانی سالونا
-                        </a>{" "}
-                        تماس بگیرید.
+                {/* فوتر توضیحات */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="mt-16 text-center border-t border-slate-800 pt-10"
+                >
+                    <p className="text-slate-500 text-sm leading-relaxed max-w-2xl mx-auto">
+                        در صورت وجود هرگونه سوال درباره قوانین، فعال‌سازی اشتراک یا مشکلات حساب کاربری،
+                        می‌توانید با پشتیبانی ما در تلگرام در ارتباط باشید.
                     </p>
-                </div>
+
+                    <a
+                        href="https://t.me/getSpotify_Support"
+                        target="_blank"
+                        className="inline-block mt-4 text-emerald-400 hover:text-emerald-300 transition"
+                    >
+                        ارتباط با پشتیبانی
+                    </a>
+                </motion.div>
             </div>
         </main>
     );

@@ -1,128 +1,54 @@
 import Link from "next/link";
-import { Instagram, Send, Phone, MapPin } from "lucide-react";
+import { Music, Users, Send } from "lucide-react";
 
-export const Footer = () => {
-    return (
-        <footer className="bg-gray-900 text-gray-300 pt-16 pb-8 border-t-4 border-primary">
-            <div className="container mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-                    {/* ستون اول: درباره فروشگاه */}
-                    <div>
-                        <h3 className="text-2xl font-black text-white mb-6 tracking-tighter">
-                            SALONA<span className="text-primary">.</span>
-                        </h3>
-                        <p className="text-sm leading-relaxed text-gray-400 mb-6">
-                            فروشگاه اینترنتی سالونا، مرجع تخصصی بررسی و خرید آنلاین محصولات آرایشی، بهداشتی و زیبایی. با
-                            تضمین اصالت کالا و ارسال سریع به سراسر ایران.
-                        </p>
-                        <div className="flex gap-4">
-                            <a
-                                href="#"
-                                className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
-                            >
-                                <Instagram className="w-5 h-5" />
-                            </a>
-                            <a
-                                href="#"
-                                className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
-                            >
-                                <Send className="w-5 h-5" />
-                            </a>
-                        </div>
-                    </div>
+export default function Footer() {
+  return (
+    <footer className="border-t border-store-border bg-store-dark/50 mt-auto">
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+          
+          {/* بخش درباره ما */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-white">درباره ما</h3>
+            <p className="text-slate-400 leading-relaxed text-justify">
+              ما با ارائه بهترین سرویس‌های دیجیتال و اشتراک‌های قانونی اسپاتیفای در قالب طرح‌های شخصی و فمیلی، تجربه بی‌نظیری از دنیای موسیقی را بدون دغدغه و با بالاترین کیفیت برای شما فراهم می‌کنیم.
+            </p>
+          </div>
 
-                    {/* ستون دوم: دسترسی سریع */}
-                    <div>
-                        <h4 className="text-white font-bold mb-6 text-lg">دسترسی سریع</h4>
-                        <ul className="flex flex-col gap-3 text-sm">
-                            <li>
-                                <Link href="/products" className="hover:text-primary transition-colors">
-                                    لیست محصولات
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/categories" className="hover:text-primary transition-colors">
-                                    دسته‌بندی‌ها
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/blog" className="hover:text-primary transition-colors">
-                                    مجله زیبایی سالونا
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/about" className="hover:text-primary transition-colors">
-                                    درباره ما
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/contact" className="hover:text-primary transition-colors">
-                                    تماس با ما
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
+          {/* بخش لینک‌های سریع */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-white">دسترسی سریع</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/spotify/individual" className="text-slate-400 hover:text-green-400 transition-colors flex items-center gap-2">
+                  <Music className="w-4 h-4" /> طرح شخصی اسپاتیفای
+                </Link>
+              </li>
+              <li>
+                <Link href="/spotify/family" className="text-slate-400 hover:text-green-400 transition-colors flex items-center gap-2">
+                  <Users className="w-4 h-4" /> طرح فمیلی اسپاتیفای
+                </Link>
+              </li>
+            </ul>
+          </div>
 
-                    {/* ستون سوم: خدمات مشتریان */}
-                    <div>
-                        <h4 className="text-white font-bold mb-6 text-lg">خدمات مشتریان</h4>
-                        <ul className="flex flex-col gap-3 text-sm">
-                            <li>
-                                <Link href="/faq" className="hover:text-primary transition-colors">
-                                    سوالات متداول
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/terms" className="hover:text-primary transition-colors">
-                                    قوانین و مقررات
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/privacy" className="hover:text-primary transition-colors">
-                                    حریم خصوصی
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/return-policy" className="hover:text-primary transition-colors">
-                                    رویه بازگرداندن کالا
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/shipping" className="hover:text-primary transition-colors">
-                                    نحوه ارسال سفارشات
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* ستون چهارم: اطلاعات تماس */}
-                    <div>
-                        <h4 className="text-white font-bold mb-6 text-lg">ارتباط با ما</h4>
-                        <ul className="flex flex-col gap-4 text-sm">
-                            <li className="flex items-start gap-3">
-                                <MapPin className="w-5 h-5 text-primary shrink-0" />
-                                <span className="leading-relaxed">
-                                    ایران، ساوه، مطهری 41، ساختمان هما، طبقه 6 ، واحد 21
-                                </span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <Phone className="w-5 h-5 text-primary shrink-0" />
-                                <span dir="ltr">086 - 9100 9185</span>
-                            </li>
-                            {/* <li className="flex items-center gap-3">
-                                <Phone className="w-5 h-5 text-primary shrink-0" />
-                                <span dir="ltr">021 - 9999 9999</span>
-                            </li> */}
-                        </ul>
-                    </div>
-                </div>
-
-                {/* کپی رایت */}
-                <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-gray-500">
-                    <p>© {new Date().getFullYear()} فروشگاه سالونا. تمامی حقوق محفوظ است.</p>
-                    <p className="mt-2 md:mt-0">طراحی و توسعه با ❤️</p>
-                </div>
+          {/* بخش پشتیبانی */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-white">پشتیبانی تلگرام</h3>
+            <div className="flex flex-col gap-3">
+              <a href="https://t.me/getSpotify_Support" target="_blank" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+                <Send className="w-4 h-4 text-blue-400" /> ارتباط با پشتیبانی اسپاتیفای
+              </a>
             </div>
-        </footer>
-    );
-};
+          </div>
+
+        </div>
+        
+        {/* کپی رایت */}
+        <div className="mt-8 pt-6 border-t border-store-border text-center text-slate-500 text-xs">
+          © {new Date().getFullYear()} تمامی حقوق محفوظ است. طراحی و توسعه برای ارائه بهترین خدمات دیجیتال.
+        </div>
+      </div>
+    </footer>
+  );
+}

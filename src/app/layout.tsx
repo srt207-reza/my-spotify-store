@@ -1,41 +1,46 @@
 import type { Metadata } from "next";
-import AppProviders from "@/components/providers/AppProviders";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "react-hot-toast";
-import "@/styles/globals.css";
+import "../styles/globals.css"; // مسیر globals.css خود را در صورت نیاز اصلاح کنید
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
-    title: "فروشگاه سالونا | خرید لوازم آرایشی و بهداشتی",
-    description: "بهترین و باکیفیت‌ترین لوازم آرایشی و بهداشتی را با سالونا تجربه کنید.",
+  title: "فروشگاه محصولات دیجیتال | اسپاتیفای و VPN",
+  description: "خرید اشتراک پریمیوم اسپاتیفای و سرویس‌های پرسرعت VPN با بهترین قیمت، تحویل آنی و پشتیبانی تلگرامی.",
 };
 
 export default function RootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        // ۱. اضافه شدن suppressHydrationWarning به html
-        <html lang="fa" dir="rtl" suppressHydrationWarning>
-            {/* ۲. اضافه شدن suppressHydrationWarning به body */}
-            {/* ۳. اصلاح فونت از font-vazir به font-iransans */}
-            <body
-                className="min-h-screen bg-background flex flex-col font-iransans text-foreground"
-                suppressHydrationWarning
-            >
-                <AppProviders>
-                    <Header />
+  return (
+    <html lang="fa" dir="rtl" className="scroll-smooth">
+      <body cz-shortcut-listen="true" className="flex flex-col min-h-screen bg-store-dark text-slate-100 antialiased selection:bg-store-success/30 selection:text-store-success">
+        {/* هدر سایت */}
+        <Header />
+        
+        {/* محتوای اصلی صفحات (پایین‌تر از هدر فیکس شده قرار می‌گیرد) */}
+        <main className="grow pt-24 pb-10 px-4 sm:px-6 lg:px-8 container mx-auto max-w-7xl">
+          {children}
+        </main>
 
-                    {/* کانتینر کلی پروژه برای قرارگیری یکپارچه محتوا */}
-                    <main className="grow flex flex-col">
-                        <div className="container py-8 pt-28 grow">{children}</div>
-                    </main>
+        {/* فوتر سایت */}
+        <Footer />
 
-                    <Footer />
-                    <Toaster />
-                </AppProviders>
-            </body>
-        </html>
-    );
+        {/* سیستم نمایش نوتیفیکیشن‌ها */}
+        <Toaster 
+          position="top-center" 
+          toastOptions={{
+            style: {
+              background: '#1e293b',
+              color: '#fff',
+              border: '1px solid #334155',
+              fontFamily: 'inherit'
+            },
+          }} 
+        />
+      </body>
+    </html>
+  );
 }

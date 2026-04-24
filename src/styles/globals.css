@@ -10,14 +10,17 @@
 
 @layer base {
     :root {
-        --background: #ffffff;
-        --foreground: #0f172a;
-        --border: #e2e8f0;
+        /* تم پیش‌فرض سایت فروشگاهی (تاریک - Dark Mode) */
+        --background: #0f172a; /* معادل store-dark */
+        --foreground: #f8fafc; /* رنگ متن روشن */
+        --border: #334155;     /* معادل store-border */
     }
 
-    .dark {
-        --background: #0a0a0a;
-        --foreground: #ededed;
+    /* در صورت نیاز به حالت روز (Light Mode) */
+    .light {
+        --background: #f8fafc;
+        --foreground: #0f172a;
+        --border: #e2e8f0;
     }
 }
 
@@ -26,7 +29,7 @@
         background-color: var(--background);
         color: var(--foreground);
         /* تنظیم فونت ایران‌سنس به عنوان فونت اصلی و سراسری */
-        font-family: "IRANSans", "Vazirmatn", Tahoma, sans-serif;
+        font-family: "IRANSansX";
         direction: rtl;
     }
 
@@ -36,10 +39,14 @@
     }
 }
 
+/* ========================================= */
+/* تنظیمات اسکرول‌بار سراسری سایت            */
+/* ========================================= */
+
 /* تنظیمات اسکرول‌بار برای فایرفاکس */
 * {
     scrollbar-width: thin;
-    scrollbar-color: #f472b6 #fdf2f8; /* رنگ درگ‌کننده (salona-400) و پس‌زمینه (salona-50) */
+    scrollbar-color: #475569 #1e293b; /* دستگیره: slate-600، پس‌زمینه: store.panel */
 }
 
 /* تنظیمات اسکرول‌بار برای کروم، اج و سافاری */
@@ -50,20 +57,39 @@
 
 /* پس‌زمینه مسیر اسکرول‌بار */
 *::-webkit-scrollbar-track {
-    background: #fdf2f8; /* معادل salona-50 */
+    background: #1e293b; /* رنگ پنل‌های تیره */
     border-radius: 10px;
 }
 
 /* دستگیره (Thumb) اسکرول‌بار */
 *::-webkit-scrollbar-thumb {
-    background-color: #f9a8d4; /* معادل salona-300 */
+    background-color: #475569; /* رنگ خاکستری ملایم برای حالت عادی */
     border-radius: 10px;
-    /* حاشیه همرنگ پس‌زمینه برای ایجاد افکت فاصله (Padding) تمیزتر */
-    border: 2px solid #fdf2f8;
+    border: 2px solid #1e293b; /* حاشیه همرنگ پس‌زمینه برای ایجاد افکت فاصله */
     transition: background-color 0.3s ease;
 }
 
 /* حالت هاور (Hover) دستگیره اسکرول‌بار */
 *::-webkit-scrollbar-thumb:hover {
-    background-color: #ec4899; /* معادل salona-500 (رنگ اصلی برند) */
+    background-color: #64748b; /* روشن‌تر شدن در حالت هاور */
+}
+
+/* ========================================= */
+/* کلاس اختصاصی برای اسکرول‌بارهای کوچک      */
+/* (مناسب برای لیست‌های داخل فرم یا پنل‌ها)   */
+/* ========================================= */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.5); /* شفافیت روی رنگ پنل */
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.7); 
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.9); /* خاکستری روشن‌تر */
 }

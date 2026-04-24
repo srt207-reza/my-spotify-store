@@ -1,153 +1,170 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowLeft, Sparkles, TrendingUp } from "lucide-react";
-import { useCategories } from "@/services/useCategories";
-import { useProducts } from "@/services/useProducts";
-import { useFavorites } from "@/services/useFavorites"; // اضافه شدن هوک علاقه‌مندی‌ها
-import { ProductCard } from "@/components/shared/ProductsCard";
-import { Category, Product } from "@/types/api";
+import { motion } from "framer-motion";
+import { ShieldCheck, Music, CheckCircle2, Zap, Globe, ArrowLeft, User, Users } from "lucide-react";
 
 export default function HomePage() {
-    const { data: categoriesData, isLoading: isCategoriesLoading } = useCategories();
-    
-    const { data: latestProductsData, isLoading: isProductsLoading } = useProducts({
-        per_page: 8,
-    });
+    // اطلاعات کارت محصولات (استخراج شده از فایل PDF)
+    const products = [
+        {
+            id: "individual",
+            title: "اسپاتیفای شخصی (Individual)",
+            subtitle: "تجربه موسیقی بدون مرز و محدودیت",
+            description:
+                "اکانت قانونی اسپاتیفای با فعال‌سازی روی ایمیل شخصی شما. حفظ کامل پلی‌لیست‌ها با تحویل سریع در کمتر از ۲۴ ساعت.",
+            icon: <User className="w-12 h-12 text-green-400" />,
+            features: [
+                "فعال‌سازی روی ایمیل شخصی شما",
+                "حفظ پلی‌لیست‌ها و دیتای قبلی اکانت",
+                "امکان دانلود و پخش آفلاین موسیقی",
+                "قابل استفاده در تمامی دستگاه‌ها",
+                "تحویل سریع در کمتر از ۲۴ ساعت",
+            ],
+            color: "from-green-500 to-emerald-400",
+            bgHover: "hover:shadow-green-500/20",
+            buttonColor: "bg-green-500 hover:bg-green-400",
+            href: "/order?product=individual",
+        },
+        {
+            id: "family",
+            title: "اسپاتیفای فمیلی (Family)",
+            subtitle: "اقتصادی‌ترین انتخاب برای شما",
+            description:
+                "طرحی بسیار مقرون‌به‌صرفه در بسته‌های ۶ و ۱۲ ماهه. مناسب برای کاربرانی که در سال جاری محدودیت عضویت فمیلی (دو بار در سال) ندارند.",
+            icon: <Users className="w-12 h-12 text-blue-400" />,
+            features: [
+                "قیمت بسیار اقتصادی و مقرون‌به‌صرفه",
+                "ارائه در پلن‌های طولانی ۶ و ۱۲ ماهه",
+                "بدون قطعی و تضمین پایداری اشتراک",
+                "پرداخت قانونی روی ریجن‌های معتبر",
+                "پشتیبانی تا آخرین روز اشتراک",
+            ],
+            color: "from-blue-500 to-indigo-400",
+            bgHover: "hover:shadow-blue-500/20",
+            buttonColor: "bg-blue-500 hover:bg-blue-400",
+            href: "/order?product=family",
+        },
+    ];
 
-    const user = JSON.parse(localStorage.getItem('user'))
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.2 },
+        },
+    };
 
-    // دریافت لیست علاقه‌مندی‌ها برای تطبیق با محصولات صفحه اصلی
-    const { data: favoritesData } = useFavorites(!!user);
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    };
 
     return (
-        <div className="space-y-16 pb-16">
-            {/* 1. Hero Section */}
-            <section className="container mt-6">
-                <div className="bg-salona-100 rounded-3xl overflow-hidden flex flex-col md:flex-row items-center justify-between min-h-100 relative">
-                    <div className="p-8 md:p-16 flex-1 z-10">
-                        <span className="inline-block py-1 px-3 rounded-full bg-salona-100 text-salona-600 text-sm font-bold mb-4 animate-fade-in">
-                            جشنواره بهاره سالونا
-                        </span>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 leading-tight mb-6">
-                            زیبایی خود را <br />
-                            <span className="text-salona-500">کشف کنید</span>
-                        </h1>
-                        <p className="text-gray-600 mb-8 max-w-md leading-relaxed">
-                            جدیدترین کالکشن محصولات آرایشی و مراقبت از پوست با ضمانت اصالت کالا و ارسال فوری به سراسر
-                            کشور.
-                        </p>
-                        <Link
-                            href="/products"
-                            className="inline-flex items-center gap-2 bg-salona-500 hover:bg-salona-600 text-white font-medium py-3 px-8 rounded-full transition-all hover:shadow-lg hover:shadow-salona-500/30"
-                        >
-                            مشاهده محصولات
-                            <ArrowLeft className="w-5 h-5" />
-                        </Link>
-                    </div>
-
-                    {/* bg-linear-to-tr from-salona-200 to-salona-100 */}
-                    <div className="flex-1 w-full h-full min-h-75 relative">
-                        <div className="absolute inset-0 flex items-center justify-center text-salona-500/20">
-                            <Sparkles className="w-32 h-32" />
-                        </div>
-                    </div>
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)] py-12">
+            {/* بخش Hero (معرفی) */}
+            <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-center max-w-3xl mb-16"
+            >
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-store-panel border border-store-border text-sm text-slate-300 mb-6">
+                    <Music className="w-4 h-4 text-green-400" />
+                    <span>تحویل سریع و پشتیبانی مطمئن</span>
                 </div>
-            </section>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
+                    دسترسی بی‌حد و مرز به <br className="hidden md:block" />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-400 to-blue-500">
+                        دنیای موسیقی اسپاتیفای
+                    </span>
+                </h1>
+                <p className="text-slate-400 text-lg md:text-xl leading-relaxed">
+                    خرید مطمئن و قانونی اشتراک اسپاتیفای در طرح‌های شخصی و فمیلی. همین حالا پلن مناسب خود را انتخاب کنید
+                    و تفاوت گوش دادن به موسیقی با کیفیت پریمیوم را احساس کنید.
+                </p>
+            </motion.div>
 
-            {/* 2. بخش دسته‌بندی‌ها */}
-            <section className="container">
-                <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                        <Sparkles className="w-6 h-6 text-salona-500" />
-                        دسته‌بندی‌های محبوب
-                    </h2>
-                </div>
-
-                {isCategoriesLoading ? (
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="bg-gray-100 rounded-2xl h-32 animate-pulse"></div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        {categoriesData?.categories?.slice(0, 6).map((category: Category) => (
-                            <Link
-                                key={category.id}
-                                href={`/categories/${category.id}`}
-                                className="group flex flex-col items-center justify-center gap-3 p-6 bg-white border border-gray-100 rounded-2xl hover:border-salona-200 hover:shadow-lg hover:shadow-salona-50/50 transition-all cursor-pointer"
-                            >
-                                <div className="relative w-16 h-16 rounded-full bg-salona-50 group-hover:bg-salona-100 flex items-center justify-center transition-colors overflow-hidden">
-                                    {/* استفاده از کامپوننت Image Next.js */}
-                                    <Image
-                                        src={category.image_url || "/cat-placeholder.png"}
-                                        alt={category.name}
-                                        width={32}
-                                        height={32}
-                                        className="object-contain"
-                                    />
-                                </div>
-                                <span className="text-sm font-medium text-gray-700 group-hover:text-salona-600 text-center">
-                                    {category.name}
-                                </span>
-                            </Link>
-                        ))}
-                    </div>
-                )}
-            </section>
-
-            {/* 3. بخش جدیدترین محصولات */}
-            <section className="container">
-                <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                        <TrendingUp className="w-6 h-6 text-salona-500" />
-                        جدیدترین‌های سالونا
-                    </h2>
-                    <Link
-                        href="/products?sort=newest"
-                        className="text-sm font-medium text-salona-500 hover:text-salona-600 flex items-center gap-1"
+            {/* کارت‌های محصولات */}
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl px-4"
+            >
+                {products.map((product) => (
+                    <motion.div
+                        key={product.id}
+                        variants={itemVariants}
+                        className={`group relative bg-store-panel rounded-3xl p-8 border border-store-border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${product.bgHover}`}
                     >
-                        مشاهده همه
-                        <ArrowLeft className="w-4 h-4 mt-1" />
-                    </Link>
-                </div>
+                        {/* افکت پس‌زمینه درخشان */}
+                        <div
+                            className={`absolute inset-0 bg-gradient-to-br ${product.color} opacity-0 group-hover:opacity-5 rounded-3xl transition-opacity duration-300`}
+                        />
 
-                {isProductsLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className="bg-white rounded-2xl border border-gray-100 h-80 animate-pulse flex flex-col p-4"
-                            >
-                                <div className="bg-gray-100 w-full h-48 rounded-xl mb-4"></div>
-                                <div className="bg-gray-100 h-4 w-3/4 rounded mb-2"></div>
-                                <div className="bg-gray-100 h-4 w-1/2 rounded mt-auto"></div>
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-start mb-6">
+                                <div className="p-4 rounded-2xl bg-slate-800/50 border border-slate-700/50">
+                                    {product.icon}
+                                </div>
                             </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {latestProductsData?.products?.map((product: Product) => {
-                            // بررسی اینکه آیا این محصول در لیست علاقه‌مندی‌ها وجود دارد یا خیر
-                            // فرض بر این است که API علاقه‌مندی‌ها دارای فیلد product_id است
-                            const favoriteRecord = favoritesData?.favorites?.find(
-                                (fav) => fav.product_id === product.id
-                            );
 
-                            return (
-                                <ProductCard 
-                                    key={product.id} 
-                                    product={product} 
-                                    isFavorited={!!favoriteRecord}
-                                    favoriteId={favoriteRecord?.id}
-                                />
-                            );
-                        })}
-                    </div>
-                )}
-            </section>
+                            <h2 className="text-2xl font-bold text-white mb-2">{product.title}</h2>
+                            <h3
+                                className={`text-sm font-medium text-transparent bg-clip-text bg-gradient-to-r ${product.color} mb-4`}
+                            >
+                                {product.subtitle}
+                            </h3>
+
+                            <p className="text-slate-400 text-sm leading-relaxed mb-8 h-16">{product.description}</p>
+
+                            <ul className="space-y-3 mb-8">
+                                {product.features.map((feature, idx) => (
+                                    <li key={idx} className="flex items-center gap-3 text-sm text-slate-300">
+                                        <CheckCircle2
+                                            className={`w-5 h-5 bg-clip-text bg-gradient-to-br ${product.color} rounded-full bg-slate-800`}
+                                        />
+                                        {feature}
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <Link
+                                href={product.href}
+                                className={`flex items-center justify-center gap-2 w-full py-4 rounded-xl text-white font-bold transition-all duration-300 shadow-lg ${product.buttonColor}`}
+                            >
+                                ثبت سفارش
+                                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                            </Link>
+                        </div>
+                    </motion.div>
+                ))}
+            </motion.div>
+
+            {/* نوار ویژگی‌های کلی */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+                className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-4xl text-center border-t border-store-border pt-10 px-4"
+            >
+                <div className="flex flex-col items-center gap-2">
+                    <Globe className="w-8 h-8 text-slate-400 mb-2" />
+                    <h4 className="text-white font-medium">پشتیبانی از تمامی اکانت‌ها</h4>
+                    <p className="text-xs text-slate-500">بدون محدودیت در ریجن فعلی شما</p>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                    <ShieldCheck className="w-8 h-8 text-slate-400 mb-2" />
+                    <h4 className="text-white font-medium">پرداخت امن و قانونی</h4>
+                    <p className="text-xs text-slate-500">حفظ کامل امنیت اطلاعات اکانت شما</p>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                    <Zap className="w-8 h-8 text-slate-400 mb-2" />
+                    <h4 className="text-white font-medium">پشتیبانی سریع</h4>
+                    <p className="text-xs text-slate-500">پاسخگویی سریع در تلگرام برای رفع مشکلات</p>
+                </div>
+            </motion.div>
         </div>
     );
 }

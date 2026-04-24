@@ -16,18 +16,34 @@ const config: Config = {
         },
         extend: {
             colors: {
-                // پالت رنگی اختصاصی سالونا 
-                salona: {
-                    50: "#fdf2f8",
-                    100: "#fce7f3",
-                    200: "#fbcfe8",
-                    300: "#f9a8d4",
-                    400: "#f472b6",
-                    500: "#ec4899", // رنگ اصلی برند (Primary)
-                    600: "#db2777",
-                    700: "#be185d",
-                    800: "#9d174d",
-                    900: "#831843",
+                // پالت رنگی اختصاصی اسپاتیفای
+                spotify: {
+                    DEFAULT: "#1DB954", // رنگ اصلی اسپاتیفای
+                    light: "#1ED760",
+                    dark: "#1AA34A",
+                },
+                // پالت رنگی اختصاصی VPN (آبی متمایل به بنفش برای حس سرعت و پرمیوم بودن)
+                vpn: {
+                    50: "#eff6ff",
+                    100: "#dbeafe",
+                    200: "#bfdbfe",
+                    300: "#93c5fd",
+                    400: "#60a5fa",
+                    500: "#3b82f6", // رنگ اصلی VPN
+                    600: "#2563eb",
+                    700: "#1d4ed8",
+                    800: "#1e40af",
+                    900: "#1e3a8a",
+                    950: "#172554",
+                },
+                // رنگ‌های پایه فروشگاه (تاریک و مدرن)
+                store: {
+                    dark: "#0f172a", // پس‌زمینه اصلی سایت
+                    panel: "#1e293b", // پس‌زمینه کارت‌های محصول و فرم‌ها
+                    border: "#334155",
+                    success: "#10b981", // برای پیام‌های موفقیت‌آمیز (مثل ثبت سفارش)
+                    warning: "#f59e0b",
+                    danger: "#ef4444",
                 },
                 background: "var(--background)",
                 foreground: "var(--foreground)",
@@ -35,7 +51,7 @@ const config: Config = {
             },
             fontFamily: {
                 vazir: ["var(--font-vazirmatn)", "sans-serif"],
-                iransans: ["IRANSans", "sans-serif"], // اضافه شدن ایران‌سنس به کلاس‌های تیلویند
+                iransans: ["IRANSans", "sans-serif"], 
             },
             keyframes: {
                 "accordion-down": {
@@ -50,31 +66,37 @@ const config: Config = {
                     from: { opacity: "0" },
                     to: { opacity: "1" },
                 },
+                "float": { // انیمیشن شناور برای کارت‌های محصول
+                    "0%, 100%": { transform: "translateY(0)" },
+                    "50%": { transform: "translateY(-8px)" },
+                }
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
                 "fade-in": "fade-in 0.3s ease-out",
+                "float": "float 3s ease-in-out infinite",
             },
         },
     },
-    // plugins: [require("tailwindcss-animate")],
-
     plugins: [
         require("tailwindcss-animate"),
-        function ({ addUtilities }) {
+        function ({ addUtilities }: any) {
             addUtilities({
+                // مخفی کردن اسکرول‌بار برای لیست‌های فرم و جداول
                 ".scrollbar-hide": {
                     "-ms-overflow-style": "none",
                     "scrollbar-width": "none",
                     "&::-webkit-scrollbar": { display: "none" },
                 },
-                ".text-shadow-white": {
-                    textShadow: '4px -2px 4px #fff, 2px 2px 4px #fff',
+                // افکت درخشش برای متمایز کردن پکیج‌های اسپاتیفای
+                ".box-glow-spotify": {
+                    boxShadow: '0 0 20px rgba(29, 185, 84, 0.15), inset 0 0 10px rgba(29, 185, 84, 0.05)',
                 },
-                ".text-shadow-gray": {
-                    textShadow: '4px -2px 4px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2)',
-                },
+                // افکت درخشش برای متمایز کردن پکیج‌های VPN
+                ".box-glow-vpn": {
+                    boxShadow: '0 0 20px rgba(59, 130, 246, 0.15), inset 0 0 10px rgba(59, 130, 246, 0.05)',
+                }
             });
         },
     ],

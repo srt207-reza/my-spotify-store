@@ -1,4 +1,3 @@
-import { getAuthCookie } from "@/app/actions";
 import axios from "axios";
 import Swal from "sweetalert2";
 // مسیر فایل سرور اکشن خود را به درستی در این قسمت جایگزین کنید
@@ -23,12 +22,12 @@ axiosInstance.interceptors.request.use(
         // فراخوانی سرور اکشن برای دریافت توکن 
         // از آنجایی که کوکی httpOnly است، فقط سرور می‌تواند آن را بخواند
         try {
-            const token = await getAuthCookie();
+            // const token = await getAuthCookie();
 
             // اگر توکن با موفقیت دریافت شد، به هدر اضافه می‌شود
-            if (token) {
-                config.headers["x-access-tokens"] = token;
-            }
+            // if (token) {
+            //     config.headers["x-access-tokens"] = token;
+            // }
         } catch (error) {
             console.error("خطا در دریافت توکن از سرور اکشن:", error);
         }
