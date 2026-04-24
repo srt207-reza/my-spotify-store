@@ -74,7 +74,7 @@ export default function SpotifyIndividual() {
                                 transition={{ delay: idx * 0.1 }}
                                 className="bg-store-panel backdrop-blur-sm border border-store-border p-8 rounded-3xl hover:bg-store-hover transition-colors"
                             >
-                                <div className="bg-spotify/10 gap-4 rounded-2xl flex items-center justify-start flex-row mb-6">
+                                <div className="gap-4 rounded-2xl flex items-center justify-start flex-row mb-6">
                                     <Icon className="w-7 h-7 text-spotify-light" />
                                     <h3 className="text-xl font-bold">{item.title}</h3>
                                 </div>
