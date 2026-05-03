@@ -5,42 +5,46 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
-  title: "فروشگاه محصولات دیجیتال | اسپاتیفای",
-  description: "خرید اشتراک پریمیوم اسپاتیفای با بهترین قیمت، تحویل آنی و پشتیبانی تلگرامی.",
+    title: "فروشگاه Get Spotify",
+    description: "خرید اشتراک پریمیوم اسپاتیفای با بهترین قیمت، تحویل آنی و پشتیبانی تلگرامی.",
+    icons: {
+        icon: "/assets/images/favicon.png",
+    },
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="fa" dir="rtl" className="scroll-smooth">
-      <body cz-shortcut-listen="true" className="flex flex-col min-h-screen bg-store-base text-store-text antialiased selection:bg-spotify/30 selection:text-spotify-light">
-        {/* هدر سایت */}
-        <Header />
-        
-        {/* محتوای اصلی صفحات (پایین‌تر از هدر فیکس شده قرار می‌گیرد) */}
-        <main className="grow pt-24 pb-10 px-4 sm:px-6 lg:px-8 container mx-auto max-w-7xl">
-          {children}
-        </main>
+    return (
+        <html lang="fa" dir="rtl" className="scroll-smooth">
+            <body
+                cz-shortcut-listen="true"
+                className="flex flex-col min-h-screen bg-store-base text-store-text antialiased selection:bg-spotify/30 selection:text-spotify-light"
+            >
+                {/* هدر سایت */}
+                <Header />
 
-        {/* فوتر سایت */}
-        <Footer />
+                {/* محتوای اصلی صفحات (پایین‌تر از هدر فیکس شده قرار می‌گیرد) */}
+                <main className="grow pt-24 pb-10 px-4 sm:px-6 lg:px-8 container mx-auto max-w-7xl">{children}</main>
 
-        {/* سیستم نمایش نوتیفیکیشن‌ها */}
-        <Toaster 
-          position="top-center" 
-          toastOptions={{
-            style: {
-              background: '#181818', // رنگ کارت‌های اسپاتیفای
-              color: '#FFFFFF', // رنگ متن اصلی
-              border: '1px solid #2A2A2A', // رنگ بوردرهای اسپاتیفای
-              fontFamily: 'inherit'
-            },
-          }} 
-        />
-      </body>
-    </html>
-  );
+                {/* فوتر سایت */}
+                <Footer />
+
+                {/* سیستم نمایش نوتیفیکیشن‌ها */}
+                <Toaster
+                    position="top-center"
+                    toastOptions={{
+                        style: {
+                            background: "#181818", // رنگ کارت‌های اسپاتیفای
+                            color: "#FFFFFF", // رنگ متن اصلی
+                            border: "1px solid #2A2A2A", // رنگ بوردرهای اسپاتیفای
+                            fontFamily: "inherit",
+                        },
+                    }}
+                />
+            </body>
+        </html>
+    );
 }

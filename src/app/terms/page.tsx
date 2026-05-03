@@ -60,10 +60,10 @@ export default function TermsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-16"
                 >
-                    <div className="inline-flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 rounded-full px-4 py-2 mb-6">
+                    {/* <div className="inline-flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 rounded-full px-4 py-2 mb-6">
                         <AlertTriangle className="w-4 h-4 text-rose-400" />
                         <span className="text-rose-300 text-sm font-medium">مطالعه الزامی</span>
-                    </div>
+                    </div> */}
                     <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
                         قوانین و مقررات استفاده
                     </h1>

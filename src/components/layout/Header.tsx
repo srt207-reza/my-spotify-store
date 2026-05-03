@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Music, Users, FileText } from "lucide-react";
+import { Menu, X, FileText, ShieldCheck, HeadphonesIcon } from "lucide-react";
 import LOGO from "@/../public/assets/images/logo.png";
 import Image from "next/image";
 
@@ -19,10 +19,8 @@ export default function Header() {
     }, []);
 
     const navLinks = [
-        { name: "صفحه اصلی", href: "/", icon: null },
-        { name: "اسپاتیفای شخصی", href: "/spotify/individual", icon: <Music className="w-4 h-4" /> },
-        { name: "اسپاتیفای فمیلی", href: "/spotify/family", icon: <Users className="w-4 h-4" /> },
-        { name: "قوانین و مقررات", href: "/terms", icon: <FileText className="w-4 h-4" /> },
+        { name: "خرید اشتراک پرمیوم اسپاتیفای", href: "/", icon: <ShieldCheck className="w-5 h-5" /> },
+        { name: "قوانین و مقررات", href: "/terms", icon: <FileText className="w-5 h-5" /> },
     ];
 
     return (
@@ -37,15 +35,11 @@ export default function Header() {
                 <div className="flex items-center justify-between h-20">
                     {/* لوگو */}
                     <Link href="/" className="flex items-center gap-3 group">
-                        {/* <div className="bg-spotify p-2.5 rounded-full group-hover:scale-105 group-hover:bg-spotify-light transition-all duration-300 shadow-lg shadow-spotify/20 box-glow-spotify">
-              <ShoppingBag className="w-5 h-5 text-store-base" />
-            </div> */}
-                        <div className="rounded-full transition-all duration-300 shadow-lg shadow-spotify/20">
-                            {/* <ShieldCheck className="w-5 h-5 text-slate-900" /> */}
+                        <div className="rounded-full transition-all duration-300 shadow-lg shadow-[#1DB954]/20">
                             <Image src={LOGO} alt="Logo" className="w-14 h-14" />
                         </div>
                         <span className="text-xl font-bold text-store-text tracking-tight transition-colors group-hover:text-white">
-                            دیجیتال استور
+                            فروشگاه Get Spotify
                         </span>
                     </Link>
 
@@ -58,7 +52,7 @@ export default function Header() {
                                 className="flex items-center gap-2 text-sm font-bold text-store-muted hover:text-store-text transition-all hover:-translate-y-0.5 duration-200 group"
                             >
                                 {link.icon && (
-                                    <span className="text-store-muted group-hover:text-spotify-light transition-colors group-hover:animate-bounce">
+                                    <span className="text-store-muted group-hover:text-[#1DB954] transition-colors group-hover:animate-bounce">
                                         {link.icon}
                                     </span>
                                 )}
@@ -67,16 +61,25 @@ export default function Header() {
                         ))}
                     </nav>
 
-                    {/* دکمه دسکتاپ */}
+                    {/* دکمه دسکتاپ با موشن چرخشی سبز و درخشان */}
                     <div className="hidden md:flex items-center">
-                        <a
+                        <motion.a
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             href="https://t.me/getSpotify_Support"
                             target="_blank"
                             rel="noreferrer"
-                            className="px-6 py-2.5 rounded-full bg-transparent border border-store-muted text-store-text text-sm font-bold hover:border-store-text hover:scale-105 transition-all duration-300"
+                            className="relative inline-flex overflow-hidden rounded-full p-[2px] shadow-lg shadow-[#1DB954]/30 group"
                         >
-                            پشتیبانی تلگرام
-                        </a>
+                            {/* لایه چرخان با رنگ اسپاتیفای و افکت درخشش */}
+                            <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#1DB954_0%,transparent_50%,#1ed760_100%)] opacity-80 blur-[1px]" />
+                            
+                            {/* لایه رویی دکمه */}
+                            <span className="inline-flex h-full w-full items-center justify-center gap-2 rounded-full bg-store-panel px-6 py-2.5 text-sm font-bold text-white backdrop-blur-3xl z-10 transition-colors group-hover:bg-store-panel/80">
+                                <HeadphonesIcon className="w-4 h-4 text-[#1DB954]" />
+                                ارتباط با پشتیبانی
+                            </span>
+                        </motion.a>
                     </div>
 
                     {/* دکمه همبرگری موبایل */}
@@ -113,7 +116,7 @@ export default function Header() {
                                         className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-store-muted hover:bg-store-hover hover:text-store-text active:bg-store-border transition-all font-bold group"
                                     >
                                         {link.icon && (
-                                            <span className="group-hover:text-spotify-light transition-colors">
+                                            <span className="group-hover:text-[#1DB954] transition-colors">
                                                 {link.icon}
                                             </span>
                                         )}
@@ -121,6 +124,8 @@ export default function Header() {
                                     </Link>
                                 </motion.div>
                             ))}
+                            
+                            {/* دکمه موبایل با موشن چرخشی */}
                             <motion.a
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -128,9 +133,13 @@ export default function Header() {
                                 href="https://t.me/getSpotify_Support"
                                 target="_blank"
                                 rel="noreferrer"
-                                className="mt-4 text-center px-4 py-3.5 rounded-full bg-spotify text-store-base hover:bg-spotify-light hover:scale-105 active:bg-spotify-press font-bold shadow-lg shadow-spotify/20 transition-all duration-300"
+                                className="mt-4 relative flex overflow-hidden rounded-full p-[2px] shadow-lg shadow-[#1DB954]/30 active:scale-95 transition-transform duration-300 group"
                             >
-                                ارتباط با پشتیبانی
+                                <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#1DB954_0%,transparent_50%,#1ed760_100%)] opacity-80 blur-[1px]" />
+                                <span className="inline-flex h-full w-full items-center justify-center gap-2 rounded-full bg-store-panel px-4 py-3.5 text-sm font-bold text-white backdrop-blur-3xl z-10 transition-colors group-hover:bg-store-panel/80">
+                                    <HeadphonesIcon className="w-5 h-5 text-[#1DB954]" />
+                                    ارتباط با پشتیبانی
+                                </span>
                             </motion.a>
                         </div>
                     </motion.div>
