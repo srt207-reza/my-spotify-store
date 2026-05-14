@@ -16,6 +16,7 @@ import DurationStep from "./steps/DurationStep";
 import UserInfoStep from "./steps/UserInfoStep";
 import PaymentStep from "./steps/PaymentStep";
 import BirthDatePicker from "@/components/BirthDatePicker";
+import PreInvoiceStep from "./steps/PreInvoiceStep";
 
 const initialTouchedState: TouchedState = {
     fullNameEn: false,
@@ -28,20 +29,28 @@ const initialTouchedState: TouchedState = {
 export default function OrderForm() {
     const searchParams = useSearchParams();
 
-    const initialProduct: PlanType = searchParams.get("product") === "family" ? "family" : "individual";
-    const planParam = searchParams.get("plan");
+    // مقدار پیش‌فرض را در صورت نبود پارامتر روی null تنظیم می‌کنیم
+    const getInitialProduct = (): PlanType | null => {
+        const productParam = searchParams.get("product");
+        if (productParam === "family" || productParam === "individual") {
+            return productParam;
+        }
+        return null;
+    };
 
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [orderId, setOrderId] = useState("");
     const [supportLink, setSupportLink] = useState("https://t.me/getSpotify_Support");
-    const [selectedProduct, setSelectedProduct] = useState<PlanType>(initialProduct);
+
+    // استیت مربوط به محصول می‌تواند null باشد
+    const [selectedProduct, setSelectedProduct] = useState<PlanType | null>(getInitialProduct());
 
     const [submittedStep3, setSubmittedStep3] = useState(false);
     const [touched, setTouched] = useState<TouchedState>(initialTouchedState);
 
     const [formData, setFormData] = useState<FormData>({
-        planType: initialProduct,
+        planType: getInitialProduct() || "individual", // مقدار پیش‌فرض اولیه برای فرم
         durationMonths: 0,
         planId: "",
         planTitle: "",
@@ -54,21 +63,22 @@ export default function OrderForm() {
     });
 
     useEffect(() => {
-        const currentProduct: PlanType = searchParams.get("product") === "family" ? "family" : "individual";
+        const productParam = searchParams.get("product");
+        const currentProduct = productParam === "family" || productParam === "individual" ? productParam : null;
         const currentPlanParam = searchParams.get("plan");
 
         setSelectedProduct(currentProduct);
 
         let matchedPlan: Plan | undefined;
 
-        if (currentPlanParam) {
+        if (currentProduct && currentPlanParam) {
             const requestedMonths = parseInt(currentPlanParam.replace(/[^0-9]/g, ""), 10);
             if (!Number.isNaN(requestedMonths)) {
                 matchedPlan = PRICING[currentProduct].find((p) => p.durationMonths === requestedMonths);
             }
         }
 
-        if (matchedPlan) {
+        if (matchedPlan && currentProduct) {
             setFormData((prev) => ({
                 ...prev,
                 planType: currentProduct,
@@ -80,7 +90,7 @@ export default function OrderForm() {
         } else {
             setFormData((prev) => ({
                 ...prev,
-                planType: currentProduct,
+                planType: currentProduct || "individual",
                 planId: "",
                 durationMonths: 0,
                 planTitle: "",
@@ -103,9 +113,11 @@ export default function OrderForm() {
     const genderValid = Boolean(formData.gender);
 
     const canSubmit =
-        fullNameValid && emailValid && ageValid && passwordValid && genderValid && formData.planId;
+        fullNameValid && emailValid && ageValid && passwordValid && genderValid && formData.planId && selectedProduct;
 
     const handlePlanSelect = (planId: string) => {
+        if (!selectedProduct) return;
+
         const plan = PRICING[selectedProduct].find((p) => p.id === planId);
         if (!plan) return;
 
@@ -146,7 +158,7 @@ export default function OrderForm() {
             if (res.ok && data.success) {
                 setOrderId(data.orderId);
                 if (data.supportLink) setSupportLink(data.supportLink);
-                setStep(4);
+                setStep(5);
                 toast.success("سفارش شما با موفقیت ثبت شد!");
             } else {
                 toast.error(data.message || "خطایی در ثبت سفارش رخ داد.");
@@ -166,7 +178,7 @@ export default function OrderForm() {
     return (
         <div className="max-w-4xl mx-auto w-full">
             <div className="text-center mb-8">
-                {step !== 4 && (
+                {step !== 5 && (
                     <>
                         <div className="inline-flex items-center justify-center p-4 rounded-full bg-slate-800/50 border border-slate-700 mb-4">
                             {isFamily ? (
@@ -177,29 +189,27 @@ export default function OrderForm() {
                         </div>
 
                         <h1 className="text-2xl font-bold text-white mb-2">
-                            {step === 1
-                                ? "تفاوت طرح فمیلی و شخصی"
-                                : step === 2
-                                  ? "مدت زمان طرح ها"
-                                  : "ورود اطلاعات"}
+                            {step === 1 ? "تفاوت طرح فمیلی و شخصی" : step === 2 ? "مدت زمان طرح ها" : "ورود اطلاعات"}
                         </h1>
                     </>
                 )}
 
-                {step < 4 && (
-                    <StepIndicator step={step} onStepOneClick={() => setStep(1)} />
-                )}
+                {step < 5 && <StepIndicator step={step} onStepOneClick={() => setStep(1)} />}
             </div>
 
             <AnimatePresence mode="wait">
                 {step === 1 && (
                     <ProductComparisonStep
                         selectedProduct={selectedProduct}
-                        onSelectProduct={(value) => setSelectedProduct(value)}
+                        onSelectProduct={(value) => {
+                            setSelectedProduct(value);
+                            setFormData((prev) => ({ ...prev, planType: value }));
+                        }}
                         onNext={() => setStep(2)}
                     />
                 )}
 
+                {/* نکته: اگر در استپ ۲ (DurationStep) دکمه 'بعدی' برای موبایل ندارید، باید در فایل DurationStep آن را مانند استپ ۱ اضافه کنید */}
                 {step === 2 && (
                     <DurationStep
                         selectedProduct={selectedProduct}
@@ -219,17 +229,27 @@ export default function OrderForm() {
                         submittedStep3={submittedStep3}
                         setSubmittedStep3={setSubmittedStep3}
                         onBack={() => setStep(2)}
-                        onSubmit={handleSubmit}
-                        loading={loading}
+                        onSubmit={() => setStep(4)} // رفتن به مرحله پیش‌فاکتور
+                        loading={false}
                     />
                 )}
 
                 {step === 4 && (
+                    <PreInvoiceStep
+                        formData={formData}
+                        selectedProduct={selectedProduct}
+                        onBack={() => setStep(3)}
+                        onSubmit={handleSubmit} // در اینجا فراخوانی API انجام می‌شود
+                        loading={loading}
+                    />
+                )}
+
+                {step === 5 && (
                     <PaymentStep
                         orderId={orderId}
                         price={formData.price}
                         supportLink={supportLink}
-                        onCopyCard={() => copyToClipboard("6037998148927014")}
+                        onCopyCard={() => copyToClipboard("5041721212076674")}
                     />
                 )}
             </AnimatePresence>

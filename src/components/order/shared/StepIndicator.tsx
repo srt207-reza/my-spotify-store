@@ -8,7 +8,7 @@ type Props = {
 export default function StepIndicator({ step, onStepOneClick }: Props) {
     return (
         <div className="flex items-center justify-center gap-2 mt-6">
-            {[1, 2, 3, 4].map((num) => (
+            {[1, 2, 3, 4,5].map((num) => (
                 <div key={num} className="flex items-center">
                     {num === 1 ? (
                         <button
@@ -30,7 +30,7 @@ export default function StepIndicator({ step, onStepOneClick }: Props) {
                         </div>
                     )}
 
-                    {num < 4 && (
+                    {num < 5 && (
                         <div
                             className={`w-12 h-1 transition-colors ${step > num ? "bg-[#1ED760]" : "bg-slate-800"}`}
                         />

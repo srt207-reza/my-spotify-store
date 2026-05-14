@@ -100,11 +100,11 @@ export default function HomePage() {
     const features = [
         { icon: <BrandIcons.NoAds />, title: "حذف کامل تبلیغات" },
         { icon: <BrandIcons.OfflineDownload />, title: "دانلود و پخش آفلاین" },
-        { icon: <BrandIcons.CustomOrder />, title: "پخش به ترتیب دلخواه" },
-        { icon: <BrandIcons.HighQuality />, title: "کیفیت صدای 320KBPS" },
-        { icon: <BrandIcons.GroupListen />, title: "پخش همزمان با دیگران" },
-        { icon: <BrandIcons.CollaborativePlaylist />, title: "پلی‌لیست مشارکتی" },
-        { icon: <BrandIcons.SmartAssistant />, title: "دستیار پلی‌لیست‌ساز" },
+        { icon: <BrandIcons.CustomOrder />, title: "پخش موسیقی به ترتیب دلخواه" },
+        { icon: <BrandIcons.HighQuality />, title: "کیفیت صدای بالا تا 320KBPS" },
+        { icon: <BrandIcons.GroupListen />, title: "پخش همزمان موسیقی با کاربران" },
+        { icon: <BrandIcons.CollaborativePlaylist />, title: "پلی‌لیست مشارکتی با دیگر کاربران" },
+        { icon: <BrandIcons.SmartAssistant />, title: "دستیار پلی‌لیست‌ساز هوشمند" },
         { icon: <BrandIcons.MultiDevice />, title: "دسترسی روی چند دستگاه" },
         { icon: <BrandIcons.EmailActivation />, title: "فعال‌سازی روی ایمیل شخصی" },
     ];

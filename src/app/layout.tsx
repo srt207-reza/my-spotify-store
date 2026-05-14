@@ -7,9 +7,6 @@ import Footer from "@/components/layout/Footer";
 export const metadata: Metadata = {
     title: "فروشگاه Get Spotify",
     description: "خرید اشتراک پریمیوم اسپاتیفای با بهترین قیمت، تحویل آنی و پشتیبانی تلگرامی.",
-    icons: {
-        icon: "/assets/images/favicon.png",
-    },
 };
 
 export default function RootLayout({

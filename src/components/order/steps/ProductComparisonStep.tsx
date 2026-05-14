@@ -6,12 +6,24 @@ import { PRODUCT_META } from "../orderData";
 import PlanCard from "../shared/PlanCard";
 
 type Props = {
-    selectedProduct: PlanType;
+    selectedProduct: PlanType | null;
     onSelectProduct: (value: PlanType) => void;
     onNext: () => void;
 };
 
 export default function ProductComparisonStep({ selectedProduct, onSelectProduct, onNext }: Props) {
+    
+    // کلیک روی بدنه کارت: فقط انتخاب (هایلایت) انجام می‌شود و به استپ بعد نمی‌رود
+    const handleCardBodyClick = (product: PlanType) => {
+        onSelectProduct(product);
+    };
+
+    // کلیک روی دکمه داخل کارت: محصول انتخاب شده و به استپ بعد می‌رود
+    const handleButtonClick = (product: PlanType) => {
+        onSelectProduct(product);
+        onNext();
+    };
+
     return (
         <motion.div
             key="step1"
@@ -20,7 +32,7 @@ export default function ProductComparisonStep({ selectedProduct, onSelectProduct
             exit={{ opacity: 0, x: 20 }}
             className="space-y-4"
         >
-            <h2 className="text-lg font-medium text-slate-200 mb-4">
+            <h2 className="text-lg font-medium text-slate-200 mb-4 text-center md:text-right">
                 تفاوت دو طرح را بررسی کنید و یکی را انتخاب کنید:
             </h2>
 
@@ -38,11 +50,8 @@ export default function ProductComparisonStep({ selectedProduct, onSelectProduct
                             color={meta.color}
                             bgHover={meta.bgHover}
                             selected={selectedProduct === product}
-                            onSelect={onSelectProduct}
-                            onNext={() => {
-                                onSelectProduct(product);
-                                onNext();
-                            }}
+                            onSelect={() => handleCardBodyClick(product)}
+                            onNext={() => handleButtonClick(product)}
                         />
                     );
                 })}
