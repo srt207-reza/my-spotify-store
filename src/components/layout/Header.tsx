@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, FileText, ShieldCheck, HeadphonesIcon } from "lucide-react";
-import LOGO from "@/../public/assets/images/logo.png";
 import Image from "next/image";
 
 export default function Header() {
@@ -36,7 +35,13 @@ export default function Header() {
                     {/* لوگو */}
                     <Link href="/" className="flex items-center gap-3 group">
                         <div className="rounded-full transition-all duration-300 shadow-lg shadow-[#1DB954]/20">
-                            <Image src={LOGO} alt="Logo" className="w-14 h-14" />
+                            <Image
+                                src="/assets/images/logo.png"
+                                alt="Logo"
+                                width={56}
+                                height={56}
+                                className="rounded-full"
+                            />
                         </div>
                         <span className="text-xl font-bold text-store-text tracking-tight transition-colors group-hover:text-white">
                             فروشگاه Get Spotify
@@ -73,7 +78,7 @@ export default function Header() {
                         >
                             {/* لایه چرخان با رنگ اسپاتیفای و افکت درخشش */}
                             <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#1DB954_0%,transparent_50%,#1ed760_100%)] opacity-80 blur-[1px]" />
-                            
+
                             {/* لایه رویی دکمه */}
                             <span className="inline-flex h-full w-full items-center justify-center gap-2 rounded-full bg-store-panel px-6 py-2.5 text-sm font-bold text-white backdrop-blur-3xl z-10 transition-colors group-hover:bg-store-panel/80">
                                 <HeadphonesIcon className="w-4 h-4 text-[#1DB954]" />
@@ -124,7 +129,7 @@ export default function Header() {
                                     </Link>
                                 </motion.div>
                             ))}
-                            
+
                             {/* دکمه موبایل با موشن چرخشی */}
                             <motion.a
                                 initial={{ opacity: 0, y: 10 }}
