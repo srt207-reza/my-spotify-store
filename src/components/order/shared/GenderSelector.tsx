@@ -25,7 +25,7 @@ export default function GenderSelector({ value, onChange, showError }: Props) {
                             key={item.value}
                             type="button"
                             onClick={() => onChange(item.value)}
-                            className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all ${
+                            className={`flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all ${
                                 active
                                     ? "border-[#1ED760] bg-[#1ED760]/10"
                                     : "border-slate-700 bg-slate-900/40 hover:border-slate-500"
@@ -36,7 +36,7 @@ export default function GenderSelector({ value, onChange, showError }: Props) {
                                     active ? "border-[#1ED760]" : "border-slate-500"
                                 }`}
                             >
-                                {active && <span className="h-2.5 w-2.5 rounded-full bg-[#1ED760]" />}
+                                {active && <span className="h-2.75 w-2.75 rounded-full bg-[#1ED760]" />}
                             </span>
                             <span className={`text-sm ${active ? "text-white" : "text-slate-300"}`}>
                                 {item.label}

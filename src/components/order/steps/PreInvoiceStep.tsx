@@ -25,8 +25,6 @@ export default function PreInvoiceStep({
     const genderMap: Record<string, string> = {
         man: "مرد",
         woman: "زن",
-        "non-binary": "غیر باینری",
-        "prefer-not-to-say": "ترجیح می‌دهم نگویم",
     };
     const displayGender = formData.gender ? (genderMap[formData.gender] || formData.gender) : "-";
 
@@ -42,7 +40,7 @@ export default function PreInvoiceStep({
                 <div className="p-2 bg-[#1ED760]/10 rounded-full">
                     <Music className="w-5 h-5 text-[#1ED760]" />
                 </div>
-                <h2 className="text-xl font-bold text-white">پیش‌فاکتور و تایید اطلاعات</h2>
+                <h2 className="text-xl font-bold text-white">پیش‌فاکتور و تأیید اطلاعات</h2>
             </div>
 
             <div className="bg-[#121212] rounded-2xl p-6 space-y-4 border border-[#282828]">
@@ -50,7 +48,7 @@ export default function PreInvoiceStep({
                 <div className="flex justify-between items-center pb-3 border-b border-[#282828]/50">
                     <span className="text-zinc-400 text-sm">نوع اشتراک:</span>
                     <span className="text-white font-bold bg-[#282828] px-3 py-1 rounded-lg text-sm md:text-base">
-                        {isFamily ? "پریمیوم فمیلی (خانواده)" : "پریمیوم شخصی (Individual)"}
+                        {isFamily ? "پرمیوم فمیلی (خانواده)" : "پرمیوم شخصی (Individual)"}
                     </span>
                 </div>
                 

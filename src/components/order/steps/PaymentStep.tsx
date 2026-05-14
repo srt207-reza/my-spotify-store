@@ -75,7 +75,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
             animate="visible"
             className="text-center space-y-8 w-full"
         >
-            {/* بخش تایید سفارش */}
+            {/* بخش تأیید سفارش */}
             <motion.div
                 //@ts-ignore
                 variants={itemVariants}
@@ -129,7 +129,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                     transition={{ delay: 0.25, duration: 0.45 }}
                     className="text-zinc-400 text-sm leading-relaxed mb-6 px-2"
                 >
-                    لطفا مبلغ{" "}
+                    لطفاً مبلغ{" "}
                     <strong className="text-lg sm:text-xl text-[#1ED760]">{price.toLocaleString("fa-IR")} تومان</strong>{" "}
                     را به کارت زیر واریز نمایید:
                 </motion.p>
@@ -140,7 +140,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                     variants={cardVariants}
                     initial="rest"
                     whileHover="hover"
-                    className="group relative w-full max-w-[450px] mx-auto aspect-[1.586/1] rounded-3xl overflow-hidden border border-[#282828] bg-[#181818] text-left transform-gpu [transform-style:preserve-3d]"
+                    className="group relative w-full max-w-[450px] mx-auto aspect-[1.586/1] rounded-3xl overflow-hidden border border-amber-400 bg-[#181818] text-left transform-gpu [transform-style:preserve-3d]"
                     style={{ perspective: 1200 }}
                 >
                     {/* پس‌زمینه کارت */}
@@ -184,7 +184,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                                     initial={{ opacity: 0, x: 10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.18, duration: 0.45 }}
-                                    className="text-white font-bold text-base sm:text-lg tracking-wider drop-shadow-md"
+                                    className="text-[#1ED760] font-bold text-base sm:text-lg tracking-wider drop-shadow-md"
                                 >
                                     بانک رسالت
                                 </motion.span>
@@ -192,7 +192,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                                     initial={{ opacity: 0, x: 10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.24, duration: 0.45 }}
-                                    className="text-[9px] sm:text-[10px] text-zinc-500 tracking-widest uppercase mt-0.5"
+                                    className="text-[10px] sm:text-[10px] text-zinc-500 tracking-widest uppercase mt-0.5"
                                 >
                                     Bank Resalat
                                 </motion.span>
@@ -204,10 +204,10 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                             <motion.div
                                 animate={{ y: [0, -1.5, 0] }}
                                 transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-                                className="relative w-10 h-8 sm:w-12 sm:h-9 bg-gradient-to-br from-zinc-300 to-zinc-500 rounded-md flex items-center justify-center border border-zinc-400 shadow-inner overflow-hidden shrink-0"
+                                className="relative w-10 h-8 sm:w-12 sm:h-9 bg-gradient-to-br from-yellow-300 to-accent rounded-md flex items-center justify-center border border-accent/50 shadow-inner overflow-hidden shrink-0"
                             >
-                                <div className="w-full h-[1px] bg-zinc-600/40 absolute" />
-                                <div className="w-[1px] h-full bg-zinc-600/40 absolute" />
+                                <div className="w-full h-[1px] bg-yellow-700/40 absolute" />
+                                <div className="w-[1px] h-full bg-yellow-700/40 absolute" />
                             </motion.div>
 
                             <motion.div
@@ -215,7 +215,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                                 className="shrink-0"
                             >
-                                <Wifi className="w-5 h-5 sm:w-6 sm:h-6 text-zinc-500" />
+                                <Wifi className="w-5 h-5 sm:w-6 sm:h-6 text-store-muted/70" />
                             </motion.div>
                         </div>
 
@@ -239,7 +239,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                                 whileHover={{ scale: 1.08, rotate: -3 }}
                                 whileTap={{ scale: 0.94 }}
                                 onClick={onCopyCard}
-                                className="p-2 shrink-0 cursor-pointer text-zinc-400 hover:text-white hover:bg-[#282828] rounded-lg transition-colors bg-[#121212]/50 backdrop-blur-sm border border-[#282828] flex items-center justify-center"
+                                className="p-2 shrink-0 cursor-pointer text-[#1ED760] hover:text-[#1ED760] hover:bg-[#282828] rounded-lg transition-colors bg-[#121212]/50 backdrop-blur-sm border border-[#1ED760] flex items-center justify-center"
                                 title="کپی شماره کارت"
                             >
                                 <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -270,7 +270,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                                 animate={{ y: [0, -2, 0], rotate: [0, 1, 0] }}
                                 transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
                             >
-                                <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-zinc-600 shrink-0" />
+                                <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-[#1ED760]/50 shrink-0" />
                             </motion.div>
                         </div>
                     </div>
@@ -302,7 +302,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                     را به همراه{" "}
                     <strong className="text-white bg-[#282828] px-1 rounded whitespace-nowrap">کد پیگیری</strong> در
                     پشتیبانی تلگرام برای ما ارسال کنید تا اکانت شما{" "}
-                    <strong className="text-[#1ED760] whitespace-nowrap">در کمتر از ۲۴ ساعت پریمیوم شود.</strong>
+                    <strong className="text-[#1ED760] whitespace-nowrap">در کمتر از ۲۴ ساعت پرمیوم شود.</strong>
                 </motion.p>
 
                 <motion.a

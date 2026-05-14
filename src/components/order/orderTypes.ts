@@ -2,10 +2,7 @@ export type PlanType = "individual" | "family";
 
 export type Gender =
     | "man"
-    | "woman"
-    | "non-binary"
-    | "something-else"
-    | "prefer-not-to-say";
+    | "woman";
 
 export type Plan = {
     id: string;

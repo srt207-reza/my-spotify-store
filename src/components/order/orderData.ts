@@ -95,9 +95,6 @@ export const PRODUCT_META: Record<
 };
 
 export const GENDER_OPTIONS = [
-    { value: "man" as const, label: "Man" },
-    { value: "woman" as const, label: "Woman" },
-    { value: "non-binary" as const, label: "Non-binary" },
-    { value: "something-else" as const, label: "Something else" },
-    { value: "prefer-not-to-say" as const, label: "Prefer not to say" },
+    { value: "man" as const, label: "مرد" },
+    { value: "woman" as const, label: "زن" },
 ];

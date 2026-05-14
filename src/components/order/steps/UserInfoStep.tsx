@@ -223,7 +223,7 @@ export default function UserInfoStep({
                     {loading ? (
                         <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                     ) : (
-                        "تایید اطلاعات و رفتن به نحوه پرداخت"
+                        "تأیید اطلاعات و پرداخت"
                     )}
                 </button>
             </div>
