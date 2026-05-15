@@ -140,7 +140,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                     variants={cardVariants}
                     initial="rest"
                     whileHover="hover"
-                    className="group relative w-full max-w-[450px] mx-auto aspect-[1.586/1] rounded-3xl overflow-hidden border border-amber-400 bg-[#181818] text-left transform-gpu [transform-style:preserve-3d]"
+                    className="group relative w-full max-w-[450px] mx-auto aspect-[1.586/1] rounded-3xl overflow-hidden border border-[#1ED760] bg-[#181818] text-left transform-gpu [transform-style:preserve-3d]"
                     style={{ perspective: 1200 }}
                 >
                     {/* پس‌زمینه کارت */}
