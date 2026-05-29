@@ -28,7 +28,7 @@ export default function GenderSelector({ value, onChange, showError }: Props) {
                             className={`flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all ${
                                 active
                                     ? "border-[#1ED760] bg-[#1ED760]/10"
-                                    : "border-slate-700 bg-slate-900/40 hover:border-slate-500"
+                                    : "border-[#282828] bg-[#121212] hover:border-slate-500"
                             }`}
                         >
                             <span

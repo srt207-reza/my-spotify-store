@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, FileText, ShieldCheck, HeadphonesIcon } from "lucide-react";
+import { Menu, X, FileText, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 
 export default function Header() {
@@ -81,7 +81,13 @@ export default function Header() {
 
                             {/* لایه رویی دکمه */}
                             <span className="inline-flex h-full w-full items-center justify-center gap-2 rounded-full bg-store-panel px-6 py-2.5 text-sm font-bold text-white backdrop-blur-3xl z-10 transition-colors group-hover:bg-store-panel/80">
-                                <HeadphonesIcon className="w-4 h-4 text-[#1DB954]" />
+                                {/* <HeadphonesIcon className="w-4 h-4 text-[#1DB954]" /> */}
+                                <Image
+                                    src="/assets/images/spotify_style_support_icon.png"
+                                    alt="spotify_style_support_icon"
+                                    width={22}
+                                    height={22}
+                                />
                                 ارتباط با پشتیبانی
                             </span>
                         </motion.a>
@@ -142,7 +148,12 @@ export default function Header() {
                             >
                                 <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#1DB954_0%,transparent_50%,#1ed760_100%)] opacity-80 blur-[1px]" />
                                 <span className="inline-flex h-full w-full items-center justify-center gap-2 rounded-full bg-store-panel px-4 py-3.5 text-sm font-bold text-white backdrop-blur-3xl z-10 transition-colors group-hover:bg-store-panel/80">
-                                    <HeadphonesIcon className="w-5 h-5 text-[#1DB954]" />
+                                    <Image
+                                        src="/assets/images/spotify_style_support_icon.png"
+                                        alt="spotify_style_support_icon"
+                                        width={22}
+                                        height={22}
+                                    />
                                     ارتباط با پشتیبانی
                                 </span>
                             </motion.a>

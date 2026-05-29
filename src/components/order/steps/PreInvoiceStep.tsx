@@ -1,8 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Loader2, Music, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2, Eye, EyeOff, Lock, Unlock } from "lucide-react";
 import type { FormData, PlanType } from "../orderTypes";
+import { PRICING } from "../orderData";
+import SpotifyTermsModal from "@/components/SpotifyTermsModal";
 
 interface Props {
     formData: FormData;
@@ -12,6 +15,8 @@ interface Props {
     loading: boolean;
 }
 
+const TERMS_STORAGE_KEY = "spotify_premium_terms_accepted";
+
 export default function PreInvoiceStep({
     formData,
     selectedProduct,
@@ -20,117 +25,202 @@ export default function PreInvoiceStep({
     loading,
 }: Props) {
     const isFamily = selectedProduct === "family";
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConsentModal, setShowConsentModal] = useState(false);
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-    // تبدیل مقادیر جنسیت به فارسی
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(TERMS_STORAGE_KEY);
+            setAcceptedTerms(saved === "true");
+        } catch {
+            setAcceptedTerms(false);
+        }
+    }, []);
+
     const genderMap: Record<string, string> = {
-        man: "مرد",
-        woman: "زن",
+        man: "آقا",
+        woman: "خانم",
     };
-    const displayGender = formData.gender ? (genderMap[formData.gender] || formData.gender) : "-";
+    const displayGender = formData.gender ? genderMap[formData.gender] || formData.gender : "-";
+
+    const currentPlan = selectedProduct
+        ? PRICING[selectedProduct].find((p) => p.durationMonths === formData.durationMonths)
+        : undefined;
+
+    const originalPrice = currentPlan?.originalPrice;
+    const discountedPrice = currentPlan?.price ?? formData.price;
+
+    const handleOrderClick = () => {
+        if (loading) return;
+
+        if (acceptedTerms) {
+            onSubmit();
+            return;
+        }
+
+        setShowConsentModal(true);
+    };
+
+    const handleConfirmTerms = () => {
+        try {
+            localStorage.setItem(TERMS_STORAGE_KEY, "true");
+        } catch {
+            // ignore storage errors
+        }
+
+        setAcceptedTerms(true);
+        setShowConsentModal(false);
+        onSubmit();
+    };
 
     return (
-        <motion.div
-            key="pre-invoice-step"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="bg-[#181818]/80 p-6 md:p-8 rounded-3xl border border-[#282828] space-y-6 w-full backdrop-blur-sm shadow-xl"
-        >
-            <div className="flex items-center gap-3 border-b border-[#282828] pb-4">
-                <div className="p-2 bg-[#1ED760]/10 rounded-full">
-                    <Music className="w-5 h-5 text-[#1ED760]" />
-                </div>
-                <h2 className="text-xl font-bold text-white">پیش‌فاکتور و تأیید اطلاعات</h2>
-            </div>
-
-            <div className="bg-[#121212] rounded-2xl p-6 space-y-4 border border-[#282828]">
-                {/* اطلاعات محصول */}
-                <div className="flex justify-between items-center pb-3 border-b border-[#282828]/50">
-                    <span className="text-zinc-400 text-sm">نوع اشتراک:</span>
-                    <span className="text-white font-bold bg-[#282828] px-3 py-1 rounded-lg text-sm md:text-base">
-                        {isFamily ? "پرمیوم فمیلی (خانواده)" : "پرمیوم شخصی (Individual)"}
-                    </span>
-                </div>
-                
-                <div className="flex justify-between items-center pb-3 border-b border-[#282828]/50">
-                    <span className="text-zinc-400 text-sm">مدت زمان:</span>
-                    <span className="font-bold text-[#1ED760]">
-                        {formData.durationMonths} ماهه
-                    </span>
+        <>
+            <motion.div
+                key="pre-invoice-step"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="w-full space-y-6 rounded-3xl border border-zinc-800 bg-zinc-950 p-6 shadow-xl backdrop-blur-sm md:p-8"
+            >
+                <div className="rounded-2xl border border-zinc-800 bg-black/40 p-4 text-justify leading-8 sm:p-5">
+                    اشتراک پرمیوم بر روی حساب کاربری اسپاتیفای با اطلاعات زیر فعال‌سازی خواهد شد. لطفاً پیش از پرداخت، از
+                    صحت اطلاعات واردشده اطمینان حاصل بفرمایید. پس از شروع فرآیند فعال‌سازی اشتراک پرمیوم، امکان لغو سفارش
+                    یا تغییر اطلاعات ثبت‌شده وجود نخواهد داشت.
                 </div>
 
-                {/* اطلاعات اکانت */}
-                <div className="flex justify-between items-center pb-3 border-b border-[#282828]/50">
-                    <span className="text-zinc-400 text-sm">ایمیل اکانت:</span>
-                    <span className="text-white font-medium text-sm md:text-base" dir="ltr">
-                        {formData.spotifyEmail}
-                    </span>
-                </div>
-
-                <div className="flex justify-between items-center pb-3 border-b border-[#282828]/50">
-                    <span className="text-zinc-400 text-sm">نام (انگلیسی):</span>
-                    <span className="text-white font-medium capitalize text-sm md:text-base">
-                        {formData.fullNameEn}
-                    </span>
-                </div>
-
-                <div className="flex justify-between items-center pb-3 border-b border-[#282828]/50">
-                    <span className="text-zinc-400 text-sm">تاریخ تولد:</span>
-                    <span className="text-white font-medium text-sm md:text-base" dir="ltr">
-                        {formData.dateOfBirth.replaceAll('-',' - ')}
-                    </span>
-                </div>
-
-                <div className="flex justify-between items-center pb-3 border-b border-[#282828]/50">
-                    <span className="text-zinc-400 text-sm">جنسیت:</span>
-                    <span className="text-white font-medium text-sm md:text-base">
-                        {displayGender}
-                    </span>
-                </div>
-
-                <div className="flex justify-between items-center pb-3 border-b border-[#282828]/50">
-                    <span className="text-zinc-400 text-sm">کلمه عبور:</span>
-                    <span className="text-white font-medium text-sm md:text-base">
-                        {formData.password ? "وارد شده (********)" : "وارد نشده (توسط سایت تنظیم می‌شود)"}
-                    </span>
-                </div>
-
-                {/* مبلغ نهایی */}
-                <div className="pt-4 flex justify-between items-center">
-                    <span className="text-zinc-300 font-bold text-lg">مبلغ قابل پرداخت:</span>
-                    <div className="text-left flex items-center gap-1.5">
-                        <span className="text-2xl md:text-3xl font-black text-[#1ED760]">
-                            {formData.price.toLocaleString("fa-IR")}
+                <div className="space-y-4 rounded-2xl border border-[#282828] bg-[#121212] p-6">
+                    <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
+                        <span className="text-sm text-zinc-400">طرح اشتراک پرمیوم:</span>
+                        <span className="rounded-lg bg-[#282828] px-3 py-1 text-sm font-bold text-white md:text-base">
+                            {isFamily ? "پرمیوم فمیلی (خانواده)" : "پرمیوم شخصی (Individual)"}
                         </span>
-                        <span className="text-zinc-400 text-sm">تومان</span>
+                    </div>
+
+                    <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
+                        <span className="text-sm text-zinc-400">مدت زمان اشتراک پرمیوم:</span>
+                        <span className="font-bold text-[#1ED760]">{formData.durationMonths} ماهه</span>
+                    </div>
+
+                    <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
+                        <span className="text-sm text-zinc-400">آدرس ایمیل حساب کاربری اسپاتیفای:</span>
+                        <span className="text-sm font-medium text-white md:text-base" dir="ltr">
+                            {formData.spotifyEmail}
+                        </span>
+                    </div>
+
+                    {formData.password && (
+                        <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
+                            <span className="text-sm text-zinc-400">کلمه عبور حساب کاربری اسپاتیفای:</span>
+
+                            <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center gap-2 rounded-full border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1 text-xs text-zinc-300 md:text-sm">
+                                    {showPassword ? (
+                                        <Unlock className="h-4 w-4 text-[#1ED760]" />
+                                    ) : (
+                                        <Lock className="h-4 w-4 text-[#1ED760]" />
+                                    )}
+                                    <span className="font-mono tracking-[0.12em] text-white">
+                                        {showPassword ? formData.password : "••••••••"}
+                                    </span>
+                                </span>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                    className="shrink-0 rounded-full border border-[#2a2a2a] bg-[#161616] p-2 text-zinc-400 transition-colors hover:border-[#3a3a3a] hover:text-white"
+                                    aria-label={showPassword ? "مخفی کردن کلمه عبور" : "نمایش کلمه عبور"}
+                                    title={showPassword ? "مخفی کردن کلمه عبور" : "نمایش کلمه عبور"}
+                                >
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
+                        <span className="text-sm text-zinc-400">نام و نام‌خانوادگی:</span>
+                        <span className="text-sm font-medium capitalize text-white md:text-base">
+                            {formData.fullNameEn}
+                        </span>
+                    </div>
+
+                    <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
+                        <span className="text-sm text-zinc-400">تاریخ تولد:</span>
+                        <span className="text-sm font-medium text-white md:text-base" dir="ltr">
+                            {formData.dateOfBirth.replaceAll("-", " - ")}
+                        </span>
+                    </div>
+
+                    <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
+                        <span className="text-sm text-zinc-400">جنسیت:</span>
+                        <span className="text-sm font-medium text-white md:text-base">{displayGender}</span>
+                    </div>
+
+                    {originalPrice && originalPrice > discountedPrice && (
+                        <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
+                            <span className="text-sm text-zinc-400">قیمت اصلی:</span>
+                            <span className="text-sm font-medium text-white md:text-base">
+                                {originalPrice.toLocaleString("fa-IR")} تومان
+                            </span>
+                        </div>
+                    )}
+
+                    {originalPrice && originalPrice > discountedPrice && (
+                        <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
+                            <span className="text-sm text-zinc-400">قیمت تخفیف خورده:</span>
+                            <span className="text-sm font-bold text-[#1ED760] md:text-base">
+                                {discountedPrice.toLocaleString("fa-IR")} تومان
+                            </span>
+                        </div>
+                    )}
+
+                    <div className="flex items-center justify-between pt-4">
+                        <span className="text-lg font-bold text-zinc-300">مبلغ قابل پرداخت:</span>
+                        <div className="flex items-center gap-1.5 text-left">
+                            <span className="text-2xl font-black text-[#1ED760] md:text-3xl">
+                                {formData.price.toLocaleString("fa-IR")}
+                            </span>
+                            <span className="text-sm text-zinc-400">تومان</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* دکمه‌های کنترل */}
-            <div className="flex gap-3 pt-2">
-                <button
-                    onClick={onBack}
-                    disabled={loading}
-                    className="px-4 md:px-6 py-4 cursor-pointer rounded-xl bg-[#282828] text-white hover:bg-[#333333] transition-colors font-medium disabled:opacity-50 text-sm md:text-base"
-                >
-                    اصلاح اطلاعات
-                </button>
-                <button
-                    onClick={onSubmit}
-                    disabled={loading}
-                    className="flex-1 py-4 cursor-pointer rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-[#1ED760] text-black hover:bg-[#1fdf64] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:hover:scale-100 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(30,215,96,0.2)] text-sm md:text-base"
-                >
-                    {loading ? (
-                        <Loader2 className="w-6 h-6 animate-spin text-black" />
-                    ) : (
-                        <>
-                            <CheckCircle2 className="w-5 h-5" />
-                            ثبت سفارش و پرداخت
-                        </>
-                    )}
-                </button>
-            </div>
-        </motion.div>
+                <div className="flex gap-3 pt-2">
+                    <button
+                        onClick={onBack}
+                        disabled={loading}
+                        className="cursor-pointer rounded-xl bg-[#282828] px-4 py-4 text-sm font-medium text-white transition-colors hover:bg-[#333333] disabled:opacity-50 md:px-6 md:text-base"
+                    >
+                        ویرایش اطلاعات حساب کاربری اسپاتیفای
+                    </button>
+
+                    <button
+                        onClick={handleOrderClick}
+                        disabled={loading}
+                        className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1ED760] py-4 text-sm font-bold text-black shadow-[0_0_20px_rgba(30,215,96,0.2)] transition-all hover:scale-[1.02] hover:bg-[#1fdf64] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:scale-100 md:text-base"
+                    >
+                        {loading ? (
+                            <Loader2 className="h-6 w-6 animate-spin text-black" />
+                        ) : (
+                            <>
+                                <CheckCircle2 className="h-5 w-5" />
+                                ثبت سفارش و پرداخت
+                            </>
+                        )}
+                    </button>
+                </div>
+            </motion.div>
+
+            <SpotifyTermsModal
+                open={showConsentModal}
+                acceptedTerms={acceptedTerms}
+                onClose={() => setShowConsentModal(false)}
+                onToggleAccepted={() => setAcceptedTerms((prev) => !prev)}
+                onConfirm={handleConfirmTerms}
+                loading={loading}
+                rulesHref="/terms"
+            />
+        </>
     );
 }

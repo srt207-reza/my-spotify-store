@@ -14,12 +14,12 @@ type DestinationItem = {
 };
 
 const destinationsData: DestinationItem[] = [
-    { name: "موزیک", lat: 52.52, lng: 13.405, color: "#22c55e" },
-    { name: "هنرمندان", lat: 40.7128, lng: -74.006, color: "#10b981" },
-    { name: "طرفداران", lat: 51.5074, lng: -0.1278, color: "#34d399" },
-    { name: "رویدادهای زنده", lat: 35.68, lng: 51.38, color: "#059669" },
-    { name: "موزیک ویدئوها", lat: 45.4642, lng: 9.19, color: "#6ee7b7" },
-    { name: "پادکست‌ها", lat: -33.8688, lng: 151.2093, color: "#047857" },
+    { name: "موسیقی", lat: 52.52, lng: 13.405, color: "#22c55e" },
+    { name: "پادکست", lat: 40.7128, lng: -74.006, color: "#10b981" },
+    { name: "موزیک‌ویدیو", lat: 51.5074, lng: -0.1278, color: "#34d399" },
+    { name: "لیست پخش  (Playlists)", lat: 35.68, lng: 51.38, color: "#059669" },
+    // { name: "موزیک ویدئوها", lat: 45.4642, lng: 9.19, color: "#6ee7b7" },
+    // { name: "پادکست‌ها", lat: -33.8688, lng: 151.2093, color: "#047857" },
 ];
 
 const SPOTIFY_MASK_PATH =
@@ -105,8 +105,8 @@ export default function HomePage() {
         { icon: <BrandIcons.GroupListen />, title: "پخش همزمان موسیقی با کاربران" },
         { icon: <BrandIcons.CollaborativePlaylist />, title: "پلی‌لیست مشارکتی با دیگر کاربران" },
         { icon: <BrandIcons.SmartAssistant />, title: "دستیار پلی‌لیست‌ساز هوشمند" },
-        { icon: <BrandIcons.MultiDevice />, title: "دسترسی روی چند دستگاه" },
-        { icon: <BrandIcons.EmailActivation />, title: "فعال‌سازی روی ایمیل شخصی" },
+        { icon: <BrandIcons.MultiDevice />, title: "امکان دسترسی بر روی چندین دستگاه‌" },
+        { icon: <BrandIcons.EmailActivation />, title: "فعال‌سازی بر روی آدرس ایمیل شخصی" },
     ];
 
     const containerVariants = {
@@ -134,22 +134,21 @@ export default function HomePage() {
                         transition={{ duration: 0.45 }}
                         className="text-center lg:text-right"
                     >
-                        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/10 bg-white/[0.03] px-5 py-2 text-xs font-medium text-slate-300 shadow-[0_10px_30px_rgba(15,23,42,0.06)] sm:text-sm">
+                        {/* <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/10 bg-white/[0.03] px-5 py-2 text-xs font-medium text-slate-300 shadow-[0_10px_30px_rgba(15,23,42,0.06)] sm:text-sm">
                             <Sparkles className="h-4 w-4 text-green-400" />
                             <span>تجربه‌ای بدون مرز از شنیدن موسیقی</span>
-                        </div>
+                        </div> */}
 
                         <h1 className="mt-8 text-3xl font-black leading-tight text-white sm:text-5xl md:text-6xl lg:leading-[1.15]">
                             موسیقی برای همه لحظه‌ها، بدون وقفه با <br className="hidden lg:block" />
-                            <span className="mt-1 inline-block bg-gradient-to-r from-green-400 via-emerald-400 to-green-600 bg-clip-text pb-2 text-transparent drop-shadow-lg">
+                            <span className="mt-1 inline-block bg-linear-to-r from-green-400 via-emerald-400 to-green-600 bg-clip-text pb-2 text-transparent drop-shadow-lg">
                                 اسپاتیفای
                             </span>
                         </h1>
 
                         <p className="mx-auto mt-6 w-full px-6 text-base leading-relaxed text-slate-300/90 sm:text-lg md:text-xl md:leading-9 lg:mx-0 font-light">
-                            اشتراک پرمیوم اسپاتیفای دنیایی از موسیقی را بدون تبلیغات و بدون محدودیت در اختیار شما قرار
-                            می‌دهد. با فعال‌سازی آن، به پخش نامحدود، کنترل کامل روی موسیقی و بالاترین کیفیت صدا دسترسی
-                            خواهید داشت.
+                            اسپاتیفای، محبوب‌ترین پلتفرم پخش موسیقی بین‌الملل، خانه‌ای برای میلیون‌ها آهنگ، پادکست و
+                            لیست (Playlist) از هنرمندان ایران و سراسر دنیا، اکنون در ایران در دسترس شماست!
                         </p>
 
                         <div className="mt-10 flex justify-center lg:justify-start">
@@ -185,10 +184,13 @@ export default function HomePage() {
             >
                 <div className="absolute top-0 left-1/2 h-[1px] w-3/4 -translate-x-1/2 bg-gradient-to-r from-transparent via-slate-700/80 to-transparent" />
 
-                <div className="mb-12 text-center">
-                    <h2 className="inline-flex items-center gap-3 rounded-2xl border border-slate-700/50 bg-slate-800/40 px-8 py-4 text-xl font-bold text-white backdrop-blur-md shadow-xl md:text-2xl lg:text-3xl">
-                        <Globe className="w-6 h-6 text-green-400" />
-                        تجربه‌ای بدون مرز از شنیدن موسیقی با
+                <div className="mb-12 text-center w-fit mx-auto rounded-2xl border border-slate-700/50 bg-slate-800/40 px-8 py-4">
+                    <h2 className="text-xl font-bold backdrop-blur-md shadow-xl md:text-2xl lg:text-3xl bg-linear-to-r from-green-400 via-emerald-400 to-green-600 bg-clip-text text-transparent">
+                        {/* <Globe className="w-6 h-6 text-green-400" /> */}
+                        اسپاتیفای پرمیوم
+                    </h2>
+                    <h2 className="text-md mt-4 font-bold backdrop-blur-md shadow-xl lg:text-lg text-slate-400">
+                        همه‌چیز برای لذت بردن ‌بدون مرز و محدودیت از موسیقی
                     </h2>
                 </div>
 

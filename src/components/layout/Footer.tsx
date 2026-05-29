@@ -1,4 +1,5 @@
 import { Send, ShieldUser } from "lucide-react";
+import Image from "next/image";
 
 export default function Footer() {
     return (
@@ -8,10 +9,18 @@ export default function Footer() {
                     {/* بخش درباره ما */}
                     <div className="space-y-4">
                         <h3 className="text-lg font-bold text-white">درباره ما</h3>
-                        <p className="text-slate-400 leading-relaxed text-justify max-w-xl">
-                            ما با ارائه بهترین سرویس‌های دیجیتال و اشتراک‌های قانونی اسپاتیفای در قالب طرح‌های شخصی و
-                            فمیلی، تجربه بی‌نظیری از دنیای موسیقی را بدون دغدغه و با بالاترین کیفیت برای شما فراهم
-                            می‌کنیم.
+                        <p className="text-slate-400 leading-relaxed text-justify max-w-4xl">
+                            اسپاتیفای امروز به‌عنوان یکی از محبوب‌ترین و شناخته‌شده‌ترین سرویس‌های پخش موسیقی آنلاین در
+                            جهان، تجربه‌ای متفاوت از شنیدن موسیقی، پادکست و محتوای صوتی را برای میلیون‌ها کاربر فراهم
+                            کرده است. دسترسی به آرشیوی گسترده از موسیقی‌های روز دنیا، کیفیت پخش بالا و امکانات متنوع،
+                            باعث شده اسپاتیفای به انتخاب اول بسیاری از کاربران در سراسر جهان تبدیل شود. با گسترش محبوبیت
+                            اسپاتیفای در میان کاربران ایرانی، همواره نیاز به روشی مطمئن، سریع و آسان برای تهیه اشتراک
+                            پرمیوم این سرویس وجود داشته است. سرویسی که به‌دلیل محدودیت‌های پرداخت بین‌المللی، تهیه
+                            مستقیم اشتراک پرمیوم آن برای بسیاری از کاربران داخل ایران با دشواری همراه بوده است. فروشگاه
+                            Get Spotify نیز با درک این نیاز شکل گرفته است تا امکان خرید آسان، مطمئن و سریع اشتراک پرمیوم
+                            اسپاتیفای را برای کاربران ایرانی فراهم کند. ما تلاش کرده‌ایم با ارائه پرداخت معتبر ارزی،
+                            فعال‌سازی سریع و پشتیبانی مناسب، تجربه‌ای ساده و بدون نگرانی را برای دسترسی به امکانات
+                            حرفه‌ای اسپاتیفای فراهم کنیم تا کاربران بتوانند بدون محدودیت، از دنیای موسیقی لذت ببرند.
                         </p>
                     </div>
 
@@ -41,9 +50,15 @@ export default function Footer() {
                                 target="_blank"
                                 className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
                             >
-                                <ShieldUser className="w-5 h-5 text-green-400" /> ارتباط با پشتیبانی
+                                <Image
+                                    src="/assets/images/spotify_style_support_icon.png"
+                                    alt="spotify_style_support_icon"
+                                    width={20}
+                                    height={20}
+                                />
+                                ارتباط با پشتیبانی
                             </a>
-                             <a
+                            <a
                                 href="https://t.me/getspotify_ir"
                                 target="_blank"
                                 rel="noreferrer"

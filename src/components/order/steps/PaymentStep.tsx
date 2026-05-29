@@ -101,7 +101,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                     transition={{ delay: 0.12, duration: 0.5 }}
                     className="text-2xl sm:text-3xl font-bold text-white"
                 >
-                    سفارش با موفقیت ثبت شد!
+                    ثبت سفارش اشتراک پرمیوم اسپاتیفای انجام شد!
                 </motion.h2>
 
                 <motion.p
@@ -110,7 +110,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                     transition={{ delay: 0.2, duration: 0.5 }}
                     className="text-zinc-400 text-base sm:text-lg"
                 >
-                    کد پیگیری:{" "}
+                    کد سفارش :{" "}
                     <span className="font-mono text-[#1ED760] bg-[#1ED760]/10 px-3 py-1 sm:px-4 sm:py-1.5 rounded-xl ml-1 border border-[#1ED760]/20 inline-block shadow-inner">
                         {orderId}
                     </span>
@@ -129,9 +129,9 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                     transition={{ delay: 0.25, duration: 0.45 }}
                     className="text-zinc-400 text-sm leading-relaxed mb-6 px-2"
                 >
-                    لطفاً مبلغ{" "}
+                    جهت پرداخت وجه، لطفاً مبلغ{" "}
                     <strong className="text-lg sm:text-xl text-[#1ED760]">{price.toLocaleString("fa-IR")} تومان</strong>{" "}
-                    را به کارت زیر واریز نمایید:
+                    را به شماره کارت زیر واریز بفرمایید.
                 </motion.p>
 
                 {/* کارت بانکی */}
@@ -295,14 +295,18 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                     transition={{ delay: 0.2, duration: 0.45 }}
                     className="text-zinc-300 text-sm leading-relaxed text-justify relative z-10"
                 >
-                    پس از پرداخت، لطفاً{" "}
+                    {/* پس از پرداخت وجه، لطفاً تصویر رسید واریزی به همراه کد پیگیری سفارش را از طریق تلگرام برای بخش پشتیبانی ارسال نمایید تا سفارش شما در کوتاه‌ترین زمان ممکن، بررسی و تأیید گردد. */}
+                    پس از پرداخت وجه، لطفاً{" "}
                     <strong className="text-red-400 bg-red-400/10 px-1 rounded whitespace-nowrap">
                         تصویر رسید واریزی
                     </strong>{" "}
-                    را به همراه{" "}
-                    <strong className="text-white bg-[#282828] px-1 rounded whitespace-nowrap">کد پیگیری</strong> در
-                    پشتیبانی تلگرام برای ما ارسال کنید تا اکانت شما{" "}
-                    <strong className="text-[#1ED760] whitespace-nowrap">در کمتر از ۲۴ ساعت پرمیوم شود.</strong>
+                    به همراه{" "}
+                    <strong className="text-white bg-[#282828] px-1 rounded whitespace-nowrap">
+                        کد پیگیری سفارش را
+                    </strong>{" "}
+                    از طریق تلگرام برای بخش پشتیبانی ارسال نمایید تا سفارش شما در{" "}
+                    <strong className="text-[#1ED760] whitespace-nowrap">کوتاه‌ترین زمان ممکن</strong>، بررسی و تأیید
+                    گردد.
                 </motion.p>
 
                 <motion.a
@@ -311,7 +315,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                     href={supportLink}
                     target="_blank"
                     rel="noreferrer"
-                    className="relative z-10 w-full py-3.5 sm:py-4 rounded-xl text-white font-bold transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(42,171,238,0.2)] bg-[#2AABEE] hover:bg-[#2298D6] hover:shadow-[0_0_30px_rgba(42,171,238,0.4)] text-sm sm:text-base overflow-hidden"
+                    className="relative z-10 w-full py-3.5 sm:py-4 rounded-xl text-white font-bold transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(0, 255, 4, 0.874)] bg-[#1ED760] hover:bg-[#1fdf64] hover:shadow-[0_0_30px_rgba(15, 241, 3, 0.96)] text-sm sm:text-base overflow-hidden"
                 >
                     <motion.span
                         animate={{ x: [-12, 12, -12] }}
@@ -319,7 +323,7 @@ export default function PaymentStep({ orderId, price, supportLink, onCopyCard }:
                         className="absolute inset-y-0 left-0 w-24 bg-white/10 blur-xl pointer-events-none"
                     />
                     <Send className="w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
-                    <span className="relative z-10">ارسال رسید به پشتیبانی تلگرام</span>
+                    <span className="relative z-10">ارسال رسید پرداخت به پشتیبانی تلگرام</span>
                 </motion.a>
             </motion.div>
         </motion.div>

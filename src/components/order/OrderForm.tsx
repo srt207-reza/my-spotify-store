@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { Loader2, Users, User } from "lucide-react";
 import toast from "react-hot-toast";
@@ -15,8 +15,9 @@ import ProductComparisonStep from "./steps/ProductComparisonStep";
 import DurationStep from "./steps/DurationStep";
 import UserInfoStep from "./steps/UserInfoStep";
 import PaymentStep from "./steps/PaymentStep";
-import BirthDatePicker from "@/components/BirthDatePicker";
 import PreInvoiceStep from "./steps/PreInvoiceStep";
+import Image from "next/image";
+
 
 const initialTouchedState: TouchedState = {
     fullNameEn: false,
@@ -37,6 +38,8 @@ export default function OrderForm() {
         }
         return null;
     };
+
+    const router =  useRouter(); 
 
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -130,6 +133,18 @@ export default function OrderForm() {
         }));
     };
 
+    const resetPlanSelection = () => {
+        setSelectedProduct(null);
+        setFormData((prev) => ({
+            ...prev,
+            planType: "individual",
+            durationMonths: 0,
+            planId: "",
+            planTitle: "",
+            price: 0,
+        }));
+    };
+
     const handleSubmit = async () => {
         if (!canSubmit) {
             toast.error("لطفاً همه اطلاعات را با فرمت درست تکمیل کنید.");
@@ -178,23 +193,48 @@ export default function OrderForm() {
     return (
         <div className="max-w-4xl mx-auto w-full">
             <div className="text-center mb-8">
+                {step < 5 && (
+                    <StepIndicator
+                        step={step}
+                        onStepOneClick={() => {
+                            resetPlanSelection();
+                            setStep(1);
+                        }}
+                    />
+                )}
+
                 {step !== 5 && (
                     <>
-                        <div className="inline-flex items-center justify-center p-4 rounded-full bg-slate-800/50 border border-slate-700 mb-4">
-                            {isFamily ? (
+                        <div className="inline-flex items-center justify-center p-4 rounded-full bg-slate-800/50 border border-slate-700 mt-6 mb-4">
+                            {/* {isFamily ? (
                                 <Users className="w-8 h-8 text-[#1ED760]" />
+                            ) : (
+                                <User className="w-8 h-8 text-[#1ED760]" />
+                            )} */}
+                            {step === 2 ? (
+                                <Image src="/assets/images/clock.png" alt="step2" width={32} height={32} />
+                            ) : step === 3 ? (
+                                <Image src="/assets/images/user.png" alt="step3" width={32} height={32} />
+                            ) : step === 4 ? (
+                                <Image src="/assets/images/approved.png" alt="step4" width={32} height={32} />
                             ) : (
                                 <User className="w-8 h-8 text-[#1ED760]" />
                             )}
                         </div>
 
-                        <h1 className="text-2xl font-bold text-white mb-2">
-                            {step === 1 ? "تفاوت طرح فمیلی و شخصی" : step === 2 ? "مدت زمان طرح ها" : "ورود اطلاعات"}
+                        <h1 className="text-2xl font-bold text-white">
+                            {step === 1
+                                ? "انتخاب طرح اشتراک پرمیوم"
+                                : step === 2
+                                  ? "انتخاب مدت زمان اشتراک پرمیوم"
+                                  : step === 3
+                                    ? "وارد نمودن اطلاعات حساب کاربری اسپاتیفای"
+                                    : step === 4
+                                      ? "تأیید اطلاعات حساب کاربری اسپاتیفای"
+                                      : "ورود اطلاعات"}
                         </h1>
                     </>
                 )}
-
-                {step < 5 && <StepIndicator step={step} onStepOneClick={() => setStep(1)} />}
             </div>
 
             <AnimatePresence mode="wait">
@@ -204,6 +244,9 @@ export default function OrderForm() {
                         onSelectProduct={(value) => {
                             setSelectedProduct(value);
                             setFormData((prev) => ({ ...prev, planType: value }));
+                        }}
+                        onBack={() => {
+                            router.push("/");
                         }}
                         onNext={() => setStep(2)}
                     />
@@ -215,7 +258,10 @@ export default function OrderForm() {
                         selectedProduct={selectedProduct}
                         formData={formData}
                         onSelectPlan={handlePlanSelect}
-                        onBack={() => setStep(1)}
+                        onBack={() => {
+                            resetPlanSelection();
+                            setStep(1);
+                        }}
                         onNext={() => setStep(3)}
                     />
                 )}

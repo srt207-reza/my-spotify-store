@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, CheckCircle2, AlertCircle } from "lucide-react";
+import { ChevronLeft, CheckCircle2, BadgePercent } from "lucide-react";
 import type { FormData, PlanType } from "../orderTypes";
 import { PRICING } from "../orderData";
 
@@ -13,126 +13,193 @@ type Props = {
     onNext: () => void;
 };
 
-export default function DurationStep({
-    selectedProduct,
-    formData,
-    onSelectPlan,
-    onBack,
-    onNext,
-}: Props) {
+function calcDiscountPercent(original: number, price: number): number {
+    return Math.round(((original - price) / original) * 100);
+}
+
+function calcSavings(original: number, price: number): number {
+    return original - price;
+}
+
+export default function DurationStep({ selectedProduct, formData, onSelectPlan, onBack, onNext }: Props) {
     const isFamily = selectedProduct === "family";
-    const themeColor = "text-[#1ED760]";
 
     return (
         <motion.div
             key="step2"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700 space-y-5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="space-y-5 rounded-[28px] border border-zinc-800 bg-zinc-950 p-5 shadow-xl shadow-black/20 sm:p-6"
         >
-            <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-700">
-                <p className="text-slate-400 text-sm">طرح انتخاب‌شده</p>
-                <p className="text-white font-bold mt-1">
-                    {isFamily ? "اسپاتیفای فمیلی (Family)" : "اسپاتیفای شخصی (Individual)"}
-                </p>
+            <div className="rounded-2xl border border-zinc-800 bg-black/40 p-4 leading-8 text-justify sm:p-5">
+                {isFamily ? (
+                    <>
+                        طرح‌ گروهی (Family) اسپاتیفای تنها در بسته‌های زمانی بلندمدت ارائه می‌گردد، لطفاً مدت زمان مورد
+                        نظر را انتخاب نمایید و سپس بر روی گزینه{" "}
+                        <strong className="text-[#1ED760]">تأیید مدت زمان اشتراک پرمیوم</strong>، کلیک بفرمایید.
+                    </>
+                ) : (
+                    <>
+                        طرح‌ {isFamily ? "فمیلی" : "شخصی"} اسپاتیفای در بسته‌های زمانی متنوع ارائه می‌گردد، لطفاً مدت
+                        زمان مورد نظر را انتخاب نمایید و سپس بر روی گزینه{" "}
+                        <strong className="text-[#1ED760]">تأیید مدت زمان اشتراک پرمیوم</strong>، کلیک بفرمایید.
+                    </>
+                )}
             </div>
 
-            {isFamily && (
-                <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-4 rounded-xl flex gap-3 text-sm leading-relaxed">
-                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                    <p>
-                        طبق قوانین اسپاتیفای، هر اکانت در سال تنها <strong>دو بار</strong> می‌تواند عضو فمیلی شود.
-                        لطفاً قبل از خرید این مورد را در نظر داشته باشید.
-                    </p>
-                </div>
-            )}
+            <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-zinc-100">مدت زمان طرح را انتخاب کنید:</h2>
+            </div>
 
-            <h2 className="text-lg font-medium text-slate-200 mb-2">مدت زمان طرح را انتخاب کنید:</h2>
-
-            <div className="space-y-4">
+            <div className="mx-auto grid w-full gap-3">
                 {PRICING[selectedProduct].map((plan, index) => {
                     const isSelected = formData.planId === plan.id;
-                    const activeBorder = "border-[#1ED760] shadow-[0_0_20px_rgba(30,215,96,0.15)]";
-                    const activeBg = "bg-[#1ED760]/10";
+                    const isDisabled = plan.disabled === true;
+                    const hasDiscount = !isDisabled && plan.originalPrice != null && plan.originalPrice > plan.price;
+                    const discountPercent = hasDiscount ? calcDiscountPercent(plan.originalPrice!, plan.price) : 0;
+                    const savings = hasDiscount ? calcSavings(plan.originalPrice!, plan.price) : 0;
 
                     return (
-                        <motion.div
+                        <motion.button
                             key={plan.id}
-                            initial={{ opacity: 0, y: 15 }}
+                            type="button"
+                            initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, delay: index * 0.08, ease: "easeOut" }}
-                            whileHover={{ scale: 1.01 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => onSelectPlan(plan.id)}
-                            className={`relative p-5 pl-16 rounded-2xl border-2 cursor-pointer transition-colors duration-300 overflow-hidden ${
-                                isSelected
-                                    ? `${activeBorder} ${activeBg}`
-                                    : "border-slate-700 bg-slate-800/40 hover:bg-slate-800/60 hover:border-slate-500"
-                            }`}
+                            transition={{ duration: 0.28, delay: index * 0.05, ease: "easeOut" }}
+                            whileHover={isDisabled ? {} : { y: -1 }}
+                            whileTap={isDisabled ? {} : { scale: 0.992 }}
+                            onClick={() => {
+                                if (!isDisabled) onSelectPlan(plan.id);
+                            }}
+                            className={[
+                                "group relative w-full overflow-hidden rounded-2xl border text-right text-inherit transition-all duration-200",
+                                "p-4 sm:p-5",
+                                "flex flex-col gap-4",
+                                "sm:flex-row sm:items-start sm:justify-between sm:gap-5",
+                                isDisabled
+                                    ? "cursor-not-allowed border-zinc-800/70 bg-black/35 opacity-55"
+                                    : isSelected
+                                      ? "border-[#1ED760]/60 bg-[#1ED760]/8 shadow-[0_0_0_1px_rgba(30,215,96,0.12)]"
+                                      : "cursor-pointer border-zinc-800 bg-zinc-950/80 hover:border-zinc-700 hover:bg-zinc-900/80",
+                            ].join(" ")}
                         >
-                            <div className="flex justify-between items-center relative z-10">
-                                <div>
-                                    <h3 className="text-white font-bold text-lg">{plan.title}</h3>
-                                    <p className="text-slate-400 text-sm mt-1">{plan.desc}</p>
-                                </div>
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent" />
 
-                                <div className="text-left flex flex-col items-end justify-center min-w-[120px]">
-                                    <div className="flex items-baseline gap-1.5">
-                                        <span
-                                            className={`text-2xl font-black transition-colors duration-300 ${
-                                                isSelected ? themeColor : "text-white"
-                                            }`}
-                                        >
-                                            {plan.price.toLocaleString("fa-IR")}
-                                        </span>
-                                        <span
-                                            className={`text-xs font-medium ${
-                                                isSelected ? "text-[#1ED760]/80" : "text-slate-500"
-                                            }`}
-                                        >
-                                            تومان
-                                        </span>
+                            <div className="relative z-10 min-w-0 flex-1">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <h3
+                                                className={[
+                                                    "min-w-0 text-base font-extrabold tracking-tight sm:text-[17px]",
+                                                    isDisabled ? "text-zinc-500" : "text-zinc-100",
+                                                ].join(" ")}
+                                            >
+                                                {plan.title}
+                                            </h3>
+
+                                            {isDisabled && (
+                                                <span className="shrink-0 rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-red-300">
+                                                    ناموجود
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {hasDiscount && !isDisabled && (
+                                            <div className="mt-3 inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium leading-5 text-emerald-300">
+                                                <BadgePercent className="h-3.5 w-3.5 shrink-0" />
+                                                <span className="whitespace-normal">{discountPercent}٪ تخفیف</span>
+                                                <span className="text-emerald-300/70">•</span>
+                                                <span className="whitespace-normal">
+                                                    {savings.toLocaleString("fa-IR")} تومان سود شما
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
+
+                                    {/* Mobile indicator: داخل جریان، بدون افتادن روی متن */}
+                                    {isSelected && !isDisabled && (
+                                        <span className="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#1ED760]/20 bg-black/70 md:hidden">
+                                            <CheckCircle2 className="h-5 w-5 text-[#1ED760]" strokeWidth={2.5} />
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="relative z-10 flex shrink-0 flex-col items-end justify-end gap-2 text-left">
+                                {plan.originalPrice && plan.originalPrice > plan.price && !isDisabled && (
+                                    <div className="flex items-center justify-end gap-1.5 text-xs text-zinc-500">
+                                        <span className="line-through">
+                                            {plan.originalPrice.toLocaleString("fa-IR")}
+                                        </span>
+                                        <span>تومان</span>
+                                    </div>
+                                )}
+
+                                <div className="flex items-end justify-end gap-1">
+                                    <span
+                                        className={`${!isDisabled && !plan?.originalPrice ? 'mt-2' : ""} text-2xl font-black leading-none tracking-tight transition-all duration-200 sm:text-[28px] ${
+                                            isDisabled
+                                                ? "text-zinc-600"
+                                                : isSelected
+                                                  ? "md:ml-3 mt-2 text-[#1ED760]"
+                                                  : "text-zinc-100 mt-2"
+                                        }`}
+                                    >
+                                        {plan.price.toLocaleString("fa-IR")}
+                                    </span>
+                                    <span
+                                        className={[
+                                            "pb-1 text-xs font-medium transition-opacity duration-200",
+                                            isSelected
+                                                ? "md:opacity-0"
+                                                : isDisabled
+                                                  ? "text-zinc-700"
+                                                  : "text-zinc-500",
+                                        ].join(" ")}
+                                    >
+                                        تومان
+                                    </span>
                                 </div>
                             </div>
 
                             <AnimatePresence>
-                                {isSelected && (
+                                {isSelected && !isDisabled && (
                                     <motion.div
-                                        initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                                        initial={{ scale: 0, opacity: 0, rotate: -30 }}
                                         animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                        exit={{ scale: 0, opacity: 0, rotate: 45 }}
-                                        transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                                        className="absolute top-1/2 -translate-y-1/2 left-5 z-20"
+                                        exit={{ scale: 0, opacity: 0, rotate: 20 }}
+                                        transition={{ type: "spring", stiffness: 420, damping: 24 }}
+                                        className={[
+                                            "hidden z-20 md:block md:absolute md:left-4 md:top-1/2 md:-translate-y-1/2",
+                                            plan.originalPrice ? "md:mt-2" : "",
+                                        ].join(" ")}
                                     >
-                                        <div className="bg-slate-900/50 rounded-full p-1 backdrop-blur-sm">
-                                            <CheckCircle2
-                                                className="w-7 h-7 text-[#1ED760] drop-shadow-lg"
-                                                strokeWidth={2.5}
-                                            />
+                                        <div className="rounded-full border border-[#1ED760]/20 bg-black/70 p-1.5">
+                                            <CheckCircle2 className="h-6 w-6 text-[#1ED760]" strokeWidth={2.5} />
                                         </div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
-                        </motion.div>
+                        </motion.button>
                     );
                 })}
             </div>
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
                 <button
                     onClick={onBack}
-                    className="px-6 cursor-pointer py-4 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors"
+                    className="cursor-pointer rounded-xl border border-zinc-800 bg-zinc-900 px-6 py-4 text-zinc-300 transition-colors hover:border-zinc-700 hover:bg-zinc-800 sm:w-auto"
                 >
                     بازگشت
                 </button>
                 <button
                     onClick={onNext}
                     disabled={!formData.planId}
-                    className="flex-1 cursor-pointer py-4 rounded-xl text-white font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-[#1ED760] hover:bg-[#1fdf64]"
+                    className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1ED760] py-4 font-bold text-black transition-all hover:bg-[#1fdf64] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    مرحله بعدی <ChevronLeft className="w-5 h-5" />
+                    تأیید طرح اشتراک پرمیوم <ChevronLeft className="h-5 w-5" />
                 </button>
             </div>
         </motion.div>

@@ -9,7 +9,9 @@ export type Plan = {
     durationMonths: number;
     title: string;
     price: number;
-    desc: string;
+    originalPrice?: number; // قیمت پایه (خط‌خورده)
+    // desc: string;
+    disabled?: boolean; // غیرفعال / ناموجود
 };
 
 export type TouchedState = {
