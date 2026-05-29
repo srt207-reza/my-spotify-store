@@ -46,7 +46,7 @@ function SpotifyVideoOrb() {
 
     return (
         <section className="relative w-full px-2 sm:px-4">
-            <div className="mx-auto flex w-full max-w-6xl items-center justify-center rounded-[1.5rem] border border-slate-200/10 bg-white/[0.015] p-3 shadow-[0_24px_80px_rgba(15,23,42,0.08)] sm:rounded-[2rem] sm:p-6 pb-6 lg:p-8">
+            <div className="mx-auto flex w-full max-w-6xl items-center justify-center rounded-[1.5rem] border border-slate-200/10 bg-white/[0.015] p-3 !pb-10 md:pb-3 shadow-[0_24px_80px_rgba(15,23,42,0.08)] sm:rounded-[2rem] sm:p-6 pb-6 lg:p-8">
                 <div className="relative flex h-[300px] w-full items-center justify-center rounded-[1.25rem] sm:h-[400px] sm:rounded-[1.75rem] lg:h-[520px]">
                     <div className="relative flex h-[260px] w-[260px] items-center justify-center overflow-hidden rounded-full border border-white/10 bg-black shadow-[0_30px_90px_rgba(0,0,0,0.45)] sm:h-[340px] sm:w-[340px] lg:h-[420px] lg:w-[420px]">
                         <div
@@ -84,7 +84,7 @@ function SpotifyVideoOrb() {
                         <div className="absolute left-1/2 top-6 h-24 w-24 -translate-x-1/2 rounded-full bg-white/10 blur-3xl" />
                     </div>
 
-                    <div className="absolute -bottom-3 z-10 rounded-full border border-slate-200/10 bg-slate-900/60 px-5 py-2 shadow-lg backdrop-blur-md sm:-bottom-2 sm:px-6 sm:py-2.5">
+                    <div className="absolute -bottom-7 md:-bottom-3 z-10 rounded-full border border-slate-200/10 bg-slate-900/60 px-5 py-2 shadow-lg backdrop-blur-md sm:-bottom-2 sm:px-6 sm:py-2.5">
                         <span className="flex items-center gap-1.5 text-[11px] font-medium text-slate-300 sm:text-xs md:text-sm">
                             مقصد نهایی برای
                             <strong className="text-sm text-green-400 md:text-base">{activeDest.name}</strong>
@@ -141,7 +141,7 @@ export default function HomePage() {
 
                         <h1 className="mt-8 text-3xl font-black leading-tight text-white sm:text-5xl md:text-6xl lg:leading-[1.15]">
                             موسیقی برای همه لحظه‌ها، بدون وقفه با <br className="hidden lg:block" />
-                            <span className="mt-1 inline-block bg-linear-to-r from-green-400 via-emerald-400 to-green-600 bg-clip-text pb-2 text-transparent drop-shadow-lg">
+                            <span className="gradient-text mt-1 inline-block bg-clip-text pb-2 text-transparent drop-shadow-lg">
                                 اسپاتیفای
                             </span>
                         </h1>
@@ -184,9 +184,8 @@ export default function HomePage() {
             >
                 <div className="absolute top-0 left-1/2 h-[1px] w-3/4 -translate-x-1/2 bg-gradient-to-r from-transparent via-slate-700/80 to-transparent" />
 
-                <div className="mb-12 text-center w-fit mx-auto rounded-2xl border border-slate-700/50 bg-slate-800/40 px-8 py-4">
-                    <h2 className="text-xl font-bold backdrop-blur-md shadow-xl md:text-2xl lg:text-3xl bg-linear-to-r from-green-400 via-emerald-400 to-green-600 bg-clip-text text-transparent">
-                        {/* <Globe className="w-6 h-6 text-green-400" /> */}
+                <div className="mb-12 text-center w-fit mx-auto px-8 py-4">
+                    <h2 className="gradient-text text-xl font-bold backdrop-blur-md shadow-xl md:text-2xl lg:text-3xl">
                         اسپاتیفای پرمیوم
                     </h2>
                     <h2 className="text-md mt-4 font-bold backdrop-blur-md shadow-xl lg:text-lg text-slate-400">

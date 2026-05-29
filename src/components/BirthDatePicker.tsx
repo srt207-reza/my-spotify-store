@@ -95,7 +95,7 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
             >
                 <div
                     ref={listRef}
-                    className="max-h-52 scrollbar-hide"
+                    className="max-h-52 overflow-y-auto scrollbar-hide"
                     style={{
                         scrollbarWidth: "thin",
                         scrollbarColor: "#2a2a2a transparent",

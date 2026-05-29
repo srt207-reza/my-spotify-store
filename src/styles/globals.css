@@ -13,7 +13,7 @@
         /* تم پیش‌فرض سایت فروشگاهی (تاریک - Dark Mode) */
         --background: #0f172a; /* معادل store-dark */
         --foreground: #f8fafc; /* رنگ متن روشن */
-        --border: #334155;     /* معادل store-border */
+        --border: #334155; /* معادل store-border */
     }
 
     /* در صورت نیاز به حالت روز (Light Mode) */
@@ -32,7 +32,6 @@
         font-family: "IRANSansX";
         direction: rtl;
 
-        
         /* فعال‌سازی اعداد فارسی در اکثر نسخه‌های فونت‌های استاندارد ایرانی */
         font-variant-numeric: lining-nums;
         -webkit-font-feature-settings: "ss02";
@@ -86,17 +85,38 @@
 /* (مناسب برای لیست‌های داخل فرم یا پنل‌ها)   */
 /* ========================================= */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+    width: 6px;
+    height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(30, 41, 59, 0.5); /* شفافیت روی رنگ پنل */
-  border-radius: 4px;
+    background: rgba(30, 41, 59, 0.5); /* شفافیت روی رنگ پنل */
+    border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(71, 85, 105, 0.7); 
-  border-radius: 4px;
+    background: rgba(71, 85, 105, 0.7);
+    border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.9); /* خاکستری روشن‌تر */
+    background: rgba(148, 163, 184, 0.9); /* خاکستری روشن‌تر */
+}
+
+.gradient-text {
+    background-image: linear-gradient(90deg, #4ade80, #34d399, #10b981, #22c55e, #86efac, #4ade80);
+    background-size: 300% 300%;
+    animation: gradientShift 4s ease-in-out infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
