@@ -18,7 +18,6 @@ import PaymentStep from "./steps/PaymentStep";
 import PreInvoiceStep from "./steps/PreInvoiceStep";
 import Image from "next/image";
 
-
 const initialTouchedState: TouchedState = {
     fullNameEn: false,
     spotifyEmail: false,
@@ -39,7 +38,7 @@ export default function OrderForm() {
         return null;
     };
 
-    const router =  useRouter(); 
+    const router = useRouter();
 
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -145,45 +144,95 @@ export default function OrderForm() {
         }));
     };
 
-    const handleSubmit = async () => {
-        if (!canSubmit) {
-            toast.error("لطفاً همه اطلاعات را با فرمت درست تکمیل کنید.");
-            return;
+    // const handleSubmitReceipt = async (receiptData: {
+    //     payerName: string;
+    //     trackingCode: string;
+    //     sourceBank: string;
+    // }) => {
+    //     if (!canSubmit) {
+    //         toast.error("اطلاعات سفارش ناقص است.");
+    //         return;
+    //     }
+
+    //     setLoading(true);
+    //     try {
+    //         const res = await fetch("/api/order", {
+    //             method: "POST",
+    //             headers: { "Content-Type": "application/json" },
+    //             body: JSON.stringify({
+    //                 planType: selectedProduct,
+    //                 durationMonths: formData.durationMonths,
+    //                 spotifyEmail: formData.spotifyEmail.trim(),
+    //                 fullNameEn: formData.fullNameEn.trim(),
+    //                 dateOfBirth: formData.dateOfBirth,
+    //                 password: formData.password || "",
+    //                 gender: formData.gender,
+    //                 price: formData.price,
+    //                 // اطلاعات رسید
+    //                 payerName: receiptData.payerName,
+    //                 trackingCode: receiptData.trackingCode,
+    //                 sourceBank: receiptData.sourceBank,
+    //             }),
+    //         });
+
+    //         const data = await res.json();
+
+    //         if (res.ok && data.success) {
+    //             setOrderId(data.orderId);
+    //             if (data.supportLink) setSupportLink(data.supportLink);
+    //             toast.success("سفارش و رسید شما با موفقیت ثبت شد!");
+    //             // بعد از submit موفق، ReceiptForm خودش کد سفارش رو نمایش میده
+    //         } else {
+    //             toast.error(data.message || "خطایی در ثبت سفارش رخ داد.");
+    //             throw new Error(data.message); // throw کن تا ReceiptForm بدونه submit ناموفق بوده
+    //         }
+    //     } catch (err) {
+    //         toast.error("ارتباط با سرور برقرار نشد.");
+    //         throw err; // رethrow کن تا loading در ReceiptForm درست ریست بشه
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+
+    const handleSubmitOrder = async () => {
+    if (!canSubmit) {
+        toast.error("لطفاً همه اطلاعات را با فرمت درست تکمیل کنید.");
+        return;
+    }
+
+    setLoading(true);
+    try {
+        const res = await fetch("/api/order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                planType: selectedProduct,
+                durationMonths: formData.durationMonths,
+                spotifyEmail: formData.spotifyEmail.trim(),
+                fullNameEn: formData.fullNameEn.trim(),
+                dateOfBirth: formData.dateOfBirth,
+                password: formData.password || "",
+                gender: formData.gender,
+                price: formData.price,
+            }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            setOrderId(data.orderId);  // ← orderId واقعی ذخیره میشه
+            toast.success("سفارش ثبت شد! لطفاً رسید پرداخت را ارسال کنید.");
+            setStep(5);               // ← حالا میره step 5
+        } else {
+            toast.error(data.message || "خطایی در ثبت سفارش رخ داد.");
         }
-
-        setLoading(true);
-        try {
-            const res = await fetch("/api/order", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    planType: selectedProduct,
-                    durationMonths: formData.durationMonths,
-                    spotifyEmail: formData.spotifyEmail.trim(),
-                    fullNameEn: formData.fullNameEn.trim(),
-                    dateOfBirth: formData.dateOfBirth,
-                    password: formData.password || "",
-                    gender: formData.gender,
-                    price: formData.price,
-                }),
-            });
-
-            const data = await res.json();
-
-            if (res.ok && data.success) {
-                setOrderId(data.orderId);
-                if (data.supportLink) setSupportLink(data.supportLink);
-                setStep(5);
-                toast.success("سفارش شما با موفقیت ثبت شد!");
-            } else {
-                toast.error(data.message || "خطایی در ثبت سفارش رخ داد.");
-            }
-        } catch {
-            toast.error("ارتباط با سرور برقرار نشد.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    } catch {
+        toast.error("ارتباط با سرور برقرار نشد.");
+    } finally {
+        setLoading(false);
+    }
+};
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
@@ -285,8 +334,9 @@ export default function OrderForm() {
                         formData={formData}
                         selectedProduct={selectedProduct}
                         onBack={() => setStep(3)}
-                        onSubmit={handleSubmit} // در اینجا فراخوانی API انجام می‌شود
+                        // onNext={() => setStep(5)}
                         loading={loading}
+                        onNext={handleSubmitOrder}  // اول ثبت سفارش، بعد step 5
                     />
                 )}
 
@@ -294,7 +344,6 @@ export default function OrderForm() {
                     <PaymentStep
                         orderId={orderId}
                         price={formData.price}
-                        supportLink={supportLink}
                         onCopyCard={() => copyToClipboard("5041721212076674")}
                     />
                 )}

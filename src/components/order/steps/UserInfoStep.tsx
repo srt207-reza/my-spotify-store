@@ -2,15 +2,7 @@
 
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import {
-    CheckCircle2,
-    AlertCircle,
-    User,
-    Mail,
-    Lock,
-    Eye,
-    EyeOff,
-} from "lucide-react";
+import { CheckCircle2, AlertCircle, User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import BirthDatePicker from "@/components/BirthDatePicker";
 import type { FormData, Gender, TouchedState } from "../orderTypes";
 import { EMAIL_REGEX, NAME_REGEX, getAge, isPasswordValid } from "@/lib/orderValidation";
@@ -202,7 +194,7 @@ export default function UserInfoStep({
                                 syncFullName(nextFirst, lastNameEn);
                             }}
                             className="w-full border border-[#282828] bg-[#121212] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#1ED760]"
-                            placeholder="e.g. Mohammad"
+                            placeholder="Mohammadreza"
                             dir="ltr"
                             autoComplete="given-name"
                         />
@@ -230,7 +222,7 @@ export default function UserInfoStep({
                                 syncFullName(firstNameEn, nextLast);
                             }}
                             className="w-full border border-[#282828] bg-[#121212] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#1ED760]"
-                            placeholder="e.g. Haji Ahmadi"
+                            placeholder="Rahimizadeh"
                             dir="ltr"
                             autoComplete="family-name"
                         />
@@ -259,7 +251,7 @@ export default function UserInfoStep({
                 />
                 {showAgeError && (
                     <p className="text-xs mt-2 text-red-400">
-                        شما برای ایجاد یک حساب کاربری اسپاتیفای خیلی جوان هستید. حداقل سن لازم: ۱۵ سال
+                        طبق قوانین اسپاتیفای، حداقل سن لازم برای ایجاد حساب کاربری اسپاتیفای ۱۵ سال می‌باشد.
                     </p>
                 )}
             </div>
@@ -289,7 +281,7 @@ export default function UserInfoStep({
                                 password: filterEnglishOnly(e.target.value),
                             }));
                         }}
-                        className={`${!formData.password ? "text-right" : ""} w-full border border-[#282828] bg-[#121212] rounded-xl pl-4 py-3 pr-14 text-white focus:outline-none focus:border-[#1ED760]`}
+                        className={`${!formData.password ? "text-right" : ""} w-full border border-[#282828] bg-[#121212] rounded-xl pl-4 py-3 pr-10 text-white focus:outline-none focus:border-[#1ED760]`}
                         placeholder="در صورتی که با استفاده از آدرس ایمیل مدنظر حساب کاربری اسپاتیفای ایجاد نشده است، کلمه‌عبور پیشنهادی را وارد بفرمایید"
                         dir="ltr"
                     />
@@ -344,13 +336,13 @@ export default function UserInfoStep({
 
                 {showPasswordError && (
                     <p className="text-xs mt-2 text-red-400">
-                        کلمه عبور باید حداقل 10 کاراکتر داشته باشد و شامل یک حرف و یک عدد یا کاراکتر خاص باشد.
+                        لطفاً کلمه‌عبور حساب کاربری اسپاتیفای را در قالب صحیح، مطابق شرایط فوق وارد نمایید.
                     </p>
                 )}
 
-                {!formData.password && !submittedStep3 && (
-                    <p className="text-xs mt-2 text-slate-500">
-                        لطفاً کلمه‌عبور حساب کاربری اسپاتیفای را در قالب صحیح، مطابق شرایط فوق وارد نمایید.
+                {showPasswordError && (
+                    <p className="text-xs mt-2 text-red-400">
+                        کلمه‌عبور باید حداقل ۱۰ کارکتر داشته باشد و شامل ۱ حرف و ۱ عدد یا کاراکتر خاص باشد.
                     </p>
                 )}
             </div>

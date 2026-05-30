@@ -123,7 +123,7 @@ export default function HomePage() {
     };
 
     return (
-        <div className="relative flex min-h-[calc(100vh-160px)] flex-col items-center overflow-hidden pb-20">
+        <div className="relative flex min-h-[calc(100vh-160px)] flex-col items-center overflow-hidden pb-10">
             <div className="pointer-events-none absolute top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-green-500/5 blur-[120px]" />
 
             <section className="mx-auto mt-16 w-full max-w-7xl px-4 z-10 sm:mt-20">
@@ -141,14 +141,14 @@ export default function HomePage() {
 
                         <h1 className="mt-8 text-3xl font-black leading-tight text-white sm:text-5xl md:text-6xl lg:leading-[1.15]">
                             موسیقی برای همه لحظه‌ها، بدون وقفه با <br className="hidden lg:block" />
-                            <span className="gradient-text mt-1 inline-block bg-clip-text pb-2 text-transparent drop-shadow-lg">
+                            <span className="gradient-text block mt-1 bg-clip-text pb-2 text-transparent drop-shadow-lg">
                                 اسپاتیفای
                             </span>
                         </h1>
 
                         <p className="mx-auto mt-6 w-full px-6 text-base leading-relaxed text-slate-300/90 sm:text-lg md:text-xl md:leading-9 lg:mx-0 font-light">
                             اسپاتیفای، محبوب‌ترین پلتفرم پخش موسیقی بین‌الملل، خانه‌ای برای میلیون‌ها آهنگ، پادکست و
-                            لیست (Playlist) از هنرمندان ایران و سراسر دنیا، اکنون در ایران در دسترس شماست!
+                            لیست پخش (Playlist) از هنرمندان ایران و سراسر دنیا، اکنون در ایران در دسترس شماست!
                         </p>
 
                         <div className="mt-10 flex justify-center lg:justify-start">
@@ -185,15 +185,15 @@ export default function HomePage() {
                 <div className="absolute top-0 left-1/2 h-[1px] w-3/4 -translate-x-1/2 bg-gradient-to-r from-transparent via-slate-700/80 to-transparent" />
 
                 <div className="mb-12 text-center w-fit mx-auto px-8 py-4">
-                    <h2 className="gradient-text text-xl font-bold backdrop-blur-md shadow-xl md:text-2xl lg:text-3xl">
+                    <h2 className="gradient-text text-4xl pb-6 font-bold backdrop-blur-md shadow-xl md:text-4xl lg:text-5xl">
                         اسپاتیفای پرمیوم
                     </h2>
-                    <h2 className="text-md mt-4 font-bold backdrop-blur-md shadow-xl lg:text-lg text-slate-400">
+                    <h2 className="text-md font-bold backdrop-blur-md shadow-xl lg:text-lg text-slate-400">
                         همه‌چیز برای لذت بردن ‌بدون مرز و محدودیت از موسیقی
                     </h2>
                 </div>
 
-                <div className="mb-20 flex w-full flex-wrap justify-center gap-5 sm:gap-7 md:gap-9">
+                <div className="flex w-full flex-wrap justify-center gap-5 sm:gap-7 md:gap-9">
                     {features.map((feature, idx) => (
                         <motion.div
                             key={idx}
@@ -209,6 +209,16 @@ export default function HomePage() {
                         </motion.div>
                     ))}
                 </div>
+
+                <div className="flex justify-center items-center mt-16">
+                        <Link
+                            href="/order"
+                            className="group inline-flex items-center justify-center gap-3 rounded-full border border-green-300/20 bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-4 text-base font-bold text-white shadow-[0_16px_40px_-10px_rgba(34,197,94,0.4)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_60px_-10px_rgba(34,197,94,0.6)] sm:text-lg"
+                        >
+                            <span>خرید اشتراک پرمیوم</span>
+                            <ArrowLeft className="h-6 w-6 transition-transform group-hover:-translate-x-2" />
+                        </Link>
+                    </div>
             </motion.section>
         </div>
     );

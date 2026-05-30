@@ -15,7 +15,6 @@ export const PRICING: Record<PlanType, Plan[]> = {
             durationMonths: 1,
             title: makeTitle("individual", 1),
             price: 555000,
-            originalPrice: 1665000,
             disabled: false,
         },
         {
@@ -23,7 +22,7 @@ export const PRICING: Record<PlanType, Plan[]> = {
             durationMonths: 3,
             title: makeTitle("individual", 3),
             price: 1555000,
-            originalPrice: 3330000,
+            originalPrice: 1665000,
             disabled: false,
         },
         {

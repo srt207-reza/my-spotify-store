@@ -199,7 +199,7 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
                     disabled={!formData.planId}
                     className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1ED760] py-4 font-bold text-black transition-all hover:bg-[#1fdf64] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    تأیید طرح اشتراک پرمیوم <ChevronLeft className="h-5 w-5" />
+                    تأیید مدت زمان اشتراک پرمیوم <ChevronLeft className="h-5 w-5" />
                 </button>
             </div>
         </motion.div>
