@@ -334,7 +334,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     >
                         <button
                             onClick={onBack}
-                            className="cursor-pointer rounded-xl border border-zinc-800 bg-zinc-900 px-6 py-4 text-zinc-300 transition-colors hover:border-zinc-700 hover:bg-zinc-800 sm:w-auto"
+                            className="cursor-pointer rounded-xl border border-zinc-800 bg-zinc-900 px-6 py-3 text-zinc-300 transition-colors hover:border-zinc-700 hover:bg-zinc-800 sm:w-auto"
                         >
                             بازگشت
                         </button>

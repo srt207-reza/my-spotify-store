@@ -119,10 +119,18 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
                                         </div>
 
                                         {hasDiscount && (
-                                            <div className="mt-3 inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium leading-5 text-emerald-300">
+                                            <div
+                                                className={`mt-3 inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-5 ${isDisabled ? "border-gray-500/20 bg-gray-500/10 text-gray-300" : "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"}`}
+                                            >
                                                 <BadgePercent className="h-3.5 w-3.5 shrink-0" />
                                                 <span className="whitespace-normal">{discountPercent}٪ تخفیف</span>
-                                                <span className="text-emerald-300/70">•</span>
+                                                <span
+                                                    className={
+                                                        isDisabled ? '"text-gray-300/70"' : '"text-emerald-300/70"'
+                                                    }
+                                                >
+                                                    •
+                                                </span>
                                                 <span className="whitespace-normal">
                                                     {savings.toLocaleString("fa-IR")} تومان سود شما
                                                 </span>
@@ -141,7 +149,9 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
 
                             <div className="relative z-10 flex shrink-0 flex-col items-end justify-end gap-2 text-left">
                                 {plan.originalPrice && plan.originalPrice > plan.price && (
-                                    <div className="flex items-center justify-end gap-1.5 text-sm text-zinc-500">
+                                    <div
+                                        className={`flex items-center justify-end gap-1.5 text-md ${isDisabled ? "text-zinc-700" : "text-zinc-500"}`}
+                                    >
                                         <span className="line-through">
                                             {plan.originalPrice.toLocaleString("fa-IR")}
                                         </span>
