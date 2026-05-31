@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, CheckCircle2, BadgePercent } from "lucide-react";
 import type { FormData, PlanType } from "../orderTypes";
 import { PRICING } from "../orderData";
+import { cn } from "@/lib/utils";
 
 type Props = {
     selectedProduct: PlanType;
@@ -56,7 +57,7 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
                 {PRICING[selectedProduct].map((plan, index) => {
                     const isSelected = formData.planId === plan.id;
                     const isDisabled = plan.disabled === true;
-                    const hasDiscount = !isDisabled && plan.originalPrice != null && plan.originalPrice > plan.price;
+                    const hasDiscount = plan.originalPrice != null && plan.originalPrice > plan.price;
                     const discountPercent = hasDiscount ? calcDiscountPercent(plan.originalPrice!, plan.price) : 0;
                     const savings = hasDiscount ? calcSavings(plan.originalPrice!, plan.price) : 0;
 
@@ -75,10 +76,10 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
                             className={[
                                 "group relative w-full overflow-hidden rounded-2xl border text-right text-inherit transition-all duration-200",
                                 "p-4 sm:p-5",
-                                "flex flex-col gap-4",
+                                "flex flex-col lg:!items-center  gap-4",
                                 "sm:flex-row sm:items-start sm:justify-between sm:gap-5",
                                 isDisabled
-                                    ? "cursor-not-allowed border-zinc-800/70 bg-black/35 opacity-55"
+                                    ? "cursor-not-allowed !py-6 border-zinc-800/70 bg-black/35 opacity-55"
                                     : isSelected
                                       ? "border-[#1ED760]/60 bg-[#1ED760]/8 shadow-[0_0_0_1px_rgba(30,215,96,0.12)]"
                                       : "cursor-pointer border-zinc-800 bg-zinc-950/80 hover:border-zinc-700 hover:bg-zinc-900/80",
@@ -100,13 +101,24 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
                                             </h3>
 
                                             {isDisabled && (
-                                                <span className="shrink-0 rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-red-300">
+                                                <span
+                                                    className={cn(
+                                                        "shrink-0 inline-flex items-center gap-2 rounded-full",
+                                                        "border border-red-500/30 bg-red-500/10",
+                                                        "px-2.5 py-0.5 text-[11px] font-semibold text-red-200",
+                                                        "shadow-[0_0_0_0_rgba(239,68,68,0)] transition-all duration-300",
+                                                        "motion-safe:animate-[unavailablePulse_1.6s_ease-in-out_infinite]",
+                                                        "hover:-translate-y-[1px] hover:border-red-500/45",
+                                                        "hover:bg-red-500/15 hover:shadow-[0_0_0_4px_rgba(239,68,68,0.12)]",
+                                                    )}
+                                                >
+                                                    <span className="h-2 w-2 rounded-full bg-red-400 motion-safe:animate-pulse" />
                                                     ناموجود
                                                 </span>
                                             )}
                                         </div>
 
-                                        {hasDiscount && !isDisabled && (
+                                        {hasDiscount && (
                                             <div className="mt-3 inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium leading-5 text-emerald-300">
                                                 <BadgePercent className="h-3.5 w-3.5 shrink-0" />
                                                 <span className="whitespace-normal">{discountPercent}٪ تخفیف</span>
@@ -128,8 +140,8 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
                             </div>
 
                             <div className="relative z-10 flex shrink-0 flex-col items-end justify-end gap-2 text-left">
-                                {plan.originalPrice && plan.originalPrice > plan.price && !isDisabled && (
-                                    <div className="flex items-center justify-end gap-1.5 text-xs text-zinc-500">
+                                {plan.originalPrice && plan.originalPrice > plan.price && (
+                                    <div className="flex items-center justify-end gap-1.5 text-sm text-zinc-500">
                                         <span className="line-through">
                                             {plan.originalPrice.toLocaleString("fa-IR")}
                                         </span>
@@ -139,11 +151,11 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
 
                                 <div className="flex items-end justify-end gap-1">
                                     <span
-                                        className={`${!isDisabled && !plan?.originalPrice ? 'mt-2' : ""} text-2xl font-black leading-none tracking-tight transition-all duration-200 sm:text-[28px] ${
+                                        className={`${!isDisabled && !plan?.originalPrice ? "mt-2" : ""} text-2xl font-black leading-none tracking-tight transition-all duration-200 sm:text-[28px] ${
                                             isDisabled
-                                                ? "text-zinc-600"
+                                                ? "text-zinc-600 mt-2"
                                                 : isSelected
-                                                  ? "md:ml-3 mt-2 text-[#1ED760]"
+                                                  ? "md:ml-2 mt-2 text-[#1ED760]"
                                                   : "text-zinc-100 mt-2"
                                         }`}
                                     >
@@ -151,7 +163,7 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
                                     </span>
                                     <span
                                         className={[
-                                            "pb-1 text-xs font-medium transition-opacity duration-200",
+                                            "pb-1 text-sm font-medium transition-opacity duration-200",
                                             isSelected
                                                 ? "md:opacity-0"
                                                 : isDisabled
@@ -173,7 +185,7 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
                                         transition={{ type: "spring", stiffness: 420, damping: 24 }}
                                         className={[
                                             "hidden z-20 md:block md:absolute md:left-4 md:top-1/2 md:-translate-y-1/2",
-                                            plan.originalPrice ? "md:mt-2" : "",
+                                            plan.originalPrice ? "md:mt-4" : "",
                                         ].join(" ")}
                                     >
                                         <div className="rounded-full border border-[#1ED760]/20 bg-black/70 p-1.5">

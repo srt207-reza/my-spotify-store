@@ -20,8 +20,8 @@ export default function PreInvoiceStep({ formData, selectedProduct, onBack, onNe
     const [acceptedTerms, setAcceptedTerms] = useState(false);
 
     const genderMap: Record<string, string> = {
-        man: "آقا",
         woman: "خانم",
+        man: "آقا",
     };
     const displayGender = formData.gender ? genderMap[formData.gender] || formData.gender : "-";
 

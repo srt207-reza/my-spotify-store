@@ -26,10 +26,19 @@ const initialTouchedState: TouchedState = {
     gender: false,
 };
 
+type ReceiptPayload = {
+    receiptNumber?: string;
+    payerName?: string;
+    depositTime?: string;
+    bankName?: string;
+    receiptImage?: string | null;
+    note?: string;
+};
+
 export default function OrderForm() {
     const searchParams = useSearchParams();
+    const router = useRouter();
 
-    // مقدار پیش‌فرض را در صورت نبود پارامتر روی null تنظیم می‌کنیم
     const getInitialProduct = (): PlanType | null => {
         const productParam = searchParams.get("product");
         if (productParam === "family" || productParam === "individual") {
@@ -38,21 +47,17 @@ export default function OrderForm() {
         return null;
     };
 
-    const router = useRouter();
-
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [orderId, setOrderId] = useState("");
-    const [supportLink, setSupportLink] = useState("https://t.me/getSpotify_Support");
+    const [supportLink] = useState("https://t.me/getSpotify_Support");
 
-    // استیت مربوط به محصول می‌تواند null باشد
     const [selectedProduct, setSelectedProduct] = useState<PlanType | null>(getInitialProduct());
-
     const [submittedStep3, setSubmittedStep3] = useState(false);
     const [touched, setTouched] = useState<TouchedState>(initialTouchedState);
 
     const [formData, setFormData] = useState<FormData>({
-        planType: getInitialProduct() || "individual", // مقدار پیش‌فرض اولیه برای فرم
+        planType: getInitialProduct() || "individual",
         durationMonths: 0,
         planId: "",
         planTitle: "",
@@ -101,11 +106,10 @@ export default function OrderForm() {
         }
 
         setStep(1);
+        setOrderId("");
         setSubmittedStep3(false);
         setTouched(initialTouchedState);
     }, [searchParams]);
-
-    const isFamily = selectedProduct === "family";
 
     const fullNameValid = NAME_REGEX.test(formData.fullNameEn.trim());
     const emailValid = EMAIL_REGEX.test(formData.spotifyEmail.trim());
@@ -144,109 +148,60 @@ export default function OrderForm() {
         }));
     };
 
-    // const handleSubmitReceipt = async (receiptData: {
-    //     payerName: string;
-    //     trackingCode: string;
-    //     sourceBank: string;
-    // }) => {
-    //     if (!canSubmit) {
-    //         toast.error("اطلاعات سفارش ناقص است.");
-    //         return;
-    //     }
-
-    //     setLoading(true);
-    //     try {
-    //         const res = await fetch("/api/order", {
-    //             method: "POST",
-    //             headers: { "Content-Type": "application/json" },
-    //             body: JSON.stringify({
-    //                 planType: selectedProduct,
-    //                 durationMonths: formData.durationMonths,
-    //                 spotifyEmail: formData.spotifyEmail.trim(),
-    //                 fullNameEn: formData.fullNameEn.trim(),
-    //                 dateOfBirth: formData.dateOfBirth,
-    //                 password: formData.password || "",
-    //                 gender: formData.gender,
-    //                 price: formData.price,
-    //                 // اطلاعات رسید
-    //                 payerName: receiptData.payerName,
-    //                 trackingCode: receiptData.trackingCode,
-    //                 sourceBank: receiptData.sourceBank,
-    //             }),
-    //         });
-
-    //         const data = await res.json();
-
-    //         if (res.ok && data.success) {
-    //             setOrderId(data.orderId);
-    //             if (data.supportLink) setSupportLink(data.supportLink);
-    //             toast.success("سفارش و رسید شما با موفقیت ثبت شد!");
-    //             // بعد از submit موفق، ReceiptForm خودش کد سفارش رو نمایش میده
-    //         } else {
-    //             toast.error(data.message || "خطایی در ثبت سفارش رخ داد.");
-    //             throw new Error(data.message); // throw کن تا ReceiptForm بدونه submit ناموفق بوده
-    //         }
-    //     } catch (err) {
-    //         toast.error("ارتباط با سرور برقرار نشد.");
-    //         throw err; // رethrow کن تا loading در ReceiptForm درست ریست بشه
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
-
-    const handleSubmitOrder = async () => {
-    if (!canSubmit) {
-        toast.error("لطفاً همه اطلاعات را با فرمت درست تکمیل کنید.");
-        return;
-    }
-
-    setLoading(true);
-    try {
-        const res = await fetch("/api/order", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                planType: selectedProduct,
-                durationMonths: formData.durationMonths,
-                spotifyEmail: formData.spotifyEmail.trim(),
-                fullNameEn: formData.fullNameEn.trim(),
-                dateOfBirth: formData.dateOfBirth,
-                password: formData.password || "",
-                gender: formData.gender,
-                price: formData.price,
-            }),
-        });
-
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-            setOrderId(data.orderId);  // ← orderId واقعی ذخیره میشه
-            toast.success("سفارش ثبت شد! لطفاً رسید پرداخت را ارسال کنید.");
-            setStep(5);               // ← حالا میره step 5
-        } else {
-            toast.error(data.message || "خطایی در ثبت سفارش رخ داد.");
-        }
-    } catch {
-        toast.error("ارتباط با سرور برقرار نشد.");
-    } finally {
-        setLoading(false);
-    }
-};
-
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
         toast.success("شماره کارت کپی شد!");
     };
 
+    const handleCreateOrder = async (receiptData?: ReceiptPayload) => {
+        if (!canSubmit) {
+            toast.error("لطفاً همه اطلاعات را با فرمت درست تکمیل کنید.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const res = await fetch("/api/order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    planType: selectedProduct,
+                    durationMonths: formData.durationMonths,
+                    spotifyEmail: formData.spotifyEmail.trim(),
+                    fullNameEn: formData.fullNameEn.trim(),
+                    dateOfBirth: formData.dateOfBirth,
+                    password: formData.password || "",
+                    gender: formData.gender,
+                    price: formData.price,
+                    receipt: receiptData || null,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                setOrderId(data.orderId);
+                toast.success("سفارش ثبت شد.");
+            } else {
+                toast.error(data.message || "خطایی در ثبت سفارش رخ داد.");
+            }
+        } catch {
+            toast.error("ارتباط با سرور برقرار نشد.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="max-w-4xl mx-auto w-full">
             <div className="text-center mb-8">
-                {step < 5 && (
+                {step <= 5 && (
                     <StepIndicator
                         step={step}
                         onStepOneClick={() => {
                             resetPlanSelection();
+                            setOrderId("");
                             setStep(1);
                         }}
                     />
@@ -255,11 +210,6 @@ export default function OrderForm() {
                 {step !== 5 && (
                     <>
                         <div className="inline-flex items-center justify-center p-4 rounded-full bg-slate-800/50 border border-slate-700 mt-6 mb-4">
-                            {/* {isFamily ? (
-                                <Users className="w-8 h-8 text-[#1ED760]" />
-                            ) : (
-                                <User className="w-8 h-8 text-[#1ED760]" />
-                            )} */}
                             {step === 2 ? (
                                 <Image src="/assets/images/clock.png" alt="step2" width={32} height={32} />
                             ) : step === 3 ? (
@@ -301,7 +251,6 @@ export default function OrderForm() {
                     />
                 )}
 
-                {/* نکته: اگر در استپ ۲ (DurationStep) دکمه 'بعدی' برای موبایل ندارید، باید در فایل DurationStep آن را مانند استپ ۱ اضافه کنید */}
                 {step === 2 && (
                     <DurationStep
                         selectedProduct={selectedProduct}
@@ -324,7 +273,7 @@ export default function OrderForm() {
                         submittedStep3={submittedStep3}
                         setSubmittedStep3={setSubmittedStep3}
                         onBack={() => setStep(2)}
-                        onSubmit={() => setStep(4)} // رفتن به مرحله پیش‌فاکتور
+                        onSubmit={() => setStep(4)}
                         loading={false}
                     />
                 )}
@@ -334,9 +283,8 @@ export default function OrderForm() {
                         formData={formData}
                         selectedProduct={selectedProduct}
                         onBack={() => setStep(3)}
-                        // onNext={() => setStep(5)}
                         loading={loading}
-                        onNext={handleSubmitOrder}  // اول ثبت سفارش، بعد step 5
+                        onNext={() => setStep(5)}
                     />
                 )}
 
@@ -345,6 +293,13 @@ export default function OrderForm() {
                         orderId={orderId}
                         price={formData.price}
                         onCopyCard={() => copyToClipboard("5041721212076674")}
+                        onBack={() => {
+                            setOrderId("");
+                            setStep(4);
+                        }}
+                        onConfirmReceipt={handleCreateOrder}
+                        loading={loading}
+                        supportLink={supportLink}
                     />
                 )}
             </AnimatePresence>

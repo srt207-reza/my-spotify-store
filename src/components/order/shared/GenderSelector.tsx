@@ -17,7 +17,7 @@ export default function GenderSelector({ value, onChange, showError }: Props) {
             </label>
 
             {/* تغییر در این بخش: استفاده از flex-col-reverse برای موبایل و بازگشت به grid در سایز sm */}
-            <div className="flex flex-col-reverse sm:grid sm:grid-cols-2 gap-3">
+            <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3">
                 {GENDER_OPTIONS.map((item) => {
                     const active = value === item.value;
 

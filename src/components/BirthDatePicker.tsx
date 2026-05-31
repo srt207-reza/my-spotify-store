@@ -1,9 +1,9 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Calendar, ChevronDown, Check } from "lucide-react";
 
 /* ─────────────────────────────────────────────
-   Custom Select — replaces the ugly native <select>
+   Custom Select — کامپوننت انتخابگر سفارشی
 ───────────────────────────────────────────── */
 interface SelectOption {
     value: string;
@@ -22,7 +22,6 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
     const ref = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLDivElement>(null);
 
-    /* close on outside click */
     useEffect(() => {
         function handleOutside(e: MouseEvent | TouchEvent) {
             if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -37,7 +36,6 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
         };
     }, []);
 
-    /* scroll selected item into view when opening */
     useEffect(() => {
         if (isOpen && value && listRef.current) {
             const selected = listRef.current.querySelector("[data-selected='true']") as HTMLElement;
@@ -51,7 +49,6 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
 
     return (
         <div ref={ref} className="relative flex-1 min-w-0">
-            {/* Trigger */}
             <button
                 type="button"
                 onClick={() => setIsOpen((prev) => !prev)}
@@ -78,7 +75,6 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
                 />
             </button>
 
-            {/* Dropdown panel */}
             <div
                 className={`
                     absolute top-[calc(100%+6px)] left-0 right-0 z-[9999]
@@ -134,7 +130,7 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
 }
 
 /* ─────────────────────────────────────────────
-   BirthDatePicker — same logic, new look
+   BirthDatePicker — منطق اصلاح شده تاریخ
 ───────────────────────────────────────────── */
 interface BirthDatePickerProps {
     value: string;
@@ -146,40 +142,66 @@ export default function BirthDatePicker({ value, onChange }: BirthDatePickerProp
     const [month, setMonth] = useState("");
     const [year, setYear] = useState("");
 
+    // ۱. تجزیه مقدار اولیه (Value) به تفکیک سال، ماه و روز
     useEffect(() => {
         if (value) {
             const parts = value.split("-");
             if (parts.length === 3) {
                 setYear(parts[0]);
-                setMonth(parts[1]);
-                setDay(parts[2]);
+                setMonth(parts[1]); // انتظار می‌رود فرمت "00" باشد
+                setDay(parts[2]);   // انتظار می‌رود فرمت "00" باشد
             }
         }
     }, [value]);
 
+    // ۲. ارسال تغییرات به والد در صورت تکمیل بودن فیلدها
     useEffect(() => {
         if (day && month && year) {
-            const formattedMonth = month.padStart(2, "0");
-            const formattedDay = day.padStart(2, "0");
-            onChange(`${year}-${formattedMonth}-${formattedDay}`);
+            const newValue = `${year}-${month}-${day}`;
+            // جلوگیری از لوپ بی‌نهایت: فقط اگر مقدار جدید با پروپ فعلی متفاوت بود
+            if (newValue !== value) {
+                onChange(newValue);
+            }
         }
-    }, [day, month, year]);
+    }, [day, month, year, onChange, value]);
 
-    const currentYear = new Date().getFullYear();
-    const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
-    const months = Array.from({ length: 12 }, (_, i) => i + 1);
-    const daysInMonth = month && year ? new Date(Number(year), Number(month), 0).getDate() : 31;
-    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    // گزینه‌های سال
+    const yearOptions = useMemo(() => {
+        const currentYear = new Date().getFullYear();
+        return Array.from({ length: 100 }, (_, i) => {
+            const y = String(currentYear - i);
+            return { value: y, label: y };
+        });
+    }, []);
 
-    const yearOptions: SelectOption[] = years.map((y) => ({ value: String(y), label: String(y) }));
-    const monthOptions: SelectOption[] = months.map((m) => ({
-        value: String(m),
-        label: String(m).padStart(2, "0"),
-    }));
-    const dayOptions: SelectOption[] = days.map((d) => ({
-        value: String(d),
-        label: String(d).padStart(2, "0"),
-    }));
+    // گزینه‌های ماه (با فرمت دو رقمی برای مطابقت با استیت)
+    const monthOptions = useMemo(() => {
+        return Array.from({ length: 12 }, (_, i) => {
+            const m = String(i + 1).padStart(2, "0");
+            return { value: m, label: m };
+        });
+    }, []);
+
+    // محاسبه تعداد روزها بر اساس سال و ماه انتخاب شده
+    const dayOptions = useMemo(() => {
+        const daysInMonth = (month && year) 
+            ? new Date(Number(year), Number(month), 0).getDate() 
+            : 31;
+        
+        return Array.from({ length: daysInMonth }, (_, i) => {
+            const d = String(i + 1).padStart(2, "0");
+            return { value: d, label: d };
+        });
+    }, [month, year]);
+
+    // مدیریت تغییر ماه (اگر روز انتخابی در ماه جدید وجود نداشت، روز را ریست کن)
+    const handleMonthChange = (newMonth: string) => {
+        setMonth(newMonth);
+        const daysInNewMonth = new Date(Number(year || 2000), Number(newMonth), 0).getDate();
+        if (Number(day) > daysInNewMonth) {
+            setDay(""); // اگر روز ۳۱ بود و ماه شد ۳۰ روزه، روز پاک شود
+        }
+    };
 
     return (
         <div className="flex flex-col gap-2 w-full">
@@ -198,7 +220,7 @@ export default function BirthDatePicker({ value, onChange }: BirthDatePickerProp
                 />
                 <CustomSelect
                     value={month}
-                    onChange={setMonth}
+                    onChange={handleMonthChange}
                     options={monthOptions}
                     placeholder="ماه"
                 />

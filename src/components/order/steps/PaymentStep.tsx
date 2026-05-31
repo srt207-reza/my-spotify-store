@@ -2,16 +2,28 @@
 
 import ReceiptForm from "@/components/Receiptform";
 import { motion } from "framer-motion";
-import { CheckCircle2, Copy, CreditCard, Wifi } from "lucide-react";
+import { CheckCircle2, Copy, CreditCard, Wifi, ArrowLeft } from "lucide-react";
 
-// بعد ✅
+type ReceiptPayload = {
+    receiptNumber?: string;
+    payerName?: string;
+    depositTime?: string;
+    bankName?: string;
+    receiptImage?: string | null;
+    note?: string;
+};
+
 type Props = {
     orderId: string;
     price: number;
     onCopyCard: () => void;
+    onBack: () => void;
+    onConfirmReceipt: (receiptData?: ReceiptPayload) => Promise<void>;
+    loading?: boolean;
+    supportLink?: string;
 };
 
-export default function PaymentStep({ orderId, price, onCopyCard }: Props) {
+export default function PaymentStep({ orderId, price, onCopyCard, onBack, onConfirmReceipt, loading }: Props) {
     const containerVariants = {
         hidden: { opacity: 0, y: 16 },
         visible: {
@@ -59,7 +71,6 @@ export default function PaymentStep({ orderId, price, onCopyCard }: Props) {
             animate="visible"
             className="text-center space-y-8 w-full"
         >
-            {/* بخش تأیید سفارش */}
             <motion.div
                 //@ts-ignore
                 variants={itemVariants}
@@ -114,7 +125,6 @@ export default function PaymentStep({ orderId, price, onCopyCard }: Props) {
                 )}
             </motion.div>
 
-            {/* بخش اطلاعات پرداخت و کارت بانکی */}
             <motion.div
                 //@ts-ignore
                 variants={itemVariants}
@@ -131,7 +141,6 @@ export default function PaymentStep({ orderId, price, onCopyCard }: Props) {
                     را به شماره کارت زیر واریز بفرمایید.
                 </motion.p>
 
-                {/* کارت بانکی */}
                 <motion.div
                     //@ts-ignore
                     variants={cardVariants}
@@ -227,6 +236,7 @@ export default function PaymentStep({ orderId, price, onCopyCard }: Props) {
                                 onClick={onCopyCard}
                                 className="p-2 shrink-0 cursor-pointer text-[#1ED760] hover:text-[#1ED760] hover:bg-[#282828] rounded-lg transition-colors bg-[#121212]/50 backdrop-blur-sm border border-[#1ED760] flex items-center justify-center"
                                 title="کپی شماره کارت"
+                                type="button"
                             >
                                 <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
                             </motion.button>
@@ -259,13 +269,12 @@ export default function PaymentStep({ orderId, price, onCopyCard }: Props) {
                 </motion.div>
             </motion.div>
 
-            {/* ─── فرم رسید (جایگزین سکشن تلگرام) ─── */}
             <motion.div
                 //@ts-ignore
                 variants={itemVariants}
-                className="mt-8"
+                className="mt-8 w-full"
             >
-                <ReceiptForm orderId={orderId} />
+                <ReceiptForm orderId={orderId} loading={!!loading} onSubmit={onConfirmReceipt} onBack={onBack} />
             </motion.div>
         </motion.div>
     );

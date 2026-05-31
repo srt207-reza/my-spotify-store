@@ -108,6 +108,6 @@ export const PRODUCT_META: Record<
 };
 
 export const GENDER_OPTIONS = [
-    { value: "man" as const, label: "آقا" },
     { value: "woman" as const, label: "خانم" },
+    { value: "man" as const, label: "آقا" },
 ];

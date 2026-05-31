@@ -1,8 +1,6 @@
 export type PlanType = "individual" | "family";
 
-export type Gender =
-    | "man"
-    | "woman";
+export type Gender = "woman" | "man";
 
 export type Plan = {
     id: string;
