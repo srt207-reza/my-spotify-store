@@ -196,7 +196,7 @@ export default function OrderForm() {
     return (
         <div className="max-w-4xl mx-auto w-full">
             <div className="text-center mb-8">
-                {step <= 5 && (
+                {step <= 5 && !orderId && (
                     <StepIndicator
                         step={step}
                         onStepOneClick={() => {
