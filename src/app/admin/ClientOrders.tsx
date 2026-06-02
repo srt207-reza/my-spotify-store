@@ -257,7 +257,7 @@ function normalizeImportedRow(row: Record<string, unknown>): Order | null {
           : importedPrice;
 
     return {
-        id: id || `SP-IMP-${Date.now().toString(36).toUpperCase()}`,
+        id: id || `SP-IMP-${Date.now().toString(36).slice(-4).toUpperCase()}`,
         planType,
         durationMonths: parseNumber(getCell(row, ["مدت (ماه)", "durationMonths", "مدت"])),
         price: finalPrice || importedPrice,

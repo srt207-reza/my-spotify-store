@@ -3,6 +3,7 @@
 import ReceiptForm from "@/components/Receiptform";
 import { motion } from "framer-motion";
 import { CheckCircle2, Copy, CreditCard, Wifi } from "lucide-react";
+import { useEffect } from "react";
 
 type ReceiptPayload = {
     receiptNumber?: string;
@@ -71,6 +72,10 @@ export default function PaymentStep({
         rest: { x: "-120%" },
         hover: { x: "120%", transition: { duration: 1.2, ease: "easeInOut" } },
     };
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <motion.div
@@ -207,8 +212,8 @@ export default function PaymentStep({
                                         </motion.div>
                                     </div>
                                 </div>
-                                <div className="w-full space-y-4">
-                                    <div className="w-full space-y-2">
+                                <div className="w-full space-y-0">
+                                    <div className="w-full space-y-1">
                                         <span className="block text-right text-xs sm:text-sm text-zinc-400 font-medium tracking-wide">
                                             شماره کارت
                                         </span>
@@ -241,7 +246,7 @@ export default function PaymentStep({
                                         </div>
                                     </div>
 
-                                    <div className="w-full space-y-2">
+                                    <div className="w-full space-y-1">
                                         <span className="block text-xs text-right sm:text-sm text-zinc-400 font-medium tracking-wide">
                                             شماره شبا
                                         </span>
@@ -275,7 +280,7 @@ export default function PaymentStep({
                                     </div>
                                 </div>
 
-                                <div className="w-full mt-auto flex justify-between items-end pt-1">
+                                <div className="w-full mt-auto flex justify-between items-end">
                                     <div className="flex flex-row items-center gap-3 text-right" dir="rtl">
                                         <span className="text-sm text-start text-zinc-500 tracking-widest mb-1">
                                             دارنده کارت :

@@ -151,9 +151,9 @@ function normalizeCouponCode(value: unknown): string {
 }
 
 function generateOrderId(): string {
-    const ts = Date.now().toString(36).toUpperCase();
-    const rnd = Math.floor(100 + Math.random() * 900);
-    return `SP-${ts}-${rnd}`;
+    const ts = Date.now().toString(36).slice(-4).toUpperCase();
+    const rnd = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `SP-${ts}${rnd}`; // مثال: M8K4X7P2
 }
 
 function isExpired(expiresAt?: string): boolean {

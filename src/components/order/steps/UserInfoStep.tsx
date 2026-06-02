@@ -60,6 +60,10 @@ export default function UserInfoStep({
     const nameInitializedRef = useRef(false);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         if (nameInitializedRef.current) return;
 
         const fullName = formData.fullNameEn.trim();
@@ -343,7 +347,10 @@ export default function UserInfoStep({
                         کلمه‌عبور باید حداقل ۱۰ کارکتر داشته باشد و شامل ۱ حرف و ۱ عدد یا کاراکتر خاص باشد.
                     </p>
                 ) : (
-                    <p className="text-xs text-slate-500 mt-2">در صورتی که با استفاده از آدرس ایمیل مدنظر، حساب کاربری اسپاتیفای ایجاد نشده است، کلمه‌عبور پیشنهادی را وارد بفرمایید.</p>
+                    <p className="text-xs text-slate-500 mt-2">
+                        در صورتی که با استفاده از آدرس ایمیل مدنظر، حساب کاربری اسپاتیفای ایجاد نشده است، کلمه‌عبور
+                        پیشنهادی را وارد بفرمایید.
+                    </p>
                 )}
             </div>
 

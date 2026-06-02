@@ -4,6 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import type { PlanType } from "../orderTypes";
 import { PRODUCT_META } from "../orderData";
 import PlanCard from "../shared/PlanCard";
+import { useEffect } from "react";
 
 type Props = {
     selectedProduct: PlanType | null;
@@ -13,6 +14,10 @@ type Props = {
 };
 
 export default function ProductComparisonStep({ selectedProduct, onSelectProduct, onNext, onBack }: Props) {
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+    
     return (
         <motion.div
             key="step1"
@@ -21,11 +26,11 @@ export default function ProductComparisonStep({ selectedProduct, onSelectProduct
             exit={{ opacity: 0, x: 20 }}
             className="space-y-6"
         >
-             <h2 className="text-lg font-medium text-slate-200 mb-8">
+            <h2 className="text-lg font-medium text-slate-200 mb-8">
                 لطفاً با توجه به مشخصات طرح‌های موجود، طرح مورد نظر را انتخاب نمایید و سپس بر روی گزینه{" "}
                 <strong className="text-[#1ED760]">تأیید طرح اشتراک پرمیوم</strong>، کلیک بفرمایید.
             </h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full items-stretch">
                 {(Object.keys(PRODUCT_META) as PlanType[]).map((product) => {
                     const meta = PRODUCT_META[product];

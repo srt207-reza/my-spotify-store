@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, CheckCircle2, Eye, EyeOff, Lock, Unlock, Tag } from "lucide-react";
 import type { FormData, PlanType } from "../orderTypes";
@@ -49,6 +49,10 @@ export default function PreInvoiceStep({
 
     const originalPrice = currentPlan?.originalPrice ?? formData.price;
     const finalPrice = payablePrice || formData.price;
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <motion.div
@@ -123,7 +127,7 @@ export default function PreInvoiceStep({
                 <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
                     <span className="text-sm text-zinc-400">تاریخ تولد:</span>
                     <span className="text-sm font-medium text-white md:text-base" dir="ltr">
-                        {formData.dateOfBirth.replaceAll("-", " - ")}
+                        {`${formData.dateOfBirth.split("-")?.[1]}/${formData.dateOfBirth.split("-")?.[2]}/${formData.dateOfBirth.split("-")?.[0]}`}
                     </span>
                 </div>
 
@@ -142,15 +146,14 @@ export default function PreInvoiceStep({
                         <input
                             value={couponCode}
                             onChange={(e) => setCouponCode(e.target.value)}
-                            placeholder="مثلاً NEW20"
-                            dir="ltr"
+                            placeholder="در صورت داشتن کد تخفیف، لطفاً آن را وارد نمایید و سپس بر روی گزینه ثبت کد تخفیف کلیک بفرمایید."
                             className="flex-1 rounded-xl border border-[#2a2a2a] bg-[#0f0f0f] px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500/40"
                         />
                         <button
                             type="button"
                             onClick={onApplyCoupon}
                             disabled={couponApplying}
-                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm font-bold text-emerald-400 transition-colors hover:bg-emerald-500/15 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm font-bold text-emerald-400 transition-colors hover:bg-emerald-500/15 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {couponApplying ? (
                                 <>
@@ -158,7 +161,7 @@ export default function PreInvoiceStep({
                                     بررسی کد
                                 </>
                             ) : (
-                                "اعمال کد"
+                                "ثبت کد تخفیف"
                             )}
                         </button>
                     </div>
@@ -170,7 +173,7 @@ export default function PreInvoiceStep({
                     {discountAmount > 0 && (
                         <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
                             <div className="flex items-center justify-between gap-3">
-                                <span className="text-sm text-emerald-300">تخفیف اعمال‌شده:</span>
+                                <span className="text-sm text-emerald-300">مبلغ تخفیف:</span>
                                 <span className="font-bold text-emerald-400">
                                     {discountAmount.toLocaleString("fa-IR")} تومان
                                 </span>
