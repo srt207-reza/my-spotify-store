@@ -47,6 +47,7 @@ type ReceiptFormProps = {
 
 export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack }: ReceiptFormProps) {
     const [payerName, setPayerName] = useState("");
+    const [payerNameError, setPayerNameError] = useState("");
     const [trackingCode, setTrackingCode] = useState("");
     const [sourceBank, setSourceBank] = useState("");
     const [localLoading, setLocalLoading] = useState(false);
@@ -58,7 +59,37 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
     });
     const [bankOpen, setBankOpen] = useState(false);
 
-    const payerNameValid = payerName.trim().length >= 3;
+    const sanitizePersianName = (value: string) => {
+        return value
+            .replace(/[^آ-ی\s\u200c]/g, "")
+            .replace(/\s{2,}/g, " ")
+            .trimStart();
+    };
+
+    const isPersianName = (value: string) => {
+        const trimmed = value.trim();
+        return trimmed.length >= 3 && /^[آ-ی\s\u200c]+$/.test(trimmed);
+    };
+
+    const handlePayerNameChange = (value: string) => {
+        const cleaned = sanitizePersianName(value);
+
+        setPayerName(cleaned);
+
+        if (value !== cleaned) {
+            setPayerNameError("فقط حروف فارسی، فاصله و نیم‌فاصله مجاز است.");
+            return;
+        }
+
+        if (cleaned.trim().length > 0 && cleaned.trim().length < 3) {
+            setPayerNameError("نام و نام خانوادگی باید حداقل ۳ حرف باشد.");
+            return;
+        }
+
+        setPayerNameError("");
+    };
+
+    const payerNameValid = isPersianName(payerName);
     const trackingCodeValid = trackingCode.trim().length >= 6;
     const sourceBankValid = sourceBank.trim().length > 0;
     const canSubmit = payerNameValid && trackingCodeValid && sourceBankValid;
@@ -132,8 +163,13 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     </motion.div>
 
                     <div className="space-y-1 relative z-10">
-                        <p className="text-white font-bold text-lg sm:text-xl">رسید شما با موفقیت ثبت شد!</p>
-                        <p className="text-zinc-400 text-sm">سفارش شما در اسرع وقت بررسی و تأیید خواهد شد.</p>
+                        <p className="text-white font-bold text-lg sm:text-xl">
+                            درخواست فعال‌سازی اشتراک پرمیوم اسپاتیفای با موفقیت ثبت شد!
+                        </p>
+                        <p className="text-zinc-400 text-sm mt-2">
+                            سفارش شما در حال پردازش و پیگیری توسط همکاران بخش پشتیبانی می‌باشد، لطفاً جهت پیگیری سفارش
+                            بر روی گزینه ارتباط با پشتیبانی کلیک بفرمایید تا کد پیگیری سفارش به طور خودکار ارسال گردد.
+                        </p>
                     </div>
 
                     <div className="relative z-10 space-y-2">
@@ -167,7 +203,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     />
 
                     <motion.div
-                        //@ts-ignore
+                        // @ts-ignore
                         variants={itemVariants}
                         className="flex items-center gap-3 relative z-10"
                     >
@@ -175,52 +211,57 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             <Receipt className="w-4 h-4 text-[#1ED760]" />
                         </div>
                         <div>
-                            <p className="text-white font-semibold text-sm sm:text-base">اطلاعات رسید پرداخت</p>
-                            <p className="text-zinc-500 text-xs mt-0.5">پس از واریز، اطلاعات زیر را تکمیل کنید</p>
+                            <p className="text-white font-semibold text-sm sm:text-base">اطلاعات رسید پرداخت وجه</p>
+                            <p className="text-zinc-500 text-xs mt-0.5">
+                                لطفاً پس از پرداخت، اطلاعات رسید پرداخت وجه را در فرم زیر وارد نمایید.
+                            </p>
                         </div>
                     </motion.div>
 
                     <motion.div
-                        //@ts-ignore
+                        // @ts-ignore
                         variants={itemVariants}
                         className="relative z-10 space-y-1.5"
                     >
                         <label className="text-zinc-300 text-sm font-medium flex items-center gap-1">
-                            نام واریزکننده <span className="text-red-400">*</span>
+                            مشخصات واریزکننده <span className="text-red-400">*</span>
                         </label>
                         <input
                             type="text"
-                            placeholder="نام و نام خانوادگی"
+                            placeholder="نام و نام‌خانوادگی"
                             value={payerName}
-                            onChange={(e) => setPayerName(e.target.value)}
+                            onChange={(e) => handlePayerNameChange(e.target.value)}
                             onBlur={() => setTouched((p) => ({ ...p, payerName: true }))}
+                            inputMode="text"
+                            autoComplete="name"
+                            dir="rtl"
                             className={`w-full bg-[#121212] border rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 text-sm outline-none transition-all duration-200
                                 ${
-                                    touched.payerName && !payerNameValid
+                                    touched.payerName && (!payerNameValid || payerNameError)
                                         ? "border-red-500/60"
                                         : payerNameValid
                                           ? "border-[#1ED760]/40 focus:border-[#1ED760]"
                                           : "border-[#282828] focus:border-zinc-500"
                                 }`}
                         />
-                        {touched.payerName && !payerNameValid && (
+                        {touched.payerName && (!payerNameValid || payerNameError) && (
                             <motion.p
                                 initial={{ opacity: 0, y: -4 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className="text-red-400 text-xs"
                             >
-                                الزامی
+                                {payerNameError || "فقط حروف فارسی مجاز است."}
                             </motion.p>
                         )}
                     </motion.div>
 
                     <motion.div
-                        //@ts-ignore
+                        // @ts-ignore
                         variants={itemVariants}
                         className="relative z-10 space-y-1.5"
                     >
                         <label className="text-zinc-300 text-sm font-medium flex items-center gap-1">
-                            کد رهگیری <span className="text-red-400">*</span>
+                            کد رهگیری تراکنش<span className="text-red-400">*</span>
                         </label>
                         <input
                             type="text"
@@ -251,7 +292,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     </motion.div>
 
                     <motion.div
-                        //@ts-ignore
+                        // @ts-ignore
                         variants={itemVariants}
                         className="relative z-20 space-y-1.5"
                     >
@@ -328,7 +369,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     </motion.div>
 
                     <motion.div
-                        //@ts-ignore
+                        // @ts-ignore
                         variants={itemVariants}
                         className="relative z-10 flex flex-col-reverse gap-3 pt-2 sm:flex-row"
                     >
@@ -354,7 +395,12 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             {canSubmit && !loading && !localLoading && (
                                 <motion.span
                                     animate={{ x: [-60, 260] }}
-                                    transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+                                    transition={{
+                                        duration: 2.5,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                        repeatDelay: 1,
+                                    }}
                                     className="absolute inset-y-0 w-20 bg-white/15 blur-xl pointer-events-none"
                                 />
                             )}
@@ -362,7 +408,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             {loading || localLoading ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
-                                <span className="relative z-10">تأیید و ثبت رسید پرداخت</span>
+                                <span className="relative z-10">ثبت رسید پرداخت وجه</span>
                             )}
                         </motion.button>
                     </motion.div>

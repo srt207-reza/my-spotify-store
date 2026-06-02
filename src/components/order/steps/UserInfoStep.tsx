@@ -178,34 +178,6 @@ export default function UserInfoStep({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div dir="rtl">
                         <label className="flex items-center gap-2 text-sm text-slate-400 mb-2">
-                            <User className="w-4 h-4" /> نام <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={firstNameEn}
-                            maxLength={50}
-                            onFocus={() => setNameFocused(true)}
-                            onBlur={() => setNameFocused(false)}
-                            onChange={(e) => {
-                                setTouched((prev) => ({ ...prev, fullNameEn: true }));
-
-                                const nextFirst = capitalizeEnglishWords(normalizeNameInput(e.target.value));
-                                setFirstNameEn(nextFirst);
-                                syncFullName(nextFirst, lastNameEn);
-                            }}
-                            className="w-full border border-[#282828] bg-[#121212] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#1ED760]"
-                            placeholder="Mohammadreza"
-                            dir="ltr"
-                            autoComplete="given-name"
-                        />
-                        {showFirstNameRequiredError && <p className="text-xs mt-2 text-red-400">نام خالی است.</p>}
-                        {showFirstNameLanguageError && (
-                            <p className="text-xs mt-2 text-red-400">فقط حروف انگلیسی وارد کنید.</p>
-                        )}
-                    </div>
-
-                    <div dir="rtl">
-                        <label className="flex items-center gap-2 text-sm text-slate-400 mb-2">
                             <User className="w-4 h-4" /> نام‌خانوادگی <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -222,7 +194,7 @@ export default function UserInfoStep({
                                 syncFullName(firstNameEn, nextLast);
                             }}
                             className="w-full border border-[#282828] bg-[#121212] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#1ED760]"
-                            placeholder="Rahimizadeh"
+                            placeholder="Rahimzadeh (Only English Letters)"
                             dir="ltr"
                             autoComplete="family-name"
                         />
@@ -230,12 +202,40 @@ export default function UserInfoStep({
                             <p className="text-xs mt-2 text-red-400">نام‌خانوادگی خالی است.</p>
                         )}
                         {showLastNameLanguageError && (
-                            <p className="text-xs mt-2 text-red-400">فقط حروف انگلیسی وارد کنید.</p>
+                            <p className="text-xs mt-2 text-red-400">لطفاً مشخصات را به انگلیسی وارد بفرمایید.</p>
                         )}
                         {showNameFormatError && (
                             <p className="text-xs mt-2 text-red-400">
                                 نام باید فقط با حروف انگلیسی و حداقل شامل نام و نام‌خانوادگی باشد.
                             </p>
+                        )}
+                    </div>
+
+                    <div dir="rtl">
+                        <label className="flex items-center gap-2 text-sm text-slate-400 mb-2">
+                            <User className="w-4 h-4" /> نام <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            value={firstNameEn}
+                            maxLength={50}
+                            onFocus={() => setNameFocused(true)}
+                            onBlur={() => setNameFocused(false)}
+                            onChange={(e) => {
+                                setTouched((prev) => ({ ...prev, fullNameEn: true }));
+
+                                const nextFirst = capitalizeEnglishWords(normalizeNameInput(e.target.value));
+                                setFirstNameEn(nextFirst);
+                                syncFullName(nextFirst, lastNameEn);
+                            }}
+                            className="w-full border border-[#282828] bg-[#121212] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#1ED760]"
+                            placeholder="e.g. Mohammadreza (Only English Letters)"
+                            dir="ltr"
+                            autoComplete="given-name"
+                        />
+                        {showFirstNameRequiredError && <p className="text-xs mt-2 text-red-400">نام خالی است.</p>}
+                        {showFirstNameLanguageError && (
+                            <p className="text-xs mt-2 text-red-400">لطفاً مشخصات را به انگلیسی وارد بفرمایید.</p>
                         )}
                     </div>
                 </div>
@@ -281,8 +281,8 @@ export default function UserInfoStep({
                                 password: filterEnglishOnly(e.target.value),
                             }));
                         }}
-                        className={`${!formData.password ? "text-right" : ""} w-full border border-[#282828] bg-[#121212] rounded-xl pl-4 py-3 pr-10 text-white focus:outline-none focus:border-[#1ED760]`}
-                        placeholder="در صورتی که با استفاده از آدرس ایمیل مدنظر حساب کاربری اسپاتیفای ایجاد نشده است، کلمه‌عبور پیشنهادی را وارد بفرمایید"
+                        className={`w-full border border-[#282828] bg-[#121212] rounded-xl pl-4 py-3 pr-10 text-white focus:outline-none focus:border-[#1ED760]`}
+                        placeholder="P@ssword1"
                         dir="ltr"
                     />
 
@@ -334,16 +334,16 @@ export default function UserInfoStep({
                     </div>
                 )}
 
-                {showPasswordError && (
+                {showPasswordError ? (
                     <p className="text-xs mt-2 text-red-400">
                         لطفاً کلمه‌عبور حساب کاربری اسپاتیفای را در قالب صحیح، مطابق شرایط فوق وارد نمایید.
                     </p>
-                )}
-
-                {showPasswordError && (
+                ) : showPasswordError ? (
                     <p className="text-xs mt-2 text-red-400">
                         کلمه‌عبور باید حداقل ۱۰ کارکتر داشته باشد و شامل ۱ حرف و ۱ عدد یا کاراکتر خاص باشد.
                     </p>
+                ) : (
+                    <p className="text-xs text-slate-500 mt-2">در صورتی که با استفاده از آدرس ایمیل مدنظر، حساب کاربری اسپاتیفای ایجاد نشده است، کلمه‌عبور پیشنهادی را وارد بفرمایید.</p>
                 )}
             </div>
 
@@ -365,7 +365,7 @@ export default function UserInfoStep({
                     {loading ? (
                         <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                     ) : (
-                        "تأیید اطلاعات و پرداخت"
+                        "ثبت اطلاعات حساب‌کاربری اسپاتیفای"
                     )}
                 </button>
             </div>

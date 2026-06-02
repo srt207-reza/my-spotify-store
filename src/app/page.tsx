@@ -146,12 +146,12 @@ export default function HomePage() {
                             </span>
                         </h1>
 
-                        <p className="mx-auto mt-6 w-full px-6 text-base leading-relaxed text-slate-300/90 sm:text-lg md:text-xl md:leading-9 lg:mx-0 font-light">
+                        <p className="mt-6 w-full px-6 text-base text-right leading-relaxed text-slate-300/90 sm:text-lg md:text-xl md:leading-9 lg:mx-0 font-light">
                             اسپاتیفای، محبوب‌ترین پلتفرم پخش موسیقی بین‌الملل، خانه‌ای برای میلیون‌ها آهنگ، پادکست و
                             لیست پخش (Playlist) از هنرمندان ایران و سراسر دنیا، اکنون در ایران در دسترس شماست!
                         </p>
 
-                        <div className="mt-10 flex justify-center lg:justify-start">
+                        <div className="mt-10 flex justify-center">
                             <Link
                                 href="/order"
                                 className="group inline-flex items-center justify-center gap-3 rounded-full border border-green-300/20 bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-4 text-base font-bold text-white shadow-[0_16px_40px_-10px_rgba(34,197,94,0.4)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_60px_-10px_rgba(34,197,94,0.6)] sm:text-lg"

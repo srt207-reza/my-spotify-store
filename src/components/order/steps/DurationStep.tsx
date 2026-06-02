@@ -42,7 +42,7 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
                     </>
                 ) : (
                     <>
-                        طرح‌ {isFamily ? "فمیلی" : "شخصی"} اسپاتیفای در بسته‌های زمانی متنوع ارائه می‌گردد، لطفاً مدت
+                        طرح‌ {isFamily ? "گروهی" : "شخصی"} اسپاتیفای در بسته‌های زمانی متنوع ارائه می‌گردد، لطفاً مدت
                         زمان مورد نظر را انتخاب نمایید و سپس بر روی گزینه{" "}
                         <strong className="text-[#1ED760]">تأیید مدت زمان اشتراک پرمیوم</strong>، کلیک بفرمایید.
                     </>
@@ -120,7 +120,7 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
 
                                         {hasDiscount && (
                                             <div
-                                                className={`mt-3 inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-5 ${isDisabled ? "border-gray-500/20 bg-gray-500/10 text-gray-300" : "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"}`}
+                                                className={`mt-3 inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-5 ${isDisabled ? "border-gray-500/20 bg-gray-500/10 text-gray-300/70" : "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"}`}
                                             >
                                                 <BadgePercent className="h-3.5 w-3.5 shrink-0" />
                                                 <span className="whitespace-normal">{discountPercent}٪ تخفیف</span>

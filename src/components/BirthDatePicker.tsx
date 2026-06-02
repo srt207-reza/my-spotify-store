@@ -109,7 +109,7 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
                                     setIsOpen(false);
                                 }}
                                 className={`
-                                    w-full text-left flex items-center justify-between
+                                    w-full cursor-pointer text-left flex items-center justify-between
                                     px-3 py-2.5 text-sm
                                     transition-colors duration-100
                                     ${isSelected
@@ -142,30 +142,26 @@ export default function BirthDatePicker({ value, onChange }: BirthDatePickerProp
     const [month, setMonth] = useState("");
     const [year, setYear] = useState("");
 
-    // ۱. تجزیه مقدار اولیه (Value) به تفکیک سال، ماه و روز
     useEffect(() => {
         if (value) {
             const parts = value.split("-");
             if (parts.length === 3) {
                 setYear(parts[0]);
-                setMonth(parts[1]); // انتظار می‌رود فرمت "00" باشد
-                setDay(parts[2]);   // انتظار می‌رود فرمت "00" باشد
+                setMonth(parts[1]); // ذخیره عددی مثل 01, 02, 03
+                setDay(parts[2]);
             }
         }
     }, [value]);
 
-    // ۲. ارسال تغییرات به والد در صورت تکمیل بودن فیلدها
     useEffect(() => {
         if (day && month && year) {
             const newValue = `${year}-${month}-${day}`;
-            // جلوگیری از لوپ بی‌نهایت: فقط اگر مقدار جدید با پروپ فعلی متفاوت بود
             if (newValue !== value) {
                 onChange(newValue);
             }
         }
     }, [day, month, year, onChange, value]);
 
-    // گزینه‌های سال
     const yearOptions = useMemo(() => {
         const currentYear = new Date().getFullYear();
         return Array.from({ length: 100 }, (_, i) => {
@@ -174,32 +170,45 @@ export default function BirthDatePicker({ value, onChange }: BirthDatePickerProp
         });
     }, []);
 
-    // گزینه‌های ماه (با فرمت دو رقمی برای مطابقت با استیت)
     const monthOptions = useMemo(() => {
-        return Array.from({ length: 12 }, (_, i) => {
-            const m = String(i + 1).padStart(2, "0");
-            return { value: m, label: m };
-        });
+        const months = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ];
+
+        return months.map((name, index) => ({
+            value: String(index + 1).padStart(2, "0"), // ذخیره عددی
+            label: name, // نمایش به صورت اسم ماه
+        }));
     }, []);
 
-    // محاسبه تعداد روزها بر اساس سال و ماه انتخاب شده
     const dayOptions = useMemo(() => {
-        const daysInMonth = (month && year) 
-            ? new Date(Number(year), Number(month), 0).getDate() 
-            : 31;
-        
+        const daysInMonth =
+            month && year
+                ? new Date(Number(year), Number(month), 0).getDate()
+                : 31;
+
         return Array.from({ length: daysInMonth }, (_, i) => {
             const d = String(i + 1).padStart(2, "0");
             return { value: d, label: d };
         });
     }, [month, year]);
 
-    // مدیریت تغییر ماه (اگر روز انتخابی در ماه جدید وجود نداشت، روز را ریست کن)
     const handleMonthChange = (newMonth: string) => {
         setMonth(newMonth);
         const daysInNewMonth = new Date(Number(year || 2000), Number(newMonth), 0).getDate();
         if (Number(day) > daysInNewMonth) {
-            setDay(""); // اگر روز ۳۱ بود و ماه شد ۳۰ روزه، روز پاک شود
+            setDay("");
         }
     };
 

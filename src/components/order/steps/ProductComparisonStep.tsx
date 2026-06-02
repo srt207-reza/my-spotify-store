@@ -21,7 +21,7 @@ export default function ProductComparisonStep({ selectedProduct, onSelectProduct
             exit={{ opacity: 0, x: 20 }}
             className="space-y-6"
         >
-             <h2 className="text-lg font-medium text-slate-200 mb-4 text-center md:text-right">
+             <h2 className="text-lg font-medium text-slate-200 mb-8">
                 لطفاً با توجه به مشخصات طرح‌های موجود، طرح مورد نظر را انتخاب نمایید و سپس بر روی گزینه{" "}
                 <strong className="text-[#1ED760]">تأیید طرح اشتراک پرمیوم</strong>، کلیک بفرمایید.
             </h2>

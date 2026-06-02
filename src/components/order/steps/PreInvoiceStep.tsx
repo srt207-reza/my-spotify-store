@@ -50,7 +50,7 @@ export default function PreInvoiceStep({ formData, selectedProduct, onBack, onNe
                 <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
                     <span className="text-sm text-zinc-400">طرح اشتراک پرمیوم:</span>
                     <span className="rounded-lg bg-[#282828] px-3 py-1 text-sm font-bold text-white md:text-base">
-                        {isFamily ? "پرمیوم فمیلی (خانواده)" : "پرمیوم شخصی (Individual)"}
+                        {isFamily ? "طرح گروهی (خانواده)" : "طرح شخصی (Individual)"}
                     </span>
                 </div>
 
@@ -114,23 +114,6 @@ export default function PreInvoiceStep({ formData, selectedProduct, onBack, onNe
                     <span className="text-sm font-medium text-white md:text-base">{displayGender}</span>
                 </div>
 
-                {originalPrice && originalPrice > discountedPrice && (
-                    <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
-                        <span className="text-sm text-zinc-400">قیمت اصلی:</span>
-                        <span className="text-sm font-medium text-white md:text-base">
-                            {originalPrice.toLocaleString("fa-IR")} تومان
-                        </span>
-                    </div>
-                )}
-
-                {originalPrice && originalPrice > discountedPrice && (
-                    <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
-                        <span className="text-sm text-zinc-400">قیمت تخفیف خورده:</span>
-                        <span className="text-sm font-bold text-[#1ED760] md:text-base">
-                            {discountedPrice.toLocaleString("fa-IR")} تومان
-                        </span>
-                    </div>
-                )}
 
                 <div className="flex items-center justify-between pt-4">
                     <span className="text-lg font-bold text-zinc-300">مبلغ قابل پرداخت:</span>

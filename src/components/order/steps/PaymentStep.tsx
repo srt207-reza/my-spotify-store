@@ -2,7 +2,7 @@
 
 import ReceiptForm from "@/components/Receiptform";
 import { motion } from "framer-motion";
-import { CheckCircle2, Copy, CreditCard, Wifi, ArrowLeft } from "lucide-react";
+import { CheckCircle2, Copy, CreditCard, Wifi } from "lucide-react";
 
 type ReceiptPayload = {
     receiptNumber?: string;
@@ -23,7 +23,14 @@ type Props = {
     supportLink?: string;
 };
 
-export default function PaymentStep({ orderId, price, onCopyCard, onBack, onConfirmReceipt, loading }: Props) {
+export default function PaymentStep({
+    orderId,
+    price,
+    onCopyCard,
+    onBack,
+    onConfirmReceipt,
+    loading,
+}: Props) {
     const containerVariants = {
         hidden: { opacity: 0, y: 16 },
         visible: {
@@ -117,7 +124,7 @@ export default function PaymentStep({ orderId, price, onCopyCard, onBack, onConf
                             <strong className="text-lg sm:text-xl text-[#1ED760]">
                                 {price.toLocaleString("fa-IR")} تومان
                             </strong>{" "}
-                            را به شماره کارت زیر واریز بفرمایید.
+                            را به شماره کارت یا شماره شبا زیر واریز بفرمایید.
                         </motion.p>
 
                         <motion.div
@@ -125,7 +132,7 @@ export default function PaymentStep({ orderId, price, onCopyCard, onBack, onConf
                             variants={cardVariants}
                             initial="rest"
                             whileHover="hover"
-                            className="group relative w-full max-w-[450px] mx-auto aspect-[1.586/1] rounded-3xl overflow-hidden border border-[#1ED760] bg-[#181818] text-left transform-gpu [transform-style:preserve-3d]"
+                            className="group relative w-full max-w-[550px] mx-auto rounded-3xl overflow-hidden border border-[#1ED760] bg-[#181818] text-left transform-gpu [transform-style:preserve-3d]"
                             style={{ perspective: 1200 }}
                         >
                             <div className="absolute inset-0 bg-gradient-to-br from-[#282828]/50 via-[#121212] to-black z-0" />
@@ -150,14 +157,15 @@ export default function PaymentStep({ orderId, price, onCopyCard, onBack, onConf
                             <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:22px_22px]" />
 
                             <div
-                                className="relative z-10 h-full p-5 sm:p-6 flex flex-col justify-between"
+                                className="relative z-10 h-full p-5 sm:p-6 flex flex-col gap-5"
                                 style={{
                                     transform: "translateZ(0)",
                                     backfaceVisibility: "hidden",
                                     WebkitBackfaceVisibility: "hidden",
                                 }}
                             >
-                                <div className="flex justify-between items-start w-full" dir="rtl">
+                                <div className="flex justify-between w-full">
+                                    <div className="flex justify-between items-start w-full" dir="rtl">
                                     <div className="flex flex-col items-start w-full">
                                         <motion.span
                                             initial={{ opacity: 0, x: 10 }}
@@ -178,7 +186,7 @@ export default function PaymentStep({ orderId, price, onCopyCard, onBack, onConf
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-3 sm:gap-4 w-full mt-3 sm:mt-2">
+                                <div className="flex items-center justify-end gap-3 sm:gap-4 w-full">
                                     <motion.div
                                         animate={{ y: [0, -1.5, 0] }}
                                         transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
@@ -197,31 +205,68 @@ export default function PaymentStep({ orderId, price, onCopyCard, onBack, onConf
                                     </motion.div>
                                 </div>
 
-                                <div className="w-full mt-4 sm:mt-5 flex items-center justify-between gap-2">
-                                    <motion.span
-                                        dir="ltr"
-                                        initial={{ opacity: 0, y: 8 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.28, duration: 0.45 }}
-                                        className="text-[1.12rem] sm:text-2xl font-mono text-white tracking-[0.12em] sm:tracking-[0.16em] whitespace-nowrap drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
-                                        style={{ transform: "translateZ(0)", textRendering: "geometricPrecision" }}
-                                    >
-                                        5041 7212 1207 6674
-                                    </motion.span>
+                                </div>
+                                <div className="w-full space-y-4">
+                                    <div className="w-full space-y-2">
+                                        <span className="block text-right text-xs sm:text-sm text-zinc-400 font-medium tracking-wide">
+                                            شماره کارت
+                                        </span>
 
-                                    <motion.button
-                                        whileHover={{ scale: 1.08, rotate: -3 }}
-                                        whileTap={{ scale: 0.94 }}
-                                        onClick={onCopyCard}
-                                        className="p-2 shrink-0 cursor-pointer text-[#1ED760] hover:text-[#1ED760] hover:bg-[#282828] rounded-lg transition-colors bg-[#121212]/50 backdrop-blur-sm border border-[#1ED760] flex items-center justify-center"
-                                        title="کپی شماره کارت"
-                                        type="button"
-                                    >
-                                        <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
-                                    </motion.button>
+                                        <div className="flex items-center justify-between gap-2" dir="rtl">
+                                            <motion.span
+                                                initial={{ opacity: 0, y: 8 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.28, duration: 0.45 }}
+                                                className="text-[1.05rem] sm:text-2xl font-mono text-white tracking-[0.12em] sm:tracking-[0.16em] whitespace-nowrap drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+                                                style={{ transform: "translateZ(0)", textRendering: "geometricPrecision" }}
+                                            >
+                                                5041 7212 1207 6674
+                                            </motion.span>
+
+                                            <motion.button
+                                                whileHover={{ scale: 1.08, rotate: -3 }}
+                                                whileTap={{ scale: 0.94 }}
+                                                onClick={onCopyCard}
+                                                className="p-2 shrink-0 cursor-pointer text-[#1ED760] hover:text-[#1ED760] hover:bg-[#282828] rounded-lg transition-colors bg-[#121212]/50 backdrop-blur-sm border border-[#1ED760] flex items-center justify-center"
+                                                title="کپی شماره کارت"
+                                                type="button"
+                                            >
+                                                <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
+                                            </motion.button>
+                                        </div>
+                                    </div>
+
+                                    <div className="w-full space-y-2">
+                                        <span className="block text-xs text-right sm:text-sm text-zinc-400 font-medium tracking-wide">
+                                            شماره شبا
+                                        </span>
+
+                                        <div className="flex items-center justify-between gap-2" dir="rtl">
+                                            <motion.span
+                                                initial={{ opacity: 0, y: 8 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.32, duration: 0.45 }}
+                                                className="text-[0.96rem] sm:text-xl font-mono text-white tracking-[0.1em] sm:tracking-[0.12em] break-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+                                                style={{ transform: "translateZ(0)", textRendering: "geometricPrecision" }}
+                                            >
+                                                IR950700010001110988147001
+                                            </motion.span>
+
+                                            <motion.button
+                                                whileHover={{ scale: 1.08, rotate: -3 }}
+                                                whileTap={{ scale: 0.94 }}
+                                                onClick={onCopyCard}
+                                                className="p-2 shrink-0 cursor-pointer text-[#1ED760] hover:text-[#1ED760] hover:bg-[#282828] rounded-lg transition-colors bg-[#121212]/50 backdrop-blur-sm border border-[#1ED760] flex items-center justify-center"
+                                                title="کپی شماره شبا"
+                                                type="button"
+                                            >
+                                                <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
+                                            </motion.button>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="w-full mt-auto flex justify-between items-end">
+                                <div className="w-full mt-auto flex justify-between items-end pt-1">
                                     <div className="flex flex-row items-center gap-3 text-right" dir="rtl">
                                         <span className="text-sm text-start text-zinc-500 tracking-widest mb-1">
                                             دارنده کارت :
@@ -248,9 +293,7 @@ export default function PaymentStep({ orderId, price, onCopyCard, onBack, onConf
                         </motion.div>
                     </motion.div>
                 </>
-            ) : (
-                <></>
-            )}
+            ) : null}
 
             <motion.div
                 //@ts-ignore
