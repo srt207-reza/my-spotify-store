@@ -17,6 +17,7 @@ type Props = {
     orderId: string;
     price: number;
     onCopyCard: () => void;
+    onCopySheba: () => void;
     onBack: () => void;
     onConfirmReceipt: (receiptData?: ReceiptPayload) => Promise<void>;
     loading?: boolean;
@@ -27,6 +28,7 @@ export default function PaymentStep({
     orderId,
     price,
     onCopyCard,
+    onCopySheba,
     onBack,
     onConfirmReceipt,
     loading,
@@ -166,45 +168,44 @@ export default function PaymentStep({
                             >
                                 <div className="flex justify-between w-full">
                                     <div className="flex justify-between items-start w-full" dir="rtl">
-                                    <div className="flex flex-col items-start w-full">
-                                        <motion.span
-                                            initial={{ opacity: 0, x: 10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.18, duration: 0.45 }}
-                                            className="text-[#1ED760] font-bold text-base sm:text-lg tracking-wider drop-shadow-md"
-                                        >
-                                            بانک رسالت
-                                        </motion.span>
-                                        <motion.span
-                                            initial={{ opacity: 0, x: 10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.24, duration: 0.45 }}
-                                            className="text-[10px] sm:text-[10px] text-zinc-500 tracking-widest uppercase mt-0.5"
-                                        >
-                                            Bank Resalat
-                                        </motion.span>
+                                        <div className="flex flex-col items-start w-full">
+                                            <motion.span
+                                                initial={{ opacity: 0, x: 10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.18, duration: 0.45 }}
+                                                className="text-[#1ED760] font-bold text-base sm:text-xl tracking-wider drop-shadow-md"
+                                            >
+                                                بانک رسالت
+                                            </motion.span>
+                                            <motion.span
+                                                initial={{ opacity: 0, x: 10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.24, duration: 0.45 }}
+                                                className="text-[10px] sm:text-[10px] text-zinc-500 tracking-widest uppercase mt-0.5"
+                                            >
+                                                Bank Resalat
+                                            </motion.span>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="flex items-center justify-end gap-3 sm:gap-4 w-full">
-                                    <motion.div
-                                        animate={{ y: [0, -1.5, 0] }}
-                                        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-                                        className="relative w-10 h-8 sm:w-12 sm:h-9 bg-gradient-to-br from-yellow-300 to-accent rounded-md flex items-center justify-center border border-accent/50 shadow-inner overflow-hidden shrink-0"
-                                    >
-                                        <div className="w-full h-[1px] bg-yellow-700/40 absolute" />
-                                        <div className="w-[1px] h-full bg-yellow-700/40 absolute" />
-                                    </motion.div>
+                                    <div className="flex items-center justify-end gap-3 sm:gap-4 w-full">
+                                        <motion.div
+                                            animate={{ y: [0, -1.5, 0] }}
+                                            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+                                            className="relative w-10 h-8 sm:w-12 sm:h-9 bg-gradient-to-br from-yellow-300 to-accent rounded-md flex items-center justify-center border border-accent/50 shadow-inner overflow-hidden shrink-0"
+                                        >
+                                            <div className="w-full h-[1px] bg-yellow-700/40 absolute" />
+                                            <div className="w-[1px] h-full bg-yellow-700/40 absolute" />
+                                        </motion.div>
 
-                                    <motion.div
-                                        animate={{ rotate: [90, 92, 90] }}
-                                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                                        className="shrink-0"
-                                    >
-                                        <Wifi className="w-5 h-5 sm:w-6 sm:h-6 text-store-muted/70" />
-                                    </motion.div>
-                                </div>
-
+                                        <motion.div
+                                            animate={{ rotate: [90, 92, 90] }}
+                                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                                            className="shrink-0"
+                                        >
+                                            <Wifi className="w-5 h-5 sm:w-6 sm:h-6 text-store-muted/70" />
+                                        </motion.div>
+                                    </div>
                                 </div>
                                 <div className="w-full space-y-4">
                                     <div className="w-full space-y-2">
@@ -214,11 +215,15 @@ export default function PaymentStep({
 
                                         <div className="flex items-center justify-between gap-2" dir="rtl">
                                             <motion.span
+                                                dir="ltr"
                                                 initial={{ opacity: 0, y: 8 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.28, duration: 0.45 }}
                                                 className="text-[1.05rem] sm:text-2xl font-mono text-white tracking-[0.12em] sm:tracking-[0.16em] whitespace-nowrap drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
-                                                style={{ transform: "translateZ(0)", textRendering: "geometricPrecision" }}
+                                                style={{
+                                                    transform: "translateZ(0)",
+                                                    textRendering: "geometricPrecision",
+                                                }}
                                             >
                                                 5041 7212 1207 6674
                                             </motion.span>
@@ -243,11 +248,15 @@ export default function PaymentStep({
 
                                         <div className="flex items-center justify-between gap-2" dir="rtl">
                                             <motion.span
+                                                dir="ltr"
                                                 initial={{ opacity: 0, y: 8 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.32, duration: 0.45 }}
                                                 className="text-[0.96rem] sm:text-xl font-mono text-white tracking-[0.1em] sm:tracking-[0.12em] break-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
-                                                style={{ transform: "translateZ(0)", textRendering: "geometricPrecision" }}
+                                                style={{
+                                                    transform: "translateZ(0)",
+                                                    textRendering: "geometricPrecision",
+                                                }}
                                             >
                                                 IR950700010001110988147001
                                             </motion.span>
@@ -255,7 +264,7 @@ export default function PaymentStep({
                                             <motion.button
                                                 whileHover={{ scale: 1.08, rotate: -3 }}
                                                 whileTap={{ scale: 0.94 }}
-                                                onClick={onCopyCard}
+                                                onClick={onCopySheba}
                                                 className="p-2 shrink-0 cursor-pointer text-[#1ED760] hover:text-[#1ED760] hover:bg-[#282828] rounded-lg transition-colors bg-[#121212]/50 backdrop-blur-sm border border-[#1ED760] flex items-center justify-center"
                                                 title="کپی شماره شبا"
                                                 type="button"

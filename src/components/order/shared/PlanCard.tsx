@@ -65,11 +65,7 @@ export default function PlanCard({
                         >
                             <CheckCircle2 className="h-6 w-6 text-[#1ED760]" strokeWidth={2.5} />
                         </motion.div>
-                    ) : (
-                        <div className="flex items-center gap-2 text-xs text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700/50">
-                            برای انتخاب روی کارت بزنید
-                        </div>
-                    )}
+                    ) : null}
                 </div>
 
                 <h2 className="text-2xl font-bold text-white mb-2">{title}</h2>

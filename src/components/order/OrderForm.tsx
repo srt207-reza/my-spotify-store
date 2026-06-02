@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
-import { Loader2, Users, User } from "lucide-react";
+import { User } from "lucide-react";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 import type { FormData, Plan, PlanType, TouchedState } from "./orderTypes";
 import { PRICING } from "./orderData";
@@ -16,7 +17,6 @@ import DurationStep from "./steps/DurationStep";
 import UserInfoStep from "./steps/UserInfoStep";
 import PaymentStep from "./steps/PaymentStep";
 import PreInvoiceStep from "./steps/PreInvoiceStep";
-import Image from "next/image";
 
 const initialTouchedState: TouchedState = {
     fullNameEn: false,
@@ -34,6 +34,48 @@ type ReceiptPayload = {
     receiptImage?: string | null;
     note?: string;
 };
+
+type DiscountType = "percent" | "fixed";
+
+type DiscountCode = {
+    code: string;
+    type: DiscountType;
+    value: number;
+    active: boolean;
+    maxUses?: number;
+    usedCount: number;
+    minOrderAmount?: number;
+    expiresAt?: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+function normalizeCouponCode(value: string) {
+    return value.trim().replace(/\s+/g, "").toUpperCase();
+}
+
+function isExpired(expiresAt?: string): boolean {
+    if (!expiresAt) return false;
+    const d = new Date(expiresAt);
+    return Number.isNaN(d.getTime()) ? false : d.getTime() < Date.now();
+}
+
+function calculateDiscount(price: number, code: DiscountCode) {
+    let discountAmount = 0;
+
+    if (code.type === "percent") {
+        discountAmount = Math.floor((price * code.value) / 100);
+    } else {
+        discountAmount = Math.floor(code.value);
+    }
+
+    discountAmount = Math.max(0, Math.min(discountAmount, price));
+
+    return {
+        discountAmount,
+        finalPrice: Math.max(0, price - discountAmount),
+    };
+}
 
 export default function OrderForm() {
     const searchParams = useSearchParams();
@@ -56,6 +98,11 @@ export default function OrderForm() {
     const [submittedStep3, setSubmittedStep3] = useState(false);
     const [touched, setTouched] = useState<TouchedState>(initialTouchedState);
 
+    const [couponCode, setCouponCode] = useState("");
+    const [payablePrice, setPayablePrice] = useState(0);
+    const [discountAmount, setDiscountAmount] = useState(0);
+    const [couponApplying, setCouponApplying] = useState(false);
+
     const [formData, setFormData] = useState<FormData>({
         planType: getInitialProduct() || "individual",
         durationMonths: 0,
@@ -75,6 +122,9 @@ export default function OrderForm() {
         const currentPlanParam = searchParams.get("plan");
 
         setSelectedProduct(currentProduct);
+        setCouponCode("");
+        setDiscountAmount(0);
+        setPayablePrice(0);
 
         let matchedPlan: Plan | undefined;
 
@@ -94,6 +144,7 @@ export default function OrderForm() {
                 planTitle: matchedPlan!.title,
                 price: matchedPlan!.price,
             }));
+            setPayablePrice(matchedPlan.price);
         } else {
             setFormData((prev) => ({
                 ...prev,
@@ -134,10 +185,18 @@ export default function OrderForm() {
             planTitle: plan.title,
             price: plan.price,
         }));
+
+        setCouponCode("");
+        setDiscountAmount(0);
+        setPayablePrice(plan.price);
     };
 
     const resetPlanSelection = () => {
         setSelectedProduct(null);
+        setCouponCode("");
+        setDiscountAmount(0);
+        setPayablePrice(0);
+
         setFormData((prev) => ({
             ...prev,
             planType: "individual",
@@ -151,6 +210,80 @@ export default function OrderForm() {
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
         toast.success("شماره کارت کپی شد!");
+    };
+
+    const handleApplyCoupon = async () => {
+        if (!couponCode.trim()) {
+            toast.error("کد تخفیف را وارد کنید.");
+            return;
+        }
+
+        if (!formData.price || formData.price <= 0) {
+            toast.error("ابتدا یک پلن را انتخاب کنید.");
+            return;
+        }
+
+        setCouponApplying(true);
+        try {
+            const normalizedCode = normalizeCouponCode(couponCode);
+
+            const res = await fetch("/api/discount-code");
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                toast.error(data.message || "خطا در بررسی کد تخفیف");
+                return;
+            }
+
+            const codes: DiscountCode[] = Array.isArray(data.codes) ? data.codes : [];
+            const matched = codes.find((item) => item.code.toUpperCase() === normalizedCode);
+
+            if (!matched) {
+                setDiscountAmount(0);
+                setPayablePrice(formData.price);
+                toast.error("کد تخفیف معتبر نیست.");
+                return;
+            }
+
+            if (!matched.active) {
+                setDiscountAmount(0);
+                setPayablePrice(formData.price);
+                toast.error("این کد تخفیف غیرفعال است.");
+                return;
+            }
+
+            if (isExpired(matched.expiresAt)) {
+                setDiscountAmount(0);
+                setPayablePrice(formData.price);
+                toast.error("این کد تخفیف منقضی شده است.");
+                return;
+            }
+
+            if (typeof matched.maxUses === "number" && matched.usedCount >= matched.maxUses) {
+                setDiscountAmount(0);
+                setPayablePrice(formData.price);
+                toast.error("این کد تخفیف دیگر قابل استفاده نیست.");
+                return;
+            }
+
+            if (typeof matched.minOrderAmount === "number" && formData.price < matched.minOrderAmount) {
+                setDiscountAmount(0);
+                setPayablePrice(formData.price);
+                toast.error("مبلغ سفارش برای این کد تخفیف کافی نیست.");
+                return;
+            }
+
+            const result = calculateDiscount(formData.price, matched);
+            setCouponCode(normalizedCode);
+            setDiscountAmount(result.discountAmount);
+            setPayablePrice(result.finalPrice);
+
+            toast.success("کد تخفیف اعمال شد.");
+        } catch {
+            toast.error("ارتباط با سرور برقرار نشد.");
+        } finally {
+            setCouponApplying(false);
+        }
     };
 
     const handleCreateOrder = async (receiptData?: ReceiptPayload) => {
@@ -174,6 +307,7 @@ export default function OrderForm() {
                     password: formData.password || "",
                     gender: formData.gender,
                     price: formData.price,
+                    couponCode: couponCode.trim(),
                     receipt: receiptData || null,
                 }),
             });
@@ -243,6 +377,9 @@ export default function OrderForm() {
                         onSelectProduct={(value) => {
                             setSelectedProduct(value);
                             setFormData((prev) => ({ ...prev, planType: value }));
+                            setCouponCode("");
+                            setDiscountAmount(0);
+                            setPayablePrice(0);
                         }}
                         onBack={() => {
                             router.push("/");
@@ -282,6 +419,12 @@ export default function OrderForm() {
                     <PreInvoiceStep
                         formData={formData}
                         selectedProduct={selectedProduct}
+                        couponCode={couponCode}
+                        discountAmount={discountAmount}
+                        payablePrice={payablePrice || formData.price}
+                        couponApplying={couponApplying}
+                        setCouponCode={setCouponCode}
+                        onApplyCoupon={handleApplyCoupon}
                         onBack={() => setStep(3)}
                         loading={loading}
                         onNext={() => setStep(5)}
@@ -291,8 +434,9 @@ export default function OrderForm() {
                 {step === 5 && (
                     <PaymentStep
                         orderId={orderId}
-                        price={formData.price}
+                        price={payablePrice || formData.price}
                         onCopyCard={() => copyToClipboard("5041721212076674")}
+                        onCopySheba={() => copyToClipboard("IR950700010001110988147001")}
                         onBack={() => {
                             setOrderId("");
                             setStep(4);

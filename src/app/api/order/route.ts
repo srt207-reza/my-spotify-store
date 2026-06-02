@@ -3,15 +3,30 @@ import fs from "fs/promises";
 import path from "path";
 
 const dataFilePath = path.join(process.cwd(), "orders.json");
+const discountFilePath = path.join(process.cwd(), "discount-codes.json");
 
 type OrderStatus = "pending_payment" | "awaiting_verification" | "processing" | "completed";
 type PlanType = "individual" | "family";
+type DiscountType = "percent" | "fixed";
 
 interface SpotifyOrderReceipt {
     payerName: string;
     trackingCode: string;
     sourceBank: string;
     submittedAt: string;
+}
+
+interface DiscountCode {
+    code: string;
+    type: DiscountType;
+    value: number;
+    active: boolean;
+    maxUses?: number;
+    usedCount: number;
+    minOrderAmount?: number;
+    expiresAt?: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 interface SpotifyOrder {
@@ -32,6 +47,12 @@ interface SpotifyOrder {
     planId?: string;
     planTitle?: string;
     importedFromExcel?: boolean;
+
+    // فیلدهای تخفیف
+    originalPrice?: number;
+    discountAmount?: number;
+    couponCode?: string;
+    finalPrice?: number;
 }
 
 type CreateOrderPayload = {
@@ -45,6 +66,7 @@ type CreateOrderPayload = {
     price?: number;
     planId?: string;
     planTitle?: string;
+    couponCode?: string;
     receipt?: {
         payerName?: string;
         trackingCode?: string;
@@ -100,17 +122,11 @@ function normalizePlanType(value: unknown): PlanType | null {
 function normalizeStatus(value: unknown): OrderStatus {
     const v = normalizeText(value).toLowerCase();
 
-    if (
-        v === "completed" ||
-        v.includes("تکمیل")
-    ) {
+    if (v === "completed" || v.includes("تکمیل")) {
         return "completed";
     }
 
-    if (
-        v === "processing" ||
-        v.includes("پردازش")
-    ) {
+    if (v === "processing" || v.includes("پردازش")) {
         return "processing";
     }
 
@@ -130,10 +146,21 @@ function normalizeSourceBank(value: unknown): string {
     return normalizeText(value).replace(/^بانک\s+/g, "").trim();
 }
 
+function normalizeCouponCode(value: unknown): string {
+    return normalizeText(value).replace(/\s+/g, "").toUpperCase();
+}
+
 function generateOrderId(): string {
     const ts = Date.now().toString(36).toUpperCase();
     const rnd = Math.floor(100 + Math.random() * 900);
     return `SP-${ts}-${rnd}`;
+}
+
+function isExpired(expiresAt?: string): boolean {
+    if (!expiresAt) return false;
+    const d = new Date(expiresAt);
+    if (Number.isNaN(d.getTime())) return false;
+    return d.getTime() < Date.now();
 }
 
 async function readOrders(): Promise<SpotifyOrder[]> {
@@ -150,13 +177,22 @@ async function writeOrders(orders: SpotifyOrder[]): Promise<void> {
     await fs.writeFile(dataFilePath, JSON.stringify(orders, null, 2), "utf-8");
 }
 
+async function readDiscountCodes(): Promise<DiscountCode[]> {
+    try {
+        const fileData = await fs.readFile(discountFilePath, "utf-8");
+        const parsed = JSON.parse(fileData);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+}
+
+async function writeDiscountCodes(codes: DiscountCode[]): Promise<void> {
+    await fs.writeFile(discountFilePath, JSON.stringify(codes, null, 2), "utf-8");
+}
+
 function hasCreateOrderFields(data: CreateOrderPayload): boolean {
-    return Boolean(
-        data.planType &&
-        data.spotifyEmail &&
-        data.fullNameEn &&
-        data.dateOfBirth
-    );
+    return Boolean(data.planType && data.spotifyEmail && data.fullNameEn && data.dateOfBirth);
 }
 
 function buildReceipt(receipt?: CreateOrderPayload["receipt"]): SpotifyOrderReceipt | undefined {
@@ -193,6 +229,7 @@ function sanitizeNewOrderPayload(data: CreateOrderPayload) {
         price: Number(data.price ?? 0) || 0,
         planId: normalizeText(data.planId),
         planTitle: normalizeText(data.planTitle),
+        couponCode: normalizeCouponCode(data.couponCode),
         receipt,
     };
 }
@@ -203,6 +240,40 @@ function upsertById(orders: SpotifyOrder[], nextOrder: SpotifyOrder): SpotifyOrd
     const cloned = [...orders];
     cloned[idx] = nextOrder;
     return cloned;
+}
+
+function applyDiscount(price: number, code: DiscountCode) {
+    if (!code.active) {
+        return { ok: false as const, message: "این کد تخفیف غیرفعال است." };
+    }
+
+    if (isExpired(code.expiresAt)) {
+        return { ok: false as const, message: "این کد تخفیف منقضی شده است." };
+    }
+
+    if (typeof code.maxUses === "number" && code.usedCount >= code.maxUses) {
+        return { ok: false as const, message: "این کد تخفیف دیگر قابل استفاده نیست." };
+    }
+
+    if (typeof code.minOrderAmount === "number" && price < code.minOrderAmount) {
+        return { ok: false as const, message: "مبلغ سفارش برای این کد تخفیف کافی نیست." };
+    }
+
+    let discountAmount = 0;
+
+    if (code.type === "percent") {
+        discountAmount = Math.floor((price * code.value) / 100);
+    } else {
+        discountAmount = Math.floor(code.value);
+    }
+
+    discountAmount = Math.max(0, Math.min(discountAmount, price));
+
+    return {
+        ok: true as const,
+        discountAmount,
+        finalPrice: price - discountAmount,
+    };
 }
 
 function normalizeImportedOrder(raw: ImportPayloadRow): SpotifyOrder | null {
@@ -217,7 +288,7 @@ function normalizeImportedOrder(raw: ImportPayloadRow): SpotifyOrder | null {
     }
 
     const status = normalizeStatus(raw.status);
-    const receiptRaw:any = raw.receipt ?? {};
+    const receiptRaw = (raw.receipt ?? {}) as Partial<SpotifyOrderReceipt>;
 
     const receipt =
         normalizeText(receiptRaw.payerName) &&
@@ -231,6 +302,16 @@ function normalizeImportedOrder(raw: ImportPayloadRow): SpotifyOrder | null {
               }
             : undefined;
 
+    const originalPrice =
+        Number(raw.originalPrice ?? 0) ||
+        Number(raw.price ?? 0) ||
+        0;
+
+    const discountAmount = Number(raw.discountAmount ?? 0) || 0;
+    const finalPrice =
+        Number(raw.finalPrice ?? 0) ||
+        (discountAmount > 0 ? Math.max(0, originalPrice - discountAmount) : originalPrice);
+
     return {
         id,
         spotifyEmail: email,
@@ -240,7 +321,11 @@ function normalizeImportedOrder(raw: ImportPayloadRow): SpotifyOrder | null {
         gender: normalizeText(raw.gender),
         planType,
         durationMonths: Number(raw.durationMonths ?? 0) || 0,
-        price: Number(raw.price ?? 0) || 0,
+        price: finalPrice,
+        originalPrice: originalPrice || finalPrice,
+        discountAmount,
+        couponCode: normalizeCouponCode(raw.couponCode),
+        finalPrice,
         status,
         receipt,
         createdAt: normalizeText(raw.createdAt) || new Date().toISOString(),
@@ -259,7 +344,6 @@ function normalizeImportedOrder(raw: ImportPayloadRow): SpotifyOrder | null {
 export async function POST(req: Request) {
     try {
         const data = await req.json();
-
         const orders = await readOrders();
 
         // ── حالت Import اکسل ──
@@ -368,6 +452,42 @@ export async function POST(req: Request) {
             );
         }
 
+        const originalPrice = normalized.price || 0;
+        let discountAmount = 0;
+        let finalPrice = originalPrice;
+        let appliedCouponCode: string | undefined;
+
+        const couponCode = normalizeCouponCode(data.couponCode);
+
+        if (couponCode) {
+            const discountCodes = await readDiscountCodes();
+            const matched = discountCodes.find((item) => item.code.toUpperCase() === couponCode);
+
+            if (!matched) {
+                return NextResponse.json(
+                    { success: false, message: "کد تخفیف معتبر نیست." },
+                    { status: 400 },
+                );
+            }
+
+            const result = applyDiscount(originalPrice, matched);
+
+            if (!result.ok) {
+                return NextResponse.json(
+                    { success: false, message: result.message },
+                    { status: 400 },
+                );
+            }
+
+            discountAmount = result.discountAmount;
+            finalPrice = result.finalPrice;
+            appliedCouponCode = matched.code;
+
+            matched.usedCount += 1;
+            matched.updatedAt = new Date().toISOString();
+            await writeDiscountCodes(discountCodes);
+        }
+
         const newOrder: SpotifyOrder = {
             id: generateOrderId(),
             spotifyEmail: normalized.spotifyEmail,
@@ -377,7 +497,11 @@ export async function POST(req: Request) {
             gender: normalized.gender || "",
             planType: normalized.planType,
             durationMonths: normalized.durationMonths || 1,
-            price: normalized.price || 0,
+            price: finalPrice,
+            originalPrice,
+            discountAmount,
+            couponCode: appliedCouponCode,
+            finalPrice,
             status: normalized.receipt ? "processing" : "pending_payment",
             receipt: normalized.receipt
                 ? {
@@ -397,8 +521,14 @@ export async function POST(req: Request) {
             {
                 success: true,
                 orderId: newOrder.id,
-                message: "سفارش با موفقیت ثبت شد.",
+                message: couponCode
+                    ? "سفارش با موفقیت ثبت شد و تخفیف اعمال شد."
+                    : "سفارش با موفقیت ثبت شد.",
                 supportLink: "https://t.me/getSpotify_Support",
+                originalPrice,
+                discountAmount,
+                finalPrice,
+                couponCode: appliedCouponCode,
             },
             { status: 201 },
         );

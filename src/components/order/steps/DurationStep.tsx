@@ -5,6 +5,7 @@ import { ChevronLeft, CheckCircle2, BadgePercent } from "lucide-react";
 import type { FormData, PlanType } from "../orderTypes";
 import { PRICING } from "../orderData";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 type Props = {
     selectedProduct: PlanType;
@@ -24,6 +25,9 @@ function calcSavings(original: number, price: number): number {
 
 export default function DurationStep({ selectedProduct, formData, onSelectPlan, onBack, onNext }: Props) {
     const isFamily = selectedProduct === "family";
+    useEffect(() => {
+        window.scrollTo(0, 0,);
+    }, []);
 
     return (
         <motion.div

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, ChevronDown, Loader2, Receipt } from "lucide-react";
+import { CheckCircle2, ChevronDown, Loader2, Receipt, Send } from "lucide-react";
 
 const IRANIAN_BANKS = [
     "ملی ایران",
@@ -31,6 +31,8 @@ const IRANIAN_BANKS = [
     "پست بانک",
     "سایر",
 ];
+
+const SUPPORT_TELEGRAM_USERNAME = "getSpotify_Support"; // این را با یوزرنیم پشتیبانی خودت عوض کن
 
 type ReceiptPayload = {
     payerName: string;
@@ -94,6 +96,19 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
     const sourceBankValid = sourceBank.trim().length > 0;
     const canSubmit = payerNameValid && trackingCodeValid && sourceBankValid;
 
+    const telegramMessage = orderId
+        ? `سلام وقت‌بخیر
+من درخواست فعالسازی اشتراک پرمیوم اسپاتیفای با کد پیگیری زیر را ثبت کردم.
+کد پیگیری: ${orderId}
+
+لطفاً در صورت اشتباه بودن اطلاعات حساب کاربری و یا اطلاعات پرداخت، از همین طریق اطلاع‌رسانی بفرمایید.`
+        : `سلام وقت‌بخیر
+من درخواست فعالسازی اشتراک پرمیوم اسپاتیفای را ثبت کردم.
+
+لطفاً در صورت اشتباه بودن اطلاعات حساب کاربری و یا اطلاعات پرداخت، از همین طریق اطلاع‌رسانی بفرمایید.`;
+
+    const supportUrl = `https://t.me/${SUPPORT_TELEGRAM_USERNAME}?text=${encodeURIComponent(telegramMessage)}`;
+
     const handleSubmit = async () => {
         setTouched({
             payerName: true,
@@ -153,6 +168,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                         className="absolute inset-0 rounded-3xl bg-[#1ED760]/5 pointer-events-none"
                     />
+
                     <motion.div
                         initial={{ scale: 0, rotate: -20 }}
                         animate={{ scale: 1, rotate: 0 }}
@@ -167,13 +183,15 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             درخواست فعال‌سازی اشتراک پرمیوم اسپاتیفای با موفقیت ثبت شد!
                         </p>
                         <p className="text-zinc-400 text-sm mt-2">
-                            سفارش شما در حال پردازش و پیگیری توسط همکاران بخش پشتیبانی می‌باشد، لطفاً جهت پیگیری سفارش
-                            بر روی گزینه ارتباط با پشتیبانی کلیک بفرمایید تا کد پیگیری سفارش به طور خودکار ارسال گردد.
+                            سفارش شما در حال پردازش و پیگیری توسط همکاران بخش پشتیبانی می‌باشد، لطفاً جهت پیگیری
+                            سفارش بر روی گزینه ارتباط با پشتیبانی کلیک بفرمایید تا کد پیگیری سفارش به طور خودکار
+                            ارسال گردد.
                         </p>
                     </div>
 
                     <div className="relative z-10 space-y-2">
                         <p className="text-zinc-500 text-xs">کد پیگیری سفارش</p>
+
                         <motion.div
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -184,8 +202,21 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                                 {orderId || "در حال ساخت..."}
                             </span>
                         </motion.div>
+
                         <p className="text-zinc-600 text-xs pt-1">این کد را جهت پیگیری نزد خود نگه دارید</p>
                     </div>
+
+                    <motion.a
+                        href={supportUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="relative z-10 inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl bg-[#1ED760] px-6 py-3.5 text-sm sm:text-base font-bold text-black shadow-[0_0_20px_rgba(30,215,96,0.28)] transition-colors hover:bg-[#1fdf64]"
+                    >
+                        <Send className="w-4 h-4" />
+                        ارتباط با پشتیبانی
+                    </motion.a>
                 </motion.div>
             ) : (
                 <motion.div
@@ -226,6 +257,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                         <label className="text-zinc-300 text-sm font-medium flex items-center gap-1">
                             مشخصات واریزکننده <span className="text-red-400">*</span>
                         </label>
+
                         <input
                             type="text"
                             placeholder="نام و نام‌خانوادگی"
@@ -244,6 +276,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                                           : "border-[#282828] focus:border-zinc-500"
                                 }`}
                         />
+
                         {touched.payerName && (!payerNameValid || payerNameError) && (
                             <motion.p
                                 initial={{ opacity: 0, y: -4 }}
@@ -263,6 +296,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                         <label className="text-zinc-300 text-sm font-medium flex items-center gap-1">
                             کد رهگیری تراکنش<span className="text-red-400">*</span>
                         </label>
+
                         <input
                             type="text"
                             inputMode="numeric"
@@ -280,6 +314,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                                           : "border-[#282828] focus:border-zinc-500"
                                 }`}
                         />
+
                         {touched.trackingCode && !trackingCodeValid && (
                             <motion.p
                                 initial={{ opacity: 0, y: -4 }}
@@ -317,6 +352,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                                 <span className={sourceBank ? "text-white" : "text-zinc-600"}>
                                     {sourceBank ? `بانک ${sourceBank}` : "انتخاب کنید"}
                                 </span>
+
                                 <motion.span animate={{ rotate: bankOpen ? 180 : 0 }} transition={{ duration: 0.25 }}>
                                     <ChevronDown className="w-4 h-4 text-zinc-500" />
                                 </motion.span>

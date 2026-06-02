@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { ReactNode } from "react";
 import {
     User,
     Users,
@@ -22,7 +23,6 @@ import {
     Building2,
     ChevronDown,
     ChevronUp,
-    Upload,
     FileSpreadsheet,
     RotateCcw,
 } from "lucide-react";
@@ -37,6 +37,20 @@ type Receipt = {
 };
 
 type OrderStatus = "pending_payment" | "awaiting_verification" | "processing" | "completed";
+type DiscountType = "percent" | "fixed";
+
+type DiscountCode = {
+    code: string;
+    type: DiscountType;
+    value: number;
+    active: boolean;
+    maxUses?: number;
+    usedCount: number;
+    minOrderAmount?: number;
+    expiresAt?: string;
+    createdAt: string;
+    updatedAt: string;
+};
 
 type Order = {
     id: string;
@@ -44,6 +58,10 @@ type Order = {
     planId?: string;
     planTitle?: string;
     price: number;
+    originalPrice?: number;
+    discountAmount?: number;
+    couponCode?: string;
+    finalPrice?: number;
     durationMonths: number;
     fullNameEn: string;
     password?: string;
@@ -58,39 +76,37 @@ type Order = {
 
 type StatusFilter = "all" | "legacy" | "processing" | "completed";
 
-const STATUS_META: Record<
-    OrderStatus,
-    { label: string; color: string; bg: string; border: string; icon: React.ReactNode }
-> = {
-    pending_payment: {
-        label: "قدیمی: در انتظار پرداخت",
-        color: "text-amber-400",
-        bg: "bg-amber-500/10",
-        border: "border-amber-500/25",
-        icon: <AlertCircle className="w-3.5 h-3.5" />,
-    },
-    awaiting_verification: {
-        label: "قدیمی: در انتظار بررسی",
-        color: "text-blue-400",
-        bg: "bg-blue-500/10",
-        border: "border-blue-500/25",
-        icon: <Hourglass className="w-3.5 h-3.5" />,
-    },
-    processing: {
-        label: "در حال پردازش",
-        color: "text-violet-400",
-        bg: "bg-violet-500/10",
-        border: "border-violet-500/25",
-        icon: <Clock className="w-3.5 h-3.5" />,
-    },
-    completed: {
-        label: "تکمیل شده",
-        color: "text-emerald-400",
-        bg: "bg-emerald-500/10",
-        border: "border-emerald-500/25",
-        icon: <CheckCircle2 className="w-3.5 h-3.5" />,
-    },
-};
+const STATUS_META: Record<OrderStatus, { label: string; color: string; bg: string; border: string; icon: ReactNode }> =
+    {
+        pending_payment: {
+            label: "قدیمی: در انتظار پرداخت",
+            color: "text-amber-400",
+            bg: "bg-amber-500/10",
+            border: "border-amber-500/25",
+            icon: <AlertCircle className="w-3.5 h-3.5" />,
+        },
+        awaiting_verification: {
+            label: "قدیمی: در انتظار بررسی",
+            color: "text-blue-400",
+            bg: "bg-blue-500/10",
+            border: "border-blue-500/25",
+            icon: <Hourglass className="w-3.5 h-3.5" />,
+        },
+        processing: {
+            label: "در حال پردازش",
+            color: "text-violet-400",
+            bg: "bg-violet-500/10",
+            border: "border-violet-500/25",
+            icon: <Clock className="w-3.5 h-3.5" />,
+        },
+        completed: {
+            label: "تکمیل شده",
+            color: "text-emerald-400",
+            bg: "bg-emerald-500/10",
+            border: "border-emerald-500/25",
+            icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+        },
+    };
 
 function getStatusGroup(status: string): Exclude<StatusFilter, "all"> {
     if (status === "processing" || status === "completed") return status;
@@ -142,21 +158,10 @@ function parseNumber(value: unknown): number {
 
 function parsePlanType(value: unknown): "individual" | "family" | null {
     const v = normalizeText(value).toLowerCase();
-    if (
-        v === "family" ||
-        v === "فمیلی" ||
-        v === "خانوادگی" ||
-        v.includes("family") ||
-        v.includes("فمیلی")
-    ) {
+    if (v === "family" || v === "فمیلی" || v === "خانوادگی" || v.includes("family") || v.includes("فمیلی")) {
         return "family";
     }
-    if (
-        v === "individual" ||
-        v === "شخصی" ||
-        v.includes("individual") ||
-        v.includes("شخصی")
-    ) {
+    if (v === "individual" || v === "شخصی" || v.includes("individual") || v.includes("شخصی")) {
         return "individual";
     }
     return null;
@@ -174,7 +179,9 @@ function parseStatus(value: unknown): OrderStatus {
 }
 
 function cleanSourceBank(value: unknown): string {
-    return normalizeText(value).replace(/^بانک\s+/g, "").trim();
+    return normalizeText(value)
+        .replace(/^بانک\s+/g, "")
+        .trim();
 }
 
 function parseDateSafe(dateString?: string) {
@@ -214,25 +221,15 @@ function getCell(row: Record<string, unknown>, keys: string[]) {
 }
 
 function normalizeImportedRow(row: Record<string, unknown>): Order | null {
-    const id = normalizeText(
-        getCell(row, ["شناسه سفارش", "ID", "id", "orderId", "کد سفارش"]),
-    );
+    const id = normalizeText(getCell(row, ["شناسه سفارش", "ID", "id", "orderId", "کد سفارش"]));
 
-    const planType = parsePlanType(
-        getCell(row, ["نوع پلن", "planType", "plan type", "پلن"]),
-    );
+    const planType = parsePlanType(getCell(row, ["نوع پلن", "planType", "plan type", "پلن"]));
 
-    const fullNameEn = normalizeText(
-        getCell(row, ["نام و نام خانوادگی", "fullNameEn", "fullName", "name"]),
-    );
+    const fullNameEn = normalizeText(getCell(row, ["نام و نام خانوادگی", "fullNameEn", "fullName", "name"]));
 
-    const spotifyEmail = normalizeText(
-        getCell(row, ["ایمیل اسپاتیفای", "spotifyEmail", "email"]),
-    );
+    const spotifyEmail = normalizeText(getCell(row, ["ایمیل اسپاتیفای", "spotifyEmail", "email"]));
 
-    const dateOfBirth = normalizeText(
-        getCell(row, ["تاریخ تولد", "dateOfBirth", "birthDate"]),
-    );
+    const dateOfBirth = normalizeText(getCell(row, ["تاریخ تولد", "dateOfBirth", "birthDate"]));
 
     if (!planType || !fullNameEn || !spotifyEmail || !dateOfBirth) {
         return null;
@@ -243,18 +240,31 @@ function normalizeImportedRow(row: Record<string, unknown>): Order | null {
     const receiptSourceBank = cleanSourceBank(getCell(row, ["بانک مبدأ", "sourceBank"]));
     const receiptSubmittedAt = normalizeText(getCell(row, ["زمان ثبت رسید", "submittedAt"]));
 
-    const hasReceipt =
-        receiptPayerName.length > 0 &&
-        receiptTrackingCode.length > 0 &&
-        receiptSourceBank.length > 0;
+    const hasReceipt = receiptPayerName.length > 0 && receiptTrackingCode.length > 0 && receiptSourceBank.length > 0;
+
+    const originalPriceCell = getCell(row, ["مبلغ اصلی", "originalPrice"]);
+    const discountAmountCell = getCell(row, ["مبلغ تخفیف", "discountAmount"]);
+    const finalPriceCell = getCell(row, ["مبلغ نهایی", "finalPrice"]);
+    const couponCodeCell = normalizeText(getCell(row, ["کد تخفیف", "couponCode"]));
+
+    const importedPrice = parseNumber(getCell(row, ["مبلغ (تومان)", "price", "مبلغ"]));
+    const originalPrice = normalizeText(originalPriceCell) ? parseNumber(originalPriceCell) : importedPrice;
+    const discountAmount = normalizeText(discountAmountCell) ? parseNumber(discountAmountCell) : 0;
+    const finalPrice = normalizeText(finalPriceCell)
+        ? parseNumber(finalPriceCell)
+        : discountAmount > 0
+          ? Math.max(0, originalPrice - discountAmount)
+          : importedPrice;
 
     return {
         id: id || `SP-IMP-${Date.now().toString(36).toUpperCase()}`,
         planType,
-        // planId: normalizeText(getCell(row, ["شناسه پلن", "planId"])) || undefined,
-        // planTitle: normalizeText(getCell(row, ["عنوان پلن", "planTitle"])) || undefined,
         durationMonths: parseNumber(getCell(row, ["مدت (ماه)", "durationMonths", "مدت"])),
-        price: parseNumber(getCell(row, ["مبلغ (تومان)", "price", "مبلغ"])),
+        price: finalPrice || importedPrice,
+        originalPrice: originalPrice || finalPrice || importedPrice,
+        discountAmount,
+        couponCode: couponCodeCell || undefined,
+        finalPrice: finalPrice || importedPrice,
         fullNameEn,
         password: normalizeText(getCell(row, ["رمز عبور", "password"])) || undefined,
         dateOfBirth,
@@ -269,15 +279,24 @@ function normalizeImportedRow(row: Record<string, unknown>): Order | null {
                   submittedAt: receiptSubmittedAt || new Date().toISOString(),
               }
             : undefined,
-        createdAt:
-            normalizeText(getCell(row, ["زمان ایجاد سفارش", "createdAt"])) ||
-            new Date().toISOString(),
+        createdAt: normalizeText(getCell(row, ["زمان ایجاد سفارش", "createdAt"])) || new Date().toISOString(),
         importedFromExcel: true,
     };
 }
 
 export default function ClientOrders({ orders }: { orders: Order[] }) {
     const [orderList, setOrderList] = useState<Order[]>(orders);
+    const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
+    const [discountForm, setDiscountForm] = useState({
+        code: "",
+        type: "percent" as DiscountType,
+        value: "",
+        maxUses: "",
+        minOrderAmount: "",
+        expiresAt: "",
+    });
+    const [creatingDiscount, setCreatingDiscount] = useState(false);
+
     const [searchTerm, setSearchTerm] = useState("");
     const [activeFilter, setActiveFilter] = useState<"all" | "individual" | "family">("all");
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -287,17 +306,36 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
     const [importing, setImporting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+    useEffect(() => {
+        const loadDiscountCodes = async () => {
+            try {
+                const res = await fetch("/api/discount-code");
+                const data = await res.json();
+
+                if (data.success) {
+                    setDiscountCodes(Array.isArray(data.codes) ? data.codes : []);
+                } else {
+                    toast.error(data.message || "خطا در دریافت کدهای تخفیف");
+                }
+            } catch {
+                toast.error("خطا در دریافت کدهای تخفیف");
+            }
+        };
+
+        loadDiscountCodes();
+    }, []);
+
     const totalOrders = orderList.length;
-    const totalIncome = orderList.reduce((acc, o) => acc + (o.price || 0), 0);
+    const totalIncome = orderList.reduce((acc, o) => acc + ((o.finalPrice ?? o.price) || 0), 0);
     const processingCount = orderList.filter((o) => o.status === "processing").length;
     const completedCount = orderList.filter((o) => o.status === "completed").length;
     const legacyCount = orderList.filter((o) => getStatusGroup(o.status) === "legacy").length;
+    const totalDiscount = orderList.reduce((acc, o) => acc + (o.discountAmount || 0), 0);
 
     const filteredOrders = useMemo(() => {
         return orderList.filter((order) => {
             const matchPlan = activeFilter === "all" || order.planType === activeFilter;
-            const matchStatus =
-                statusFilter === "all" || getStatusGroup(order.status) === statusFilter;
+            const matchStatus = statusFilter === "all" || getStatusGroup(order.status) === statusFilter;
 
             if (!searchTerm.trim()) return matchPlan && matchStatus;
 
@@ -309,11 +347,108 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                 (order.spotifyEmail || "").toLowerCase().includes(q) ||
                 (order.receipt?.payerName || "").toLowerCase().includes(q) ||
                 (order.receipt?.trackingCode || "").toLowerCase().includes(q) ||
-                (order.planTitle || "").toLowerCase().includes(q);
+                (order.planTitle || "").toLowerCase().includes(q) ||
+                (order.couponCode || "").toLowerCase().includes(q);
 
             return matchPlan && matchStatus && matchSearch;
         });
     }, [orderList, searchTerm, activeFilter, statusFilter]);
+
+    const handleCreateDiscountCode = async () => {
+        const code = discountForm.code.trim();
+        const value = Number(discountForm.value);
+
+        if (!code || !discountForm.value.trim()) {
+            toast.error("کد و مقدار تخفیف الزامی است.");
+            return;
+        }
+
+        if (!Number.isFinite(value) || value <= 0) {
+            toast.error("مقدار تخفیف معتبر نیست.");
+            return;
+        }
+
+        setCreatingDiscount(true);
+        try {
+            const res = await fetch("/api/discount-code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    code,
+                    type: discountForm.type,
+                    value,
+                    maxUses: discountForm.maxUses ? Number(discountForm.maxUses) : undefined,
+                    minOrderAmount: discountForm.minOrderAmount ? Number(discountForm.minOrderAmount) : undefined,
+                    expiresAt: discountForm.expiresAt || undefined,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                toast.error(data.message || "خطا در ثبت کد");
+                return;
+            }
+
+            setDiscountCodes((prev) => [data.code, ...prev]);
+            setDiscountForm({
+                code: "",
+                type: "percent",
+                value: "",
+                maxUses: "",
+                minOrderAmount: "",
+                expiresAt: "",
+            });
+            toast.success("کد تخفیف ثبت شد.");
+        } catch {
+            toast.error("خطا در ارتباط با سرور");
+        } finally {
+            setCreatingDiscount(false);
+        }
+    };
+
+    const handleToggleDiscount = async (code: string, active: boolean) => {
+        try {
+            const res = await fetch("/api/discount-code", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code, active }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                toast.error(data.message || "خطا در بروزرسانی کد");
+                return;
+            }
+
+            setDiscountCodes((prev) => prev.map((item) => (item.code === code ? { ...item, active } : item)));
+            toast.success("وضعیت کد بروزرسانی شد.");
+        } catch {
+            toast.error("خطا در ارتباط با سرور");
+        }
+    };
+
+    const handleDeleteDiscount = async (code: string) => {
+        if (!window.confirm("کد تخفیف حذف شود؟")) return;
+
+        try {
+            const res = await fetch(`/api/discount-code?code=${encodeURIComponent(code)}`, {
+                method: "DELETE",
+            });
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                toast.error(data.message || "خطا در حذف کد");
+                return;
+            }
+
+            setDiscountCodes((prev) => prev.filter((item) => item.code !== code));
+            toast.success("کد تخفیف حذف شد.");
+        } catch {
+            toast.error("خطا در ارتباط با سرور");
+        }
+    };
 
     const handleStatusUpdate = async (id: string, newStatus: OrderStatus) => {
         setIsUpdating(id);
@@ -327,9 +462,7 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
             const data = await res.json();
 
             if (data.success) {
-                setOrderList((prev) =>
-                    prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o)),
-                );
+                setOrderList((prev) => prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o)));
                 toast.success("وضعیت سفارش بروزرسانی شد.");
             } else {
                 toast.error(data.message || "خطا در بروزرسانی وضعیت");
@@ -366,16 +499,18 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
         const rows = orderList.map((order) => ({
             "شناسه سفارش": order.id,
             "نوع پلن": order.planType === "family" ? "فمیلی" : "شخصی",
-            // "شناسه پلن": order.planId || "ندارد",
-            // "عنوان پلن": order.planTitle || "نامشخص",
             "مدت (ماه)": order.durationMonths || 0,
             "نام و نام خانوادگی": order.fullNameEn || "ثبت نشده",
-            "جنسیت": order.gender || "ثبت نشده",
+            جنسیت: order.gender || "ثبت نشده",
             "تاریخ تولد": order.dateOfBirth || "ثبت نشده",
             "ایمیل اسپاتیفای": order.spotifyEmail || "ثبت نشده",
             "رمز عبور": order.password || "بدون رمز",
-            "مبلغ (تومان)": order.price || 0,
-            "وضعیت": getStatusMeta(order.status).label,
+            "کد تخفیف": order.couponCode || "ندارد",
+            "مبلغ اصلی": order.originalPrice ?? order.price ?? 0,
+            "مبلغ تخفیف": order.discountAmount ?? 0,
+            "مبلغ نهایی": order.finalPrice ?? order.price ?? 0,
+            "مبلغ (تومان)": order.finalPrice ?? order.price ?? 0,
+            وضعیت: getStatusMeta(order.status).label,
             "نام واریزکننده": order.receipt?.payerName || "ندارد",
             "کد رهگیری": order.receipt?.trackingCode || "ندارد",
             "بانک مبدأ": order.receipt?.sourceBank ? `بانک ${order.receipt.sourceBank}` : "ندارد",
@@ -387,22 +522,24 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
 
         worksheet["!cols"] = [
             { wch: 14 },
-            { wch: 16 },
+            { wch: 14 },
             { wch: 12 },
             { wch: 18 },
             { wch: 12 },
             { wch: 20 },
             { wch: 30 },
             { wch: 16 },
-            { wch: 24 },
+            { wch: 16 },
+            { wch: 14 },
+            { wch: 14 },
+            { wch: 14 },
             { wch: 16 },
             { wch: 14 },
             { wch: 18 },
             { wch: 18 },
             { wch: 18 },
             { wch: 18 },
-            { wch: 22 },
-            { wch: 22 },
+            { wch: 18 },
         ];
 
         const workbook = XLSX.utils.book_new();
@@ -436,9 +573,7 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                 return;
             }
 
-            const normalizedOrders = rawRows
-                .map(normalizeImportedRow)
-                .filter((row): row is Order => Boolean(row));
+            const normalizedOrders = rawRows.map(normalizeImportedRow).filter((row): row is Order => Boolean(row));
 
             if (normalizedOrders.length === 0) {
                 toast.error("هیچ ردیف معتبری برای وارد کردن پیدا نشد.");
@@ -468,9 +603,7 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                 return Array.from(map.values());
             });
 
-            toast.success(
-                `فایل وارد شد. ${data.importedCount || normalizedOrders.length} ردیف ذخیره شد.`,
-            );
+            toast.success(`فایل وارد شد. ${data.importedCount || normalizedOrders.length} ردیف ذخیره شد.`);
         } catch (err) {
             console.error(err);
             toast.error("خطا در خواندن یا ارسال فایل اکسل");
@@ -512,6 +645,11 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                     label: "کل درآمد (تومان)",
                                     value: totalIncome.toLocaleString("fa-IR"),
                                     color: "text-spotify",
+                                },
+                                {
+                                    label: "تخفیف کل",
+                                    value: totalDiscount.toLocaleString("fa-IR"),
+                                    color: "text-emerald-400",
                                 },
                                 {
                                     label: "کل سفارشات",
@@ -581,6 +719,125 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                 )}
                             </button>
                         </div>
+                    </div>
+                </motion.div>
+
+                {/* ─── مدیریت کد تخفیف ─── */}
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 }}
+                    className="bg-store-panel p-4 rounded-2xl border border-store-border space-y-4"
+                >
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <h3 className="text-lg font-black text-white">کدهای تخفیف</h3>
+                            <p className="text-xs text-slate-400 mt-1">ساخت، فعال/غیرفعال‌سازی و حذف کدها</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                        <input
+                            value={discountForm.code}
+                            onChange={(e) => setDiscountForm((p) => ({ ...p, code: e.target.value }))}
+                            placeholder="کد مثلا NEW20"
+                            className="md:col-span-1 bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
+                        />
+                        <select
+                            value={discountForm.type}
+                            onChange={(e) =>
+                                setDiscountForm((p) => ({
+                                    ...p,
+                                    type: e.target.value as DiscountType,
+                                }))
+                            }
+                            className="bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
+                        >
+                            <option value="percent">درصدی</option>
+                            <option value="fixed">مبلغی</option>
+                        </select>
+                        <input
+                            value={discountForm.value}
+                            onChange={(e) => setDiscountForm((p) => ({ ...p, value: e.target.value }))}
+                            placeholder="مقدار"
+                            type="number"
+                            className="bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
+                        />
+                        <input
+                            value={discountForm.maxUses}
+                            onChange={(e) => setDiscountForm((p) => ({ ...p, maxUses: e.target.value }))}
+                            placeholder="حداکثر استفاده"
+                            type="number"
+                            className="bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
+                        />
+                        <input
+                            value={discountForm.minOrderAmount}
+                            onChange={(e) => setDiscountForm((p) => ({ ...p, minOrderAmount: e.target.value }))}
+                            placeholder="حداقل سفارش"
+                            type="number"
+                            className="bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
+                        />
+                    </div>
+
+                    <div className="flex flex-col md:flex-row gap-3">
+                        <input
+                            value={discountForm.expiresAt}
+                            onChange={(e) => setDiscountForm((p) => ({ ...p, expiresAt: e.target.value }))}
+                            type="datetime-local"
+                            className="bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
+                        />
+                        <button
+                            onClick={handleCreateDiscountCode}
+                            disabled={creatingDiscount}
+                            className="px-4 cursor-pointer py-2.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 font-bold text-sm disabled:opacity-60"
+                        >
+                            {creatingDiscount ? "در حال ثبت..." : "ثبت کد تخفیف"}
+                        </button>
+                    </div>
+
+                    <div className="space-y-2">
+                        {discountCodes.length === 0 ? (
+                            <p className="text-sm text-slate-500">هنوز کد تخفیفی ثبت نشده است.</p>
+                        ) : (
+                            discountCodes.map((item) => (
+                                <div
+                                    key={item.code}
+                                    className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-store-card border border-store-border rounded-xl px-4 py-3"
+                                >
+                                    <div>
+                                        <div className="font-black text-white">{item.code}</div>
+                                        <div className="text-xs text-slate-400 mt-1">
+                                            {item.type === "percent"
+                                                ? `${item.value}%`
+                                                : `${item.value.toLocaleString("fa-IR")} تومان`}
+                                            {" • "}
+                                            {item.active ? "فعال" : "غیرفعال"}
+                                            {" • "}
+                                            استفاده: {item.usedCount.toLocaleString("fa-IR")}
+                                            {item.maxUses ? ` / ${item.maxUses.toLocaleString("fa-IR")}` : ""}
+                                            {item.minOrderAmount
+                                                ? ` • حداقل ${item.minOrderAmount.toLocaleString("fa-IR")} تومان`
+                                                : ""}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleToggleDiscount(item.code, !item.active)}
+                                            className="px-3 cursor-pointer py-2 rounded-lg text-xs font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20"
+                                        >
+                                            {item.active ? "غیرفعال کن" : "فعال کن"}
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteDiscount(item.code)}
+                                            className="px-3 cursor-pointer py-2 rounded-lg text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                                        >
+                                            حذف
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </motion.div>
 
@@ -689,6 +946,7 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                 const ProductIcon = isFamily ? Users : User;
                                 const status = getStatusMeta(order.status);
                                 const receiptOpen = expandedReceipt === order.id;
+                                const hasDiscount = (order.discountAmount || 0) > 0;
 
                                 return (
                                     <motion.div
@@ -735,12 +993,41 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                                         {order.planTitle || `${order.durationMonths || "?"} ماه`}
                                                     </span>
                                                 </div>
-                                                <div className="font-black text-white bg-store-card px-3 py-1 rounded-lg border border-store-border text-sm">
-                                                    {(order.price || 0).toLocaleString("fa-IR")}
-                                                    <span className="text-[10px] text-slate-400 font-normal">
-                                                        {" "}
-                                                        تومان
-                                                    </span>
+
+                                                <div className="flex flex-col items-end gap-1">
+                                                    {hasDiscount ? (
+                                                        <>
+                                                            <div className="text-[11px] text-slate-400 line-through">
+                                                                {(
+                                                                    (order.originalPrice ?? order.price) ||
+                                                                    0
+                                                                ).toLocaleString("fa-IR")}{" "}
+                                                                تومان
+                                                            </div>
+                                                            <div className="font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 text-sm">
+                                                                {(
+                                                                    (order.finalPrice ?? order.price) ||
+                                                                    0
+                                                                ).toLocaleString("fa-IR")}
+                                                                <span className="text-[10px] text-slate-400 font-normal">
+                                                                    {" "}
+                                                                    تومان
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-[10px] text-emerald-400">
+                                                                تخفیف {order.discountAmount?.toLocaleString("fa-IR")}{" "}
+                                                                تومان
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        <div className="font-black text-white bg-store-card px-3 py-1 rounded-lg border border-store-border text-sm">
+                                                            {(order.price || 0).toLocaleString("fa-IR")}
+                                                            <span className="text-[10px] text-slate-400 font-normal">
+                                                                {" "}
+                                                                تومان
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -766,12 +1053,22 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                                         value: order.password || "بدون رمز",
                                                         dir: "ltr",
                                                     },
+                                                    {
+                                                        icon: <Hash className="w-4 h-4 text-slate-400" />,
+                                                        value: order.couponCode
+                                                            ? `کد تخفیف: ${order.couponCode}`
+                                                            : "بدون کد تخفیف",
+                                                        dir: "rtl",
+                                                    },
                                                 ].map(({ icon, value, dir }, i) => (
                                                     <div key={i} className="flex items-center gap-3 text-sm">
                                                         <div className="w-8 h-8 rounded-full bg-store-card flex items-center justify-center border border-store-border shrink-0">
                                                             {icon}
                                                         </div>
-                                                        <span className="text-slate-300 truncate text-xs md:text-sm" dir={dir as any}>
+                                                        <span
+                                                            className="text-slate-300 truncate text-xs md:text-sm"
+                                                            dir={dir as any}
+                                                        >
                                                             {value || "ثبت نشده"}
                                                         </span>
                                                     </div>
@@ -781,7 +1078,9 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                             {order.receipt ? (
                                                 <div className="rounded-2xl border border-blue-500/20 overflow-hidden">
                                                     <button
-                                                        onClick={() => setExpandedReceipt(receiptOpen ? null : order.id)}
+                                                        onClick={() =>
+                                                            setExpandedReceipt(receiptOpen ? null : order.id)
+                                                        }
                                                         className="w-full flex items-center justify-between px-4 py-3 bg-blue-500/10 text-blue-400 text-xs font-bold cursor-pointer hover:bg-blue-500/15 transition-colors"
                                                     >
                                                         <div className="flex items-center gap-2">
@@ -807,33 +1106,50 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                                                 <div className="px-4 py-3 space-y-2.5 bg-store-base border-t border-blue-500/10">
                                                                     {[
                                                                         {
-                                                                            icon: <User className="w-3.5 h-3.5 text-blue-400" />,
+                                                                            icon: (
+                                                                                <User className="w-3.5 h-3.5 text-blue-400" />
+                                                                            ),
                                                                             label: "نام واریزکننده",
                                                                             value: order.receipt.payerName,
                                                                         },
                                                                         {
-                                                                            icon: <Hash className="w-3.5 h-3.5 text-blue-400" />,
+                                                                            icon: (
+                                                                                <Hash className="w-3.5 h-3.5 text-blue-400" />
+                                                                            ),
                                                                             label: "کد رهگیری",
                                                                             value: order.receipt.trackingCode,
                                                                         },
                                                                         {
-                                                                            icon: <Building2 className="w-3.5 h-3.5 text-blue-400" />,
+                                                                            icon: (
+                                                                                <Building2 className="w-3.5 h-3.5 text-blue-400" />
+                                                                            ),
                                                                             label: "بانک مبدأ",
                                                                             value: `بانک ${order.receipt.sourceBank}`,
                                                                         },
                                                                         {
-                                                                            icon: <Clock className="w-3.5 h-3.5 text-slate-500" />,
+                                                                            icon: (
+                                                                                <Clock className="w-3.5 h-3.5 text-slate-500" />
+                                                                            ),
                                                                             label: "زمان ثبت",
-                                                                            value: parseDateSafe(order.receipt.submittedAt),
+                                                                            value: parseDateSafe(
+                                                                                order.receipt.submittedAt,
+                                                                            ),
                                                                         },
                                                                     ].map(({ icon, label, value }) => (
-                                                                        <div key={label} className="flex items-start gap-2.5 text-xs">
+                                                                        <div
+                                                                            key={label}
+                                                                            className="flex items-start gap-2.5 text-xs"
+                                                                        >
                                                                             <div className="w-6 h-6 rounded-lg bg-store-card flex items-center justify-center border border-store-border shrink-0 mt-0.5">
                                                                                 {icon}
                                                                             </div>
                                                                             <div>
-                                                                                <p className="text-slate-500 text-[10px]">{label}</p>
-                                                                                <p className="text-slate-200 font-medium">{value}</p>
+                                                                                <p className="text-slate-500 text-[10px]">
+                                                                                    {label}
+                                                                                </p>
+                                                                                <p className="text-slate-200 font-medium">
+                                                                                    {value}
+                                                                                </p>
                                                                             </div>
                                                                         </div>
                                                                     ))}

@@ -2,19 +2,37 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Loader2, CheckCircle2, Eye, EyeOff, Lock, Unlock } from "lucide-react";
+import { Loader2, CheckCircle2, Eye, EyeOff, Lock, Unlock, Tag } from "lucide-react";
 import type { FormData, PlanType } from "../orderTypes";
 import { PRICING } from "../orderData";
 
 interface Props {
     formData: FormData;
     selectedProduct: PlanType | null;
+    couponCode: string;
+    discountAmount: number;
+    payablePrice: number;
+    couponApplying: boolean;
+    setCouponCode: (value: string) => void;
+    onApplyCoupon: () => void;
     onBack: () => void;
     onNext: () => void;
     loading: boolean;
 }
 
-export default function PreInvoiceStep({ formData, selectedProduct, onBack, onNext, loading }: Props) {
+export default function PreInvoiceStep({
+    formData,
+    selectedProduct,
+    couponCode,
+    discountAmount,
+    payablePrice,
+    couponApplying,
+    setCouponCode,
+    onApplyCoupon,
+    onBack,
+    onNext,
+    loading,
+}: Props) {
     const isFamily = selectedProduct === "family";
     const [showPassword, setShowPassword] = useState(false);
     const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -29,8 +47,8 @@ export default function PreInvoiceStep({ formData, selectedProduct, onBack, onNe
         ? PRICING[selectedProduct].find((p) => p.durationMonths === formData.durationMonths)
         : undefined;
 
-    const originalPrice = currentPlan?.originalPrice;
-    const discountedPrice = currentPlan?.price ?? formData.price;
+    const originalPrice = currentPlan?.originalPrice ?? formData.price;
+    const finalPrice = payablePrice || formData.price;
 
     return (
         <motion.div
@@ -114,19 +132,69 @@ export default function PreInvoiceStep({ formData, selectedProduct, onBack, onNe
                     <span className="text-sm font-medium text-white md:text-base">{displayGender}</span>
                 </div>
 
+                <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                    <div className="mb-3 flex items-center gap-2 text-sm font-bold text-emerald-400">
+                        <Tag className="h-4 w-4" />
+                        کد تخفیف
+                    </div>
+
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                        <input
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value)}
+                            placeholder="مثلاً NEW20"
+                            dir="ltr"
+                            className="flex-1 rounded-xl border border-[#2a2a2a] bg-[#0f0f0f] px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500/40"
+                        />
+                        <button
+                            type="button"
+                            onClick={onApplyCoupon}
+                            disabled={couponApplying}
+                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm font-bold text-emerald-400 transition-colors hover:bg-emerald-500/15 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {couponApplying ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    بررسی کد
+                                </>
+                            ) : (
+                                "اعمال کد"
+                            )}
+                        </button>
+                    </div>
+
+                    <p className="mt-2 text-xs leading-6 text-zinc-500">
+                        کد تخفیف را وارد کن و اعمال بزن. مبلغ نهایی قبل از رفتن به مرحله پرداخت بروزرسانی می‌شود.
+                    </p>
+
+                    {discountAmount > 0 && (
+                        <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+                            <div className="flex items-center justify-between gap-3">
+                                <span className="text-sm text-emerald-300">تخفیف اعمال‌شده:</span>
+                                <span className="font-bold text-emerald-400">
+                                    {discountAmount.toLocaleString("fa-IR")} تومان
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 <div className="flex items-center justify-between pt-4">
                     <span className="text-lg font-bold text-zinc-300">مبلغ قابل پرداخت:</span>
                     <div className="flex items-center gap-1.5 text-left">
+                        {discountAmount > 0 && (
+                            <span className="text-sm text-zinc-500 line-through">
+                                {originalPrice.toLocaleString("fa-IR")}
+                            </span>
+                        )}
                         <span className="text-2xl font-black text-[#1ED760] md:text-3xl">
-                            {formData.price.toLocaleString("fa-IR")}
+                            {finalPrice.toLocaleString("fa-IR")}
                         </span>
                         <span className="text-sm text-zinc-400">تومان</span>
                     </div>
                 </div>
             </div>
 
-            {/* Checkbox Box */}
             <div
                 className="flex cursor-pointer items-center gap-3 rounded-2xl border border-[#2a2a2a] bg-[#181818] p-4 transition-colors hover:border-[#3a3a3a] hover:bg-[#1c1c1c]"
                 onClick={() => setAcceptedTerms(!acceptedTerms)}
