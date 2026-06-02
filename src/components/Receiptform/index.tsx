@@ -32,7 +32,7 @@ const IRANIAN_BANKS = [
     "سایر",
 ];
 
-const SUPPORT_TELEGRAM_USERNAME = "getSpotify_Support"; // این را با یوزرنیم پشتیبانی خودت عوض کن
+const SUPPORT_TELEGRAM_USERNAME = "getSpotify_Support";
 
 type ReceiptPayload = {
     payerName: string;
@@ -46,6 +46,19 @@ type ReceiptFormProps = {
     onBack: () => void;
     onSubmit: (receiptData: ReceiptPayload) => Promise<void>;
 };
+
+const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+const arabicDigits = "٠١٢٣٤٥٦٧٨٩";
+
+function normalizeDigits(value: string) {
+    return value
+        .replace(/[۰-۹]/g, (d) => String(persianDigits.indexOf(d)))
+        .replace(/[٠-٩]/g, (d) => String(arabicDigits.indexOf(d)));
+}
+
+function sanitizeTrackingCode(value: string) {
+    return normalizeDigits(value).replace(/[^\d]/g, "");
+}
 
 export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack }: ReceiptFormProps) {
     const [payerName, setPayerName] = useState("");
@@ -89,6 +102,11 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
         }
 
         setPayerNameError("");
+    };
+
+    const handleTrackingCodeChange = (value: string) => {
+        const cleaned = sanitizeTrackingCode(value);
+        setTrackingCode(cleaned);
     };
 
     const payerNameValid = isPersianName(payerName);
@@ -232,7 +250,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     />
 
                     <motion.div
-                        // @ts-ignore
+                        //@ts-ignore
                         variants={itemVariants}
                         className="flex items-center gap-3 relative z-10"
                     >
@@ -248,7 +266,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     </motion.div>
 
                     <motion.div
-                        // @ts-ignore
+                        //@ts-ignore
                         variants={itemVariants}
                         className="relative z-10 space-y-1.5"
                     >
@@ -287,7 +305,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     </motion.div>
 
                     <motion.div
-                        // @ts-ignore
+                        //@ts-ignore
                         variants={itemVariants}
                         className="relative z-10 space-y-1.5"
                     >
@@ -298,11 +316,13 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                         <input
                             type="text"
                             inputMode="numeric"
+                            pattern="[0-9۰-۹٠-٩]*"
                             placeholder="کد رهگیری تراکنش"
                             value={trackingCode}
-                            onChange={(e) => setTrackingCode(e.target.value.replace(/\D/g, ""))}
+                            onChange={(e) => handleTrackingCodeChange(e.target.value)}
                             onBlur={() => setTouched((p) => ({ ...p, trackingCode: true }))}
                             dir="ltr"
+                            autoComplete="off"
                             className={`w-full bg-[#121212] border rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 text-sm outline-none transition-all duration-200 text-right
                                 ${
                                     touched.trackingCode && !trackingCodeValid
@@ -325,7 +345,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     </motion.div>
 
                     <motion.div
-                        // @ts-ignore
+                        //@ts-ignore
                         variants={itemVariants}
                         className="relative z-20 space-y-1.5"
                     >
@@ -403,11 +423,12 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     </motion.div>
 
                     <motion.div
-                        // @ts-ignore
+                        //@ts-ignore
                         variants={itemVariants}
                         className="relative z-10 flex flex-col-reverse gap-3 pt-2 sm:flex-row"
                     >
                         <button
+                            type="button"
                             onClick={onBack}
                             className="cursor-pointer rounded-xl border border-zinc-800 bg-zinc-900 px-6 py-3 text-zinc-300 transition-colors hover:border-zinc-700 hover:bg-zinc-800 sm:w-auto"
                         >
@@ -415,6 +436,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                         </button>
 
                         <motion.button
+                            type="button"
                             whileHover={canSubmit && !loading && !localLoading ? { scale: 1.02, y: -2 } : {}}
                             whileTap={canSubmit && !loading && !localLoading ? { scale: 0.98 } : {}}
                             onClick={handleSubmit}

@@ -71,7 +71,7 @@ export default function PreInvoiceStep({
             <div className="space-y-4 rounded-2xl border border-[#282828] bg-[#121212] p-6">
                 <div className="flex items-center justify-between border-b border-[#282828]/50 pb-3">
                     <span className="text-sm text-zinc-400">طرح اشتراک پرمیوم:</span>
-                    <span className="rounded-lg bg-[#282828] px-3 py-1 text-sm font-bold text-white md:text-base">
+                    <span className="rounded-lg bg-[#282828] px-3 py-2 text-xs font-bold text-white md:text-base">
                         {isFamily ? "طرح گروهی (خانواده)" : "طرح شخصی (Individual)"}
                     </span>
                 </div>
@@ -146,7 +146,7 @@ export default function PreInvoiceStep({
                         <input
                             value={couponCode}
                             onChange={(e) => setCouponCode(e.target.value)}
-                            placeholder="در صورت داشتن کد تخفیف، لطفاً آن را وارد نمایید و سپس بر روی گزینه ثبت کد تخفیف کلیک بفرمایید."
+                            placeholder="مثلاً: NEW20"
                             className="flex-1 rounded-xl border border-[#2a2a2a] bg-[#0f0f0f] px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500/40"
                         />
                         <button
@@ -167,7 +167,7 @@ export default function PreInvoiceStep({
                     </div>
 
                     <p className="mt-2 text-xs leading-6 text-zinc-500">
-                        کد تخفیف را وارد کن و اعمال بزن. مبلغ نهایی قبل از رفتن به مرحله پرداخت بروزرسانی می‌شود.
+                        در صورت داشتن کد تخفیف، لطفاً آن را وارد نمایید و سپس بر روی گزینه ثبت کد تخفیف کلیک بفرمایید.
                     </p>
 
                     {discountAmount > 0 && (

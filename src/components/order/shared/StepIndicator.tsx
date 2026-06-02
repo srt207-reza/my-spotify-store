@@ -32,7 +32,7 @@ export default function StepIndicator({ step, onStepOneClick }: Props) {
 
                     {num < 5 && (
                         <div
-                            className={`w-12 h-1 transition-colors ${step > num ? "bg-[#1ED760]" : "bg-slate-800"}`}
+                            className={`w-10 h-1 transition-colors ${step > num ? "bg-[#1ED760]" : "bg-slate-800"}`}
                         />
                     )}
                 </div>

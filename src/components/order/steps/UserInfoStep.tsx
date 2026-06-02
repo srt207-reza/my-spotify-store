@@ -354,7 +354,7 @@ export default function UserInfoStep({
                 )}
             </div>
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
                 <button
                     onClick={onBack}
                     className="px-6 cursor-pointer py-4 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors"
