@@ -139,7 +139,7 @@ export default function PaymentStep({
                             variants={cardVariants}
                             initial="rest"
                             whileHover="hover"
-                            className="group relative w-full max-w-[550px] mx-auto rounded-3xl overflow-hidden border border-[#1ED760] bg-[#181818] text-left transform-gpu [transform-style:preserve-3d]"
+                            className="group relative w-full max-w-[500px] mx-auto rounded-3xl overflow-hidden border border-[#1ED760] bg-[#181818] text-left transform-gpu [transform-style:preserve-3d]"
                             style={{ perspective: 1200 }}
                         >
                             <div className="absolute inset-0 bg-gradient-to-br from-[#282828]/50 via-[#121212] to-black z-0" />
