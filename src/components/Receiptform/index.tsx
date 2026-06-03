@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, ChevronDown, Loader2, Receipt, Send } from "lucide-react";
 
@@ -131,6 +131,12 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
             trackingCode: true,
             sourceBank: true,
         });
+
+        useEffect(() => {
+            if(submitted) {
+                window.scrollTo(0,0)
+            }
+        },[])
 
         if (!canSubmit) return;
 
