@@ -104,6 +104,12 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
         setPayerNameError("");
     };
 
+    useEffect(() => {
+        if (submitted) {
+            window.scrollTo(0, 0);
+        }
+    }, [submitted]);
+
     const handleTrackingCodeChange = (value: string) => {
         const cleaned = sanitizeTrackingCode(value);
         setTrackingCode(cleaned);
@@ -131,12 +137,6 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
             trackingCode: true,
             sourceBank: true,
         });
-
-        useEffect(() => {
-            if(submitted) {
-                window.scrollTo(0,0)
-            }
-        },[])
 
         if (!canSubmit) return;
 
@@ -205,9 +205,8 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             درخواست فعال‌سازی اشتراک پرمیوم اسپاتیفای با موفقیت ثبت شد!
                         </p>
                         <p className="text-zinc-400 text-sm mt-2">
-                            سفارش شما در حال پردازش و پیگیری توسط همکاران بخش پشتیبانی می‌باشد، لطفاً جهت پیگیری
-                            سفارش بر روی گزینه ارتباط با پشتیبانی کلیک بفرمایید تا کد پیگیری سفارش به طور خودکار
-                            ارسال گردد.
+                            سفارش شما در حال پردازش و پیگیری توسط همکاران بخش پشتیبانی می‌باشد، لطفاً جهت پیگیری سفارش
+                            بر روی گزینه ارتباط با پشتیبانی کلیک بفرمایید تا کد پیگیری سفارش به طور خودکار ارسال گردد.
                         </p>
                     </div>
 
