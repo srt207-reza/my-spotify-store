@@ -236,7 +236,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                         className="relative z-10 inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl bg-[#1ED760] px-6 py-3.5 text-sm sm:text-base font-bold text-black shadow-[0_0_20px_rgba(30,215,96,0.28)] transition-colors hover:bg-[#1fdf64]"
                     >
                         <Send className="w-4 h-4" />
-                        ارتباط با پشتیبانی
+                        ارسال برای پشتیبانی
                     </motion.a>
                 </motion.div>
             ) : (
