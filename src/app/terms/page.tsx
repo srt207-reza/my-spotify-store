@@ -247,7 +247,11 @@ export default function TermsPage() {
                     </h1>
                 </motion.div>
 
-                <div className="mb-10 grid gap-4 md:grid-cols-2" role="tablist" aria-label="قوانین و ویژگی‌های طرح‌ها">
+                <div
+                    className="relative mx-auto mb-10 flex w-full max-w-[880px] rounded-[999px] bg-[#242424] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                    role="tablist"
+                    aria-label="قوانین و ویژگی‌های طرح‌ها"
+                >
                     {plans.map((plan) => {
                         const isActive = plan.id === activePlan;
 
@@ -258,22 +262,26 @@ export default function TermsPage() {
                                 role="tab"
                                 aria-selected={isActive}
                                 onClick={() => setActivePlan(plan.id)}
-                                className={`group cursor-pointer flex min-h-28 items-center gap-4 rounded-2xl border p-5 text-right transition-all duration-300 ${
-                                    isActive
-                                        ? "border-spotify bg-spotify/10 shadow-[0_20px_60px_-22px_rgba(29,185,84,0.7)]"
-                                        : "border-store-border bg-store-panel hover:border-spotify/50 hover:bg-store-hover"
+                                className={`relative flex min-h-[68px] min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 overflow-hidden rounded-[999px] border border-transparent px-2 text-center text-[11px] font-medium transition-colors duration-300 sm:min-h-[72px] sm:gap-3 sm:px-5 sm:text-base md:text-lg ${
+                                    isActive ? "text-white" : "text-white/85 hover:text-white"
                                 }`}
                             >
+                                {isActive && (
+                                    <motion.span
+                                        layoutId="active-plan-switch"
+                                        transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                                        className="absolute inset-0 rounded-[999px] border border-emerald-500 bg-[#1f1f1f] shadow-[0_0_0_1px_rgba(45,212,191,0.35),0_0_18px_rgba(34,197,94,0.12)]"
+                                    />
+                                )}
+
                                 <span
-                                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border transition-colors ${
-                                        isActive
-                                            ? "border-spotify/70 bg-spotify text-black"
-                                            : "border-store-border bg-store-card text-store-muted group-hover:text-spotify-light"
+                                    className={`relative z-10 shrink-0 transition-colors [&_svg]:h-4 [&_svg]:w-4 sm:[&_svg]:h-6 sm:[&_svg]:w-6 ${
+                                        isActive ? "text-white" : "text-white/70"
                                     }`}
                                 >
                                     {plan.icon}
                                 </span>
-                                <span className="text-base font-bold leading-7 text-white sm:text-lg">
+                                <span className="relative z-10 min-w-0 whitespace-normal leading-5 sm:leading-7">
                                     {plan.label}
                                 </span>
                             </button>
