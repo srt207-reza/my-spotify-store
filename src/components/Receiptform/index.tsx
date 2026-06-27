@@ -247,7 +247,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     animate="visible"
                     className="bg-[#181818]/80 border border-[#282828] rounded-3xl p-5 sm:p-6 space-y-5 relative text-right"
                     dir="rtl"
-                >
+                >ی
                     <motion.div
                         animate={{ scale: [1, 1.08, 1], opacity: [0.08, 0.16, 0.08] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
