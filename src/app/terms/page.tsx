@@ -248,22 +248,10 @@ export default function TermsPage() {
                 </motion.div>
 
                 <div
-                    className="relative mx-auto mb-10 flex w-full max-w-[880px] overflow-hidden rounded-[999px] bg-[#242424] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                    className="relative mx-auto mb-10 flex w-full max-w-[880px] overflow-hidden rounded-2xl bg-[#242424] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
                     role="tablist"
                     aria-label="قوانین و ویژگی‌های طرح‌ها"
                 >
-                    <motion.span
-                        data-active-plan-indicator="true"
-                        aria-hidden="true"
-                        initial={false}
-                        animate={{ x: activePlan === "group" ? "-100%" : "0%" }}
-                        transition={{ type: "spring", stiffness: 360, damping: 38, mass: 0.8 }}
-                        className="pointer-events-none absolute bottom-1 right-1 top-1 w-[calc(50%-4px)] overflow-hidden rounded-[999px] p-[2px] shadow-lg shadow-[#1DB954]/25"
-                    >
-                        <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#1DB954_0%,#14b8a6_28%,transparent_52%,#1ed760_100%)] opacity-90 blur-[1px]" />
-                        <span className="absolute inset-[2px] rounded-[999px] bg-[#1f1f1f] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" />
-                    </motion.span>
-
                     {plans.map((plan) => {
                         const isActive = plan.id === activePlan;
 
@@ -274,18 +262,28 @@ export default function TermsPage() {
                                 role="tab"
                                 aria-selected={isActive}
                                 onClick={() => setActivePlan(plan.id)}
-                                className={`relative z-10 flex min-h-[68px] min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-[999px] border border-transparent px-2 text-center text-[11px] font-medium transition-colors duration-300 sm:min-h-[72px] sm:gap-3 sm:px-5 sm:text-base md:text-lg ${
+                                className={`relative z-10 flex min-h-[68px] min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-[18px] border border-transparent px-2 text-center text-[11px] font-medium transition-colors duration-300 sm:min-h-[72px] sm:gap-3 sm:px-5 sm:text-base md:text-lg ${
                                     isActive ? "text-white" : "text-white/85 hover:text-white"
                                 }`}
                             >
+                                {isActive && (
+                                    <motion.span
+                                        data-active-plan-indicator="true"
+                                        layoutId="active-plan-indicator"
+                                        aria-hidden="true"
+                                        transition={{ type: "spring", stiffness: 420, damping: 40, mass: 0.7 }}
+                                        className="pointer-events-none absolute inset-0 rounded-[18px] border border-emerald-500/70 bg-[#1f1f1f] shadow-[0_0_22px_rgba(29,185,84,0.42),0_12px_34px_rgba(29,185,84,0.18),inset_0_1px_0_rgba(255,255,255,0.04)]"
+                                    />
+                                )}
+
                                 <span
-                                    className={`shrink-0 transition-colors [&_svg]:h-4 [&_svg]:w-4 sm:[&_svg]:h-6 sm:[&_svg]:w-6 ${
+                                    className={`relative z-10 shrink-0 transition-colors [&_svg]:h-4 [&_svg]:w-4 sm:[&_svg]:h-6 sm:[&_svg]:w-6 ${
                                         isActive ? "text-white" : "text-white/70"
                                     }`}
                                 >
                                     {plan.icon}
                                 </span>
-                                <span className="min-w-0 whitespace-normal leading-5 sm:leading-7">
+                                <span className="relative z-10 min-w-0 whitespace-normal leading-5 sm:leading-7">
                                     {plan.label}
                                 </span>
                             </button>
