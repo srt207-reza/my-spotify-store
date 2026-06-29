@@ -123,8 +123,8 @@ export default function TermsPage() {
                 {
                     id: 6,
                     icon: <Image
-                        src="/assets/images/terms/Individual Rules/Location & Time changes.png"
-                        alt="Location_&_Time_changes"
+                        src="/assets/images/terms/Individual Rules/Location Time changes.png"
+                        alt="Location_Time_changes"
                         width={36}
                         height={36}
                     />,
@@ -293,8 +293,8 @@ export default function TermsPage() {
                 {
                     id: 9,
                     icon: <Image
-                        src="/assets/images/terms/Family Rules/Location & Time changes.png"
-                        alt="Location_&_Time changes"
+                        src="/assets/images/terms/Family Rules/Location Time changes.png"
+                        alt="Location_Time_changes"
                         width={36}
                         height={36}
                     />,
