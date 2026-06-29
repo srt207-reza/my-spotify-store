@@ -3,10 +3,8 @@
 import { useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
-    CheckCircle2,
     Clock,
     CreditCard,
-    ExternalLink,
     FileText,
     MapPin,
     Package,
@@ -16,6 +14,7 @@ import {
     User,
     Users,
 } from "lucide-react";
+import Image from "next/image";
 
 type TermItem = {
     id: number;
@@ -44,88 +43,133 @@ export default function TermsPage() {
             items: [
                 {
                     id: 1,
-                    icon: <CheckCircle2 className="h-6 w-6 text-spotify-light" />,
-                    title: "قابل فعال‌سازی بر روی کلیه حساب‌های کاربری اسپاتیفای",
-                    paragraphs: [
-                        "در صورتی که به دلیل محدودیت‌های طرح گروهی، امکان فعال‌سازی اشتراک پرمیوم در این طرح وجود نداشته باشد، طرح شخصی به‌عنوان تنها راهکار جایگزین مناسب معرفی خواهد شد.",
-                    ],
-                },
-                {
-                    id: 2,
-                    icon: <Shield className="h-6 w-6 text-spotify-light" />,
-                    title: "حفظ کامل اطلاعات ذخیره‌شده در حساب کاربری",
-                    paragraphs: [
-                        "در فعال‌سازی طرح شخصی، کلیه اطلاعات حساب کاربری اسپاتیفای از جمله موزیک‌ها، پلی‌لیست‌ها و سایر اطلاعات ذخیره‌شده بدون هیچ تغییری حفظ می‌گردد و اشتراک پرمیوم مستقیماً روی همان حساب کاربری فعلی فعال می‌گردد.",
-                    ],
-                },
-                {
-                    id: 3,
-                    icon: <MapPin className="h-6 w-6 text-spotify-light" />,
+                    icon: <Image
+                        src="/assets/images/terms/Individual Rules/IP restriction.png"
+                        alt="IP_restriction"
+                        width={36}
+                        height={36}
+                    />,
                     title: "محدودیت در آدرس اتصال اینترنتی (IP Address)",
                     paragraphs: [
                         "طبق قوانین و شرایط استفاده (Terms of Use) اسپاتیفای، موقعیت مکانی ثبت‌شده در حساب کاربری باید با موقعیت مکانی اتصال اینترنتی (IP Address) دستگاه کاربر یکسان باشد. بنابراین، استفاده از سرویس VPN متناسب با موقعیت مکانی ثبت‌شده در حساب کاربری اسپاتیفای هنگام استفاده از این سرویس برای کاربران ضروری است. در غیر این صورت، اسپاتیفای می‌تواند بدون اطلاع قبلی نسبت به لغو اشتراک پرمیوم اقدام نماید.",
                         "از آن‌جا که این موضوع مربوط به سیاست‌های داخلی اسپاتیفای بوده و خارج از کنترل مجموعه ما به‌عنوان واسطه خرید اشتراک پرمیوم است، در صورت لغو اشتراک توسط اسپاتیفای به‌دلیل عدم رعایت قوانین و شرایط استفاده، امکان جبران خسارت وجود نخواهد داشت.",
                         <>
-                            جهت کسب اطلاعات تکمیلی در مورد محدودیت در آدرس اتصال اینترنتی (IP Address)، لطفاً با کلیک بر روی{" "}
+                            جهت کسب اطلاعات تکمیلی در مورد محدودیت در آدرس اتصال اینترنتی (IP Address)، لطفاً با کلیک بر روی این{" "}
                             <a
                                 href={spotifyPaidTermsLink}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center gap-1 text-spotify-light underline decoration-spotify-light/40 underline-offset-4 hover:text-spotify"
                             >
-                                این لینک
-                                <ExternalLink className="h-4 w-4" />
+                                لینک
+                                {/* <ExternalLink className="h-4 w-4" /> */}
                             </a>
                             {"، شرایط و قوانین جدید اشتراک پرمیوم اسپاتیفای را مطالعه بفرمایید."}
                         </>,
                     ],
                 },
                 {
-                    id: 4,
-                    icon: <RefreshCw className="h-6 w-6 text-spotify-light" />,
-                    title: "تغییرات امکانات بر اساس موقعیت مکانی و بازه زمانی",
-                    paragraphs: [
-                        "برخی از امکانات و قابلیت‌های جانبی طرح پرمیوم اسپاتیفای (مانند پادکست‌ها، پلی‌لیست‌ها، کتاب‌های صوتی یا موزیک ویدیو) ممکن است بسته به موقعیت مکانی کاربران یا در بازه‌های زمانی مختلف سال، طبق تصمیم اسپاتیفای متفاوت باشد. بنابراین در دسترس نبودن یا غیرفعال شدن موقت برخی قابلیت‌ها به دلیل محدودیت‌های مجوز یا اجرای تدریجی آن‌ها، در طول مدت اعتبار اشتراک پرمیوم امری طبیعی بوده و این تغییرات مطابق با سیاست‌های داخلی اسپاتیفای صورت می‌گیرد.",
-                    ],
-                },
-                {
-                    id: 5,
-                    icon: <PlayCircle className="h-6 w-6 text-spotify-light" />,
-                    title: "محدودیت‌های محتوایی و قوانین حق پخش",
-                    paragraphs: [
-                        "با توجه به این‌که اسپاتیفای صرفاً یک پلتفرم پخش آنلاین است، ناشران و صاحبان آثار ممکن است در مقاطع مختلف تصمیم به محدود کردن یا توقف همکاری خود با اسپاتیفای بگیرند. همچنین به دلیل مسائل مربوط به قوانین حق پخش (Copyright)، برخی محتواها ممکن است به‌طور موقت از دسترس خارج شده و پس از مدتی دوباره در دسترس قرار گیرند. بنابراین در دسترس نبودن یا غیرفعال شدن موقت بخشی از محتوا در طول اعتبار اشتراک پرمیوم، امری طبیعی بوده و این تغییرات مطابق با تصمیم ناشر اثر یا قوانین حق پخش صورت می‌گیرد.",
-                    ],
-                },
-                {
-                    id: 6,
-                    icon: <CreditCard className="h-6 w-6 text-spotify-light" />,
-                    title: "پرداخت قانونی با استفاده از حساب‌های ارزی معتبر",
-                    paragraphs: [
-                        "پرداخت‌های مربوط به فعال‌سازی اشتراک پرمیوم، به‌صورت قانونی و با استفاده از کارت‌های بانکی ثبت‌شده مجموعه در کشورهای هند، پاکستان، ترکیه، نیجریه و غیره انجام می‌گردد. پس از فعال‌سازی اشتراک پرمیوم، رسید رسمی پرداخت مستقیماً در حساب کاربری اسپاتیفای نمایش داده می‌شود که این موضوع صحت و قانونی بودن اشتراک پرمیوم خریداری‌شده را تأیید می‌کند.",
-                    ],
-                },
-                {
-                    id: 7,
-                    icon: <FileText className="h-6 w-6 text-spotify-light" />,
-                    title: "پرداخت قطعی و غیرقابل بازگشت",
-                    paragraphs: [
-                        "با توجه به قوانین اسپاتیفای، پس از انجام پرداخت و شروع فرآیند فعال‌سازی طرح شخصی، امکان لغو یا بازگشت مبلغ وجود ندارد.",
-                    ],
-                },
-                {
-                    id: 8,
-                    icon: <RefreshCw className="h-6 w-6 text-spotify-light" />,
+                    id: 2,
+                    icon: <Image
+                        src="/assets/images/terms/Individual Rules/premium transfer.png"
+                        alt="premium_transfer"
+                        width={36}
+                        height={36}
+                    />,
                     title: "انتقال اشتراک پرمیوم",
                     paragraphs: [
                         "فعال‌سازی اشتراک پرمیوم صرفاً روی حساب کاربری اعلام‌شده در زمان ثبت سفارش انجام می‌گیرد. پس از تکمیل فرآیند فعال‌سازی، به‌دلیل ساختار سیستمی سرویس، امکان لغو، جابجایی، انتقال مدت‌زمان باقی‌مانده یا تغییر حساب کاربری مقصد، تحت هیچ شرایطی وجود نخواهد داشت. بنابراین لطفاً پیش از ثبت سفارش، از صحت اکانت انتخابی اطمینان حاصل بفرمایید.",
                     ],
                 },
                 {
-                    id: 9,
-                    icon: <Clock className="h-6 w-6 text-spotify-light" />,
+                    id: 3,
+                    icon: <Image
+                        src="/assets/images/terms/Individual Rules/faal sazi ru hame.png"
+                        alt="faal_sazi_ru_hame"
+                        width={36}
+                        height={36}
+                    />,
+                    title: "قابل فعال‌سازی بر روی کلیه حساب‌های کاربری اسپاتیفای",
+                    paragraphs: [
+                        "در صورتی که به دلیل محدودیت‌های طرح گروهی، امکان فعال‌سازی اشتراک پرمیوم در این طرح وجود نداشته باشد، طرح شخصی به‌عنوان تنها راهکار جایگزین مناسب معرفی خواهد شد.",
+                    ],
+                },
+                {
+                    id: 4,
+                    icon: <Image
+                        src="/assets/images/terms/Individual Rules/Activation time.png"
+                        alt="Activation_time"
+                        width={36}
+                        height={36}
+                    />,
                     title: "فعال‌سازی در کمتر از ۲۴ ساعت",
                     paragraphs: [
                         "در صورت صحیح بودن اطلاعات حساب کاربری اسپاتیفای و همچنین فعال نبودن هیچ اشتراک پرمیوم دیگر، فرآیند فعال‌سازی اشتراک پرمیوم خریداری‌شده در کمتر از 24 ساعت، به‌صورت خودکار پس از پرداخت انجام خواهد شد.",
+                    ],
+                },
+                {
+                    id: 5,
+                    icon: <Image
+                        src="/assets/images/terms/Individual Rules/Data saving.png"
+                        alt="Data_saving"
+                        width={36}
+                        height={36}
+                    />,
+                    title: "حفظ کامل اطلاعات ذخیره‌شده در حساب کاربری",
+                    paragraphs: [
+                        "در فعال‌سازی طرح شخصی، کلیه اطلاعات حساب کاربری اسپاتیفای از جمله موزیک‌ها، پلی‌لیست‌ها و سایر اطلاعات ذخیره‌شده بدون هیچ تغییری حفظ می‌گردد و اشتراک پرمیوم مستقیماً روی همان حساب کاربری فعلی فعال می‌گردد.",
+                    ],
+                },
+                {
+                    id: 6,
+                    icon: <Image
+                        src="/assets/images/terms/Individual Rules/Location & Time changes.png"
+                        alt="Location_&_Time_changes"
+                        width={36}
+                        height={36}
+                    />,
+                    title: "تغییرات امکانات بر اساس موقعیت مکانی و بازه زمانی",
+                    paragraphs: [
+                        "برخی از امکانات و قابلیت‌های جانبی طرح پرمیوم اسپاتیفای (مانند پادکست‌ها، پلی‌لیست‌ها، کتاب‌های صوتی یا موزیک ویدیو) ممکن است بسته به موقعیت مکانی کاربران یا در بازه‌های زمانی مختلف سال، طبق تصمیم اسپاتیفای متفاوت باشد. بنابراین در دسترس نبودن یا غیرفعال شدن موقت برخی قابلیت‌ها به دلیل محدودیت‌های مجوز یا اجرای تدریجی آن‌ها، در طول مدت اعتبار اشتراک پرمیوم امری طبیعی بوده و این تغییرات مطابق با سیاست‌های داخلی اسپاتیفای صورت می‌گیرد.",
+                    ],
+                },
+                {
+                    id: 7,
+                    icon: <Image
+                        src="/assets/images/terms/Individual Rules/Content restriction.png"
+                        alt="Content_restriction"
+                        width={36}
+                        height={36}
+                    />,
+                    title: "محدودیت‌های محتوایی و قوانین حق پخش",
+                    paragraphs: [
+                        "با توجه به این‌که اسپاتیفای صرفاً یک پلتفرم پخش آنلاین است، ناشران و صاحبان آثار ممکن است در مقاطع مختلف تصمیم به محدود کردن یا توقف همکاری خود با اسپاتیفای بگیرند. همچنین به دلیل مسائل مربوط به قوانین حق پخش (Copyright)، برخی محتواها ممکن است به‌طور موقت از دسترس خارج شده و پس از مدتی دوباره در دسترس قرار گیرند. بنابراین در دسترس نبودن یا غیرفعال شدن موقت بخشی از محتوا در طول اعتبار اشتراک پرمیوم، امری طبیعی بوده و این تغییرات مطابق با تصمیم ناشر اثر یا قوانین حق پخش صورت می‌گیرد.",
+                    ],
+                },
+                {
+                    id: 8,
+                    icon: <Image
+                        src="/assets/images/terms/Individual Rules/Legal payment.png"
+                        alt="Legal_payment"
+                        width={36}
+                        height={36}
+                    />,
+                    title: "پرداخت قانونی با استفاده از حساب‌های ارزی معتبر",
+                    paragraphs: [
+                        "پرداخت‌های مربوط به فعال‌سازی اشتراک پرمیوم، به‌صورت قانونی و با استفاده از کارت‌های بانکی ثبت‌شده مجموعه در کشورهای هند، پاکستان، ترکیه، نیجریه و غیره انجام می‌گردد. پس از فعال‌سازی اشتراک پرمیوم، رسید رسمی پرداخت مستقیماً در حساب کاربری اسپاتیفای نمایش داده می‌شود که این موضوع صحت و قانونی بودن اشتراک پرمیوم خریداری‌شده را تأیید می‌کند.",
+                    ],
+                },
+                {
+                    id: 9,
+                    icon: <Image
+                        src="/assets/images/terms/Individual Rules/Non-refundable payment.png"
+                        alt="Non-refundable_payment"
+                        width={36}
+                        height={36}
+                    />,
+                    title: "پرداخت قطعی و غیرقابل بازگشت",
+                    paragraphs: [
+                        "با توجه به قوانین اسپاتیفای، پس از انجام پرداخت و شروع فرآیند فعال‌سازی طرح شخصی، امکان لغو یا بازگشت مبلغ وجود ندارد.",
                     ],
                 },
             ],
@@ -137,83 +181,83 @@ export default function TermsPage() {
             items: [
                 {
                     id: 1,
-                    icon: <MapPin className="h-6 w-6 text-spotify-light" />,
+                    icon: <FileText className="h-6 w-6 text-spotify-light" />,
                     paragraphs: [
                         "هر کاربر در پلن گروهی فقط یک‌بار در هر ۱۲ ماه مجاز به تغییر آدرس ثبت‌شده است. این محدودیت برای جلوگیری از سوءاستفاده و حفظ شرایط استفاده منصفانه اعمال می‌شود. بنابراین، در صورتی که به دلیل محدودیت‌های طرح گروهی، امکان فعال‌سازی اشتراک پرمیوم در این طرح وجود نداشته باشد، طرح شخصی به‌عنوان تنها راهکار جایگزین مناسب معرفی خواهد شد.",
                     ],
                 },
                 {
                     id: 2,
-                    icon: <CreditCard className="h-6 w-6 text-spotify-light" />,
-                    title: "قیمت اقتصادی",
-                    paragraphs: [
-                        "طرح‌های گروهی اشتراک پرمیوم اسپاتیفای نسبت به طرح‌های شخصی (Individual) با قیمتی اقتصادی‌تر ارائه می‌گردد.",
-                    ],
-                },
-                {
-                    id: 3,
-                    icon: <Package className="h-6 w-6 text-spotify-light" />,
+                    icon: <Image
+                        src="/assets/images/terms/Family Rules/Long term plans.png"
+                        alt="Long_term_plans"
+                        width={36}
+                        height={36}
+                    />,
                     title: "بسته‌های بلندمدت اشتراک",
                     paragraphs: [
                         "طبق قوانین طرح گروهی اسپاتیفای، فعال‌سازی اشتراک پرمیوم گروهی برای هر حساب کاربری تنها دو مرتبه در هر سال امکان‌پذیر است. بنابراین به‌منظور جلوگیری از بروز محدودیت‌های این طرح، اشتراک‌های گروهی تنها در بسته‌های زمانی بلندمدت ‌۶ ماهه و ۱۲ ‌ماهه ارائه می‌گردند.",
                     ],
                 },
                 {
-                    id: 4,
-                    icon: <RefreshCw className="h-6 w-6 text-spotify-light" />,
-                    title: "تغییرات امکانات بر اساس موقعیت مکانی و بازه زمانی",
-                    paragraphs: [
-                        "برخی از امکانات و قابلیت‌های جانبی طرح پرمیوم اسپاتیفای (مانند پادکست‌ها، پلی‌لیست‌ها، کتاب‌های صوتی یا موزیک ویدیو) ممکن است بسته به موقعیت مکانی کاربران یا در بازه‌های زمانی مختلف سال، طبق تصمیم اسپاتیفای متفاوت باشد. بنابراین در دسترس نبودن یا غیرفعال شدن موقت برخی قابلیت‌ها به دلیل محدودیت‌های مجوز یا اجرای تدریجی آن‌ها، در طول مدت اعتبار اشتراک پرمیوم امری طبیعی بوده و این تغییرات مطابق با سیاست‌های داخلی اسپاتیفای صورت می‌گیرد.",
-                    ],
-                },
-                {
-                    id: 5,
-                    icon: <PlayCircle className="h-6 w-6 text-spotify-light" />,
-                    title: "محدودیت‌های محتوایی و قوانین حق پخش",
-                    paragraphs: [
-                        "با توجه به این‌که اسپاتیفای صرفاً یک پلتفرم پخش آنلاین است، ناشران و صاحبان آثار ممکن است در مقاطع مختلف تصمیم به محدود کردن یا توقف همکاری خود با اسپاتیفای بگیرند. همچنین به دلیل مسائل مربوط به قوانین حق پخش (Copyright)، برخی محتواها ممکن است به‌طور موقت از دسترس خارج شده و پس از مدتی دوباره در دسترس قرار گیرند. بنابراین در دسترس نبودن یا غیرفعال شدن موقت بخشی از محتوا در طول اعتبار اشتراک پرمیوم، امری طبیعی بوده و این تغییرات مطابق با تصمیم ناشر اثر یا قوانین حق پخش صورت می‌گیرد.",
-                    ],
-                },
-                {
-                    id: 6,
-                    icon: <MapPin className="h-6 w-6 text-spotify-light" />,
-                    title: "محدودیت در آدرس اتصال اینترنتی  (IP Address)",
-                    paragraphs: [
-                        "طبق قوانین و شرایط استفاده (Terms of Use) اسپاتیفای، موقعیت مکانی ثبت‌شده در حساب کاربری باید با موقعیت مکانی اتصال اینترنتی دستگاه کاربر یکسان باشد. بنابراین، استفاده از سرویس VPN متناسب با موقعیت مکانی ثبت‌شده در حساب کاربری اسپاتیفای هنگام استفاده از این سرویس برای کاربران ضروری است. در غیر این صورت، اسپاتیفای می‌تواند بدون اطلاع قبلی نسبت به لغو اشتراک پرمیوم اقدام نماید.",
-                        <>
-                            جهت کسب اطلاعات تکمیلی در مورد محدودیت در آدرس اتصال اینترنتی (IP Address)، لطفاً با کلیک بر روی{" "}
-                            <a
-                                href={spotifyPaidTermsLink}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1 text-spotify-light underline decoration-spotify-light/40 underline-offset-4 hover:text-spotify"
-                            >
-                                این لینک
-                                <ExternalLink className="h-4 w-4" />
-                            </a>
-                            {"، شرایط و قوانین جدید اشتراک پرمیوم اسپاتیفای را مطالعه بفرمایید."}
-                        </>,
-                    ],
-                },
-                {
-                    id: 7,
-                    icon: <Shield className="h-6 w-6 text-spotify-light" />,
-                    title: "ضمانت جبران زمان باقی‌مانده از اعتبار اشتراک پرمیوم",
-                    paragraphs: [
-                        "در صورت بروز هرگونه اختلال در اشتراک پرمیوم طی مدت اعتبار طرح پلن گروهی، باقی‌مانده از زمان اشتراک پرمیوم، طی کد تخفیف جهت ارتقاء به پلن شخصی(Individual)  به کاربر ارائه می‌گردد.",
-                    ],
-                },
-                {
-                    id: 8,
-                    icon: <FileText className="h-6 w-6 text-spotify-light" />,
+                    id: 3,
+                    icon: <Image
+                        src="/assets/images/terms/Family Rules/Non-refundable payment.png"
+                        alt="Non-refundable_payment"
+                        width={36}
+                        height={36}
+                    />,
                     title: "پرداخت قطعی و غیرقابل بازگشت",
                     paragraphs: [
                         "با توجه به قوانین اسپاتیفای، پس از انجام پرداخت و شروع فرآیند فعال‌سازی طرح شخصی، امکان لغو یا بازگشت مبلغ وجود ندارد.",
                     ],
                 },
                 {
-                    id: 9,
-                    icon: <RefreshCw className="h-6 w-6 text-spotify-light" />,
+                    id: 4,
+                    icon: <Image
+                        src="/assets/images/terms/Family Rules/IP restriction.png"
+                        alt="IP_restriction"
+                        width={36}
+                        height={36}
+                    />,
+                    title: "محدودیت در آدرس اتصال اینترنتی  (IP Address)",
+                    paragraphs: [
+                        "طبق قوانین و شرایط استفاده (Terms of Use) اسپاتیفای، موقعیت مکانی ثبت‌شده در حساب کاربری باید با موقعیت مکانی اتصال اینترنتی دستگاه کاربر یکسان باشد. بنابراین، استفاده از سرویس VPN متناسب با موقعیت مکانی ثبت‌شده در حساب کاربری اسپاتیفای هنگام استفاده از این سرویس برای کاربران ضروری است. در غیر این صورت، اسپاتیفای می‌تواند بدون اطلاع قبلی نسبت به لغو اشتراک پرمیوم اقدام نماید.",
+                        <>
+                            جهت کسب اطلاعات تکمیلی در مورد محدودیت در آدرس اتصال اینترنتی (IP Address)، لطفاً با کلیک بر روی این{" "}
+                            <a
+                                href={spotifyPaidTermsLink}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 text-spotify-light underline decoration-spotify-light/40 underline-offset-4 hover:text-spotify"
+                            >
+                                لینک
+                            </a>
+                            {"، شرایط و قوانین جدید اشتراک پرمیوم اسپاتیفای را مطالعه بفرمایید."}
+                        </>,
+                    ],
+                },
+                {
+                    id: 5,
+                    icon: <Image
+                        src="/assets/images/terms/Family Rules/Cancelation Gaurantee.png"
+                        alt="Cancelation_Gaurantee"
+                        width={36}
+                        height={36}
+                    />,
+                    title: "ضمانت جبران زمان باقی‌مانده از اعتبار اشتراک پرمیوم",
+                    paragraphs: [
+                        "در صورت بروز هرگونه اختلال در اشتراک پرمیوم طی مدت اعتبار طرح پلن گروهی، باقی‌مانده از زمان اشتراک پرمیوم، طی کد تخفیف جهت ارتقاء به پلن شخصی(Individual)  به کاربر ارائه می‌گردد.",
+                    ],
+                },
+                {
+                    id: 6,
+                    icon: <Image
+                        src="/assets/images/terms/Family Rules/premium transfer.png"
+                        alt="premium_transfer"
+                        width={36}
+                        height={36}
+                    />,
                     title: "انتقال اشتراک پرمیوم",
                     paragraphs: [
                         "اشتراک پرمیوم فعال‌ شده بر روی یک حساب کاربری، در صورت نیاز و با هماهنگی پشتیبانی، قابل انتقال به حساب کاربری دیگر می‌باشد. لطفاً توجه داشته باشید که صرفاً مدت‌زمان باقی‌مانده اشتراک پرمیوم قابل انتقال خواهد بود و پس از ثبت درخواست، در کوتاه‌ترین زمان ممکن بررسی و اجرا خواهد شد.",
@@ -221,11 +265,55 @@ export default function TermsPage() {
                     ],
                 },
                 {
-                    id: 10,
-                    icon: <Clock className="h-6 w-6 text-spotify-light" />,
+                    id: 7,
+                    icon: <Image
+                        src="/assets/images/terms/Family Rules/Activation time.png"
+                        alt="Activation_time"
+                        width={36}
+                        height={36}
+                    />,
                     title: "فعال‌سازی در کمتر از ۲۴ ساعت",
                     paragraphs: [
                         "در صورت صحیح بودن اطلاعات حساب کاربری اسپاتیفای ارائه‌شده از سوی کاربر و عدم فعال بودن هیچ اشتراک پرمیوم دیگری روی آن، اشتراک پرمیوم خریداری‌شده ظرف کمتر از ۲۴ ساعت پس از پرداخت به‌صورت خودکار فعال خواهد شد.",
+                    ],
+                },
+                {
+                    id: 8,
+                    icon: <Image
+                        src="/assets/images/terms/Family Rules/Economic price.png"
+                        alt="Economic_price"
+                        width={36}
+                        height={36}
+                    />,
+                    title: "قیمت اقتصادی",
+                    paragraphs: [
+                        "طرح‌های گروهی اشتراک پرمیوم اسپاتیفای نسبت به طرح‌های شخصی (Individual) با قیمتی اقتصادی‌تر ارائه می‌گردد.",
+                    ],
+                },
+                {
+                    id: 9,
+                    icon: <Image
+                        src="/assets/images/terms/Family Rules/Location & Time changes.png"
+                        alt="Location_&_Time changes"
+                        width={36}
+                        height={36}
+                    />,
+                    title: "تغییرات امکانات بر اساس موقعیت مکانی و بازه زمانی",
+                    paragraphs: [
+                        "برخی از امکانات و قابلیت‌های جانبی طرح پرمیوم اسپاتیفای (مانند پادکست‌ها، پلی‌لیست‌ها، کتاب‌های صوتی یا موزیک ویدیو) ممکن است بسته به موقعیت مکانی کاربران یا در بازه‌های زمانی مختلف سال، طبق تصمیم اسپاتیفای متفاوت باشد. بنابراین در دسترس نبودن یا غیرفعال شدن موقت برخی قابلیت‌ها به دلیل محدودیت‌های مجوز یا اجرای تدریجی آن‌ها، در طول مدت اعتبار اشتراک پرمیوم امری طبیعی بوده و این تغییرات مطابق با سیاست‌های داخلی اسپاتیفای صورت می‌گیرد.",
+                    ],
+                },
+                {
+                    id: 10,
+                    icon: <Image
+                        src="/assets/images/terms/Family Rules/Content restriction.png"
+                        alt="Content_restriction"
+                        width={36}
+                        height={36}
+                    />,
+                    title: "محدودیت‌های محتوایی و قوانین حق پخش",
+                    paragraphs: [
+                        "با توجه به این‌که اسپاتیفای صرفاً یک پلتفرم پخش آنلاین است، ناشران و صاحبان آثار ممکن است در مقاطع مختلف تصمیم به محدود کردن یا توقف همکاری خود با اسپاتیفای بگیرند. همچنین به دلیل مسائل مربوط به قوانین حق پخش (Copyright)، برخی محتواها ممکن است به‌طور موقت از دسترس خارج شده و پس از مدتی دوباره در دسترس قرار گیرند. بنابراین در دسترس نبودن یا غیرفعال شدن موقت بخشی از محتوا در طول اعتبار اشتراک پرمیوم، امری طبیعی بوده و این تغییرات مطابق با تصمیم ناشر اثر یا قوانین حق پخش صورت می‌گیرد.",
                     ],
                 },
             ],
@@ -248,7 +336,7 @@ export default function TermsPage() {
                 </motion.div>
 
                 <div
-                    className="relative mx-auto mb-10 flex w-full max-w-[880px] overflow-hidden rounded-2xl bg-[#242424] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                    className="relative mx-auto mb-10 flex w-full max-w-[880px] overflow-hidden rounded-[999px] bg-[#242424] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
                     role="tablist"
                     aria-label="قوانین و ویژگی‌های طرح‌ها"
                 >
@@ -262,9 +350,8 @@ export default function TermsPage() {
                                 role="tab"
                                 aria-selected={isActive}
                                 onClick={() => setActivePlan(plan.id)}
-                                className={`relative z-10 flex min-h-[68px] min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-[18px] border border-transparent px-2 text-center text-[11px] font-medium transition-colors duration-300 sm:min-h-[72px] sm:gap-3 sm:px-5 sm:text-base md:text-lg ${
-                                    isActive ? "text-white" : "text-white/85 hover:text-white"
-                                }`}
+                                className={`relative z-10 flex min-h-[68px] min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-[999px] border border-transparent px-2 text-center text-[11px] font-medium transition-colors duration-300 sm:min-h-[72px] sm:gap-3 sm:px-5 sm:text-base md:text-lg ${isActive ? "text-white" : "text-white/85 hover:text-white"
+                                    }`}
                             >
                                 {isActive && (
                                     <motion.span
@@ -272,14 +359,13 @@ export default function TermsPage() {
                                         layoutId="active-plan-indicator"
                                         aria-hidden="true"
                                         transition={{ type: "spring", stiffness: 420, damping: 40, mass: 0.7 }}
-                                        className="pointer-events-none absolute inset-0 rounded-[18px] border border-emerald-500/70 bg-[#1f1f1f] shadow-[0_0_22px_rgba(29,185,84,0.42),0_12px_34px_rgba(29,185,84,0.18),inset_0_1px_0_rgba(255,255,255,0.04)]"
+                                        className="pointer-events-none absolute inset-0 rounded-[999px] border border-emerald-500/70 bg-[#1f1f1f] shadow-[0_0_22px_rgba(29,185,84,0.42),0_12px_34px_rgba(29,185,84,0.18),inset_0_1px_0_rgba(255,255,255,0.04)]"
                                     />
                                 )}
 
                                 <span
-                                    className={`relative z-10 shrink-0 transition-colors [&_svg]:h-4 [&_svg]:w-4 sm:[&_svg]:h-6 sm:[&_svg]:w-6 ${
-                                        isActive ? "text-white" : "text-white/70"
-                                    }`}
+                                    className={`relative z-10 shrink-0 transition-colors [&_svg]:h-4 [&_svg]:w-4 sm:[&_svg]:h-6 sm:[&_svg]:w-6 ${isActive ? "text-white" : "text-white/70"
+                                        }`}
                                 >
                                     {plan.icon}
                                 </span>
