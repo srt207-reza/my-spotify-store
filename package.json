@@ -52,6 +52,9 @@
     "use-local-storage": "^3.0.0",
     "xlsx": "^0.18.5"
   },
+  "optionalDependencies": {
+    "lightningcss-linux-x64-gnu": "1.31.1"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
