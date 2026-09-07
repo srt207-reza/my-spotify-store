@@ -25,9 +25,16 @@ import {
     ChevronUp,
     FileSpreadsheet,
     RotateCcw,
+    ShoppingBag,
+    Tags,
+    CircleDollarSign,
+    TrendingUp,
 } from "lucide-react";
 import * as XLSX from "xlsx";
+import jalaliMoment from "jalali-moment";
 import toast from "react-hot-toast";
+import type { PlanPricing } from "@/components/order/orderData";
+import PlanPricingManager from "./PlanPricingManager";
 
 type Receipt = {
     payerName: string;
@@ -75,6 +82,7 @@ type Order = {
 };
 
 type StatusFilter = "all" | "legacy" | "processing" | "completed";
+type AdminSection = "orders" | "pricing" | "discounts";
 
 const STATUS_META: Record<OrderStatus, { label: string; color: string; bg: string; border: string; icon: ReactNode }> =
     {
@@ -142,6 +150,29 @@ function toLatinDigits(input: string) {
     };
 
     return input.replace(/[۰-۹٠-٩]/g, (d) => map[d] ?? d);
+}
+
+function getOrderTimestamp(dateString?: string) {
+    const normalized = toLatinDigits(normalizeText(dateString));
+    if (!normalized) return 0;
+
+    const jalaliMatch = normalized.match(
+        /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:\D+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/,
+    );
+
+    if (jalaliMatch && Number(jalaliMatch[1]) < 1700) {
+        const [, year, month, day, hour = "0", minute = "0", second = "0"] = jalaliMatch;
+        const parsed = jalaliMoment.from(
+            `${year}/${month}/${day} ${hour}:${minute}:${second}`,
+            "fa",
+            "YYYY/M/D HH:mm:ss",
+        );
+
+        if (parsed.isValid()) return parsed.valueOf();
+    }
+
+    const timestamp = Date.parse(normalized);
+    return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 
 function normalizeText(value: unknown): string {
@@ -284,8 +315,17 @@ function normalizeImportedRow(row: Record<string, unknown>): Order | null {
     };
 }
 
-export default function ClientOrders({ orders }: { orders: Order[] }) {
+export default function ClientOrders({
+    orders,
+    initialPricing,
+    adminSecret,
+}: {
+    orders: Order[];
+    initialPricing: PlanPricing;
+    adminSecret: string;
+}) {
     const [orderList, setOrderList] = useState<Order[]>(orders);
+    const [activeSection, setActiveSection] = useState<AdminSection>("orders");
     const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
     const [discountForm, setDiscountForm] = useState({
         code: "",
@@ -333,7 +373,7 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
     const totalDiscount = orderList.reduce((acc, o) => acc + (o.discountAmount || 0), 0);
 
     const filteredOrders = useMemo(() => {
-        return orderList.filter((order) => {
+        const filtered = orderList.filter((order) => {
             const matchPlan = activeFilter === "all" || order.planType === activeFilter;
             const matchStatus = statusFilter === "all" || getStatusGroup(order.status) === statusFilter;
 
@@ -352,6 +392,8 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
 
             return matchPlan && matchStatus && matchSearch;
         });
+
+        return filtered.sort((a, b) => getOrderTimestamp(b.createdAt) - getOrderTimestamp(a.createdAt));
     }, [orderList, searchTerm, activeFilter, statusFilter]);
 
     const handleCreateDiscountCode = async () => {
@@ -496,7 +538,9 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
     };
 
     const handleExportExcel = () => {
-        const rows = orderList.map((order) => ({
+        const rows = [...orderList]
+            .sort((a, b) => getOrderTimestamp(b.createdAt) - getOrderTimestamp(a.createdAt))
+            .map((order) => ({
             "شناسه سفارش": order.id,
             "نوع پلن": order.planType === "family" ? "فمیلی" : "شخصی",
             "مدت (ماه)": order.durationMonths || 0,
@@ -516,7 +560,7 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
             "بانک مبدأ": order.receipt?.sourceBank ? `بانک ${order.receipt.sourceBank}` : "ندارد",
             "زمان ثبت رسید": parseDateForExcel(order.receipt?.submittedAt),
             "زمان ایجاد سفارش": parseDateForExcel(order.createdAt),
-        }));
+            }));
 
         const worksheet = XLSX.utils.json_to_sheet(rows);
 
@@ -596,14 +640,26 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                 return;
             }
 
-            setOrderList((prev) => {
-                const map = new Map<string, Order>();
-                for (const order of prev) map.set(order.id, order);
-                for (const order of normalizedOrders) map.set(order.id, order);
-                return Array.from(map.values());
-            });
+            const importedOrders: Order[] = Array.isArray(data.importedOrders) ? data.importedOrders : [];
 
-            toast.success(`فایل وارد شد. ${data.importedCount || normalizedOrders.length} ردیف ذخیره شد.`);
+            if (importedOrders.length > 0) {
+                setOrderList((prev) => {
+                    const knownOrderIds = new Set(prev.map((order) => normalizeText(order.id).toUpperCase()));
+                    const nextOrders = [...prev];
+
+                    for (const order of importedOrders) {
+                        const normalizedId = normalizeText(order.id).toUpperCase();
+                        if (knownOrderIds.has(normalizedId)) continue;
+
+                        knownOrderIds.add(normalizedId);
+                        nextOrders.push(order);
+                    }
+
+                    return nextOrders;
+                });
+            }
+
+            toast.success(`فایل وارد شد. ${data.importedCount ?? importedOrders.length} ردیف ذخیره شد.`);
         } catch (err) {
             console.error(err);
             toast.error("خطا در خواندن یا ارسال فایل اکسل");
@@ -614,79 +670,40 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
     };
 
     return (
-        <div className="min-h-screen bg-store-base text-white p-4 md:p-8 lg:p-12 font-sans" dir="rtl">
-            <div className="max-w-7xl mx-auto space-y-6">
-                {/* ─── هدر ─── */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
+        <div className="min-h-screen overflow-x-clip bg-store-base px-3 py-4 font-sans text-white sm:px-5 md:py-8 lg:px-8" dir="rtl">
+            <div className="relative z-10 mx-auto max-w-[1500px] space-y-5">
+                <motion.header
+                    initial={{ opacity: 0, y: -12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-store-panel border border-store-border p-6 md:p-8 rounded-[2rem] shadow-2xl relative overflow-hidden"
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden rounded-[28px] border border-white/10 bg-[#101311]"
                 >
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-spotify/5 rounded-full blur-3xl pointer-events-none" />
-
-                    <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 relative z-10">
-                        <div className="flex items-center gap-5">
-                            <div className="bg-gradient-to-br from-spotify/20 to-emerald-500/20 p-4 rounded-2xl text-spotify-light border border-spotify/20 shadow-inner">
-                                <LayoutDashboard className="w-8 h-8" />
+                    <div className="flex flex-col gap-5 border-b border-white/8 bg-gradient-to-l from-emerald-500/[0.09] via-transparent to-sky-500/[0.04] p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-400">
+                                <LayoutDashboard className="h-7 w-7" />
                             </div>
                             <div>
-                                <h1 className="text-2xl md:text-3xl font-black bg-clip-text text-transparent bg-gradient-to-l from-white to-slate-400">
+                                <div className="mb-1.5 flex items-center gap-2 text-xs font-bold text-emerald-400">
+                                    <span className="h-2 w-2 rounded-full bg-emerald-400 motion-safe:animate-pulse" />
+                                    پنل مدیریت فعال است
+                                </div>
+                                <h1 className="text-2xl font-black text-white sm:text-3xl">
                                     داشبورد سفارشات اسپاتیفای
                                 </h1>
-                                <p className="text-slate-400 text-sm mt-1.5 font-medium">
+                                <p className="mt-1.5 text-sm font-medium text-slate-400">
                                     مدیریت، پیگیری و گزارش‌گیری یکپارچه
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-3 w-full xl:w-auto">
-                            {[
-                                {
-                                    label: "کل درآمد (تومان)",
-                                    value: totalIncome.toLocaleString("fa-IR"),
-                                    color: "text-spotify",
-                                },
-                                {
-                                    label: "تخفیف کل",
-                                    value: totalDiscount.toLocaleString("fa-IR"),
-                                    color: "text-emerald-400",
-                                },
-                                {
-                                    label: "کل سفارشات",
-                                    value: totalOrders.toLocaleString("fa-IR"),
-                                    color: "text-white",
-                                },
-                                {
-                                    label: "در حال پردازش",
-                                    value: processingCount.toLocaleString("fa-IR"),
-                                    color: "text-violet-400",
-                                },
-                                {
-                                    label: "تکمیل شده",
-                                    value: completedCount.toLocaleString("fa-IR"),
-                                    color: "text-emerald-400",
-                                },
-                                {
-                                    label: "قدیمی",
-                                    value: legacyCount.toLocaleString("fa-IR"),
-                                    color: "text-amber-400",
-                                },
-                            ].map(({ label, value, color }) => (
-                                <div
-                                    key={label}
-                                    className="bg-store-card px-5 py-3.5 rounded-2xl border border-store-border flex-1 min-w-[130px] text-center shadow-lg"
-                                >
-                                    <p className="text-slate-400 text-[11px] mb-1.5 font-semibold uppercase tracking-wider">
-                                        {label}
-                                    </p>
-                                    <p className={`font-black text-xl ${color}`}>{value}</p>
-                                </div>
-                            ))}
-
+                        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
                             <button
+                                type="button"
                                 onClick={handleExportExcel}
-                                className="px-4 cursor-pointer py-3 w-full lg:w-fit xl:w-full rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/25 transition-all font-bold text-sm whitespace-nowrap"
+                                className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 text-sm font-bold text-emerald-300 transition-colors hover:bg-emerald-400/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60"
                             >
+                                <FileSpreadsheet className="h-4 w-4" />
                                 خروجی اکسل
                             </button>
 
@@ -702,239 +719,359 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                             />
 
                             <button
+                                type="button"
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={importing}
-                                className="px-4 cursor-pointer py-3 w-full lg:w-fit xl:w-full rounded-xl bg-sky-500/15 text-sky-400 border border-sky-500/25 hover:bg-sky-500/25 transition-all font-bold text-sm whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                                className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-sky-400/20 bg-sky-400/10 px-4 text-sm font-bold text-sky-300 transition-colors hover:bg-sky-400/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                {importing ? (
-                                    <>
-                                        <RotateCcw className="w-4 h-4 animate-spin" />
-                                        در حال ورود
-                                    </>
-                                ) : (
-                                    <>
-                                        <FileSpreadsheet className="w-4 h-4" />
-                                        آپلود اکسل
-                                    </>
-                                )}
+                                {importing ? <RotateCcw className="h-4 w-4 animate-spin" /> : <FileSpreadsheet className="h-4 w-4" />}
+                                {importing ? "در حال ورود" : "آپلود اکسل"}
                             </button>
                         </div>
                     </div>
-                </motion.div>
 
-                {/* ─── مدیریت کد تخفیف ─── */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 }}
-                    className="bg-store-panel p-4 rounded-2xl border border-store-border space-y-4"
-                >
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <h3 className="text-lg font-black text-white">کدهای تخفیف</h3>
-                            <p className="text-xs text-slate-400 mt-1">ساخت، فعال/غیرفعال‌سازی و حذف کدها</p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                        <input
-                            value={discountForm.code}
-                            onChange={(e) => setDiscountForm((p) => ({ ...p, code: e.target.value }))}
-                            placeholder="کد مثلا NEW20"
-                            className="md:col-span-1 bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
-                        />
-                        <select
-                            value={discountForm.type}
-                            onChange={(e) =>
-                                setDiscountForm((p) => ({
-                                    ...p,
-                                    type: e.target.value as DiscountType,
-                                }))
-                            }
-                            className="bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
-                        >
-                            <option value="percent">درصدی</option>
-                            <option value="fixed">مبلغی</option>
-                        </select>
-                        <input
-                            value={discountForm.value}
-                            onChange={(e) => setDiscountForm((p) => ({ ...p, value: e.target.value }))}
-                            placeholder="مقدار"
-                            type="number"
-                            className="bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
-                        />
-                        <input
-                            value={discountForm.maxUses}
-                            onChange={(e) => setDiscountForm((p) => ({ ...p, maxUses: e.target.value }))}
-                            placeholder="حداکثر استفاده"
-                            type="number"
-                            className="bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
-                        />
-                        <input
-                            value={discountForm.minOrderAmount}
-                            onChange={(e) => setDiscountForm((p) => ({ ...p, minOrderAmount: e.target.value }))}
-                            placeholder="حداقل سفارش"
-                            type="number"
-                            className="bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
-                        />
-                    </div>
-
-                    <div className="flex flex-col md:flex-row gap-3">
-                        <input
-                            value={discountForm.expiresAt}
-                            onChange={(e) => setDiscountForm((p) => ({ ...p, expiresAt: e.target.value }))}
-                            type="datetime-local"
-                            className="bg-store-card border border-store-border rounded-xl px-3 py-2.5 text-sm text-white outline-none"
-                        />
-                        <button
-                            onClick={handleCreateDiscountCode}
-                            disabled={creatingDiscount}
-                            className="px-4 cursor-pointer py-2.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 font-bold text-sm disabled:opacity-60"
-                        >
-                            {creatingDiscount ? "در حال ثبت..." : "ثبت کد تخفیف"}
-                        </button>
-                    </div>
-
-                    <div className="space-y-2">
-                        {discountCodes.length === 0 ? (
-                            <p className="text-sm text-slate-500">هنوز کد تخفیفی ثبت نشده است.</p>
-                        ) : (
-                            discountCodes.map((item) => (
-                                <div
-                                    key={item.code}
-                                    className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-store-card border border-store-border rounded-xl px-4 py-3"
-                                >
-                                    <div>
-                                        <div className="font-black text-white">{item.code}</div>
-                                        <div className="text-xs text-slate-400 mt-1">
-                                            {item.type === "percent"
-                                                ? `${item.value}%`
-                                                : `${item.value.toLocaleString("fa-IR")} تومان`}
-                                            {" • "}
-                                            {item.active ? "فعال" : "غیرفعال"}
-                                            {" • "}
-                                            استفاده: {item.usedCount.toLocaleString("fa-IR")}
-                                            {item.maxUses ? ` / ${item.maxUses.toLocaleString("fa-IR")}` : ""}
-                                            {item.minOrderAmount
-                                                ? ` • حداقل ${item.minOrderAmount.toLocaleString("fa-IR")} تومان`
-                                                : ""}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => handleToggleDiscount(item.code, !item.active)}
-                                            className="px-3 cursor-pointer py-2 rounded-lg text-xs font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20"
-                                        >
-                                            {item.active ? "غیرفعال کن" : "فعال کن"}
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteDiscount(item.code)}
-                                            className="px-3 cursor-pointer py-2 rounded-lg text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                                        >
-                                            حذف
-                                        </button>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </motion.div>
-
-                {/* ─── فیلتر و جستجو ─── */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="flex flex-col gap-3 bg-store-panel p-3 rounded-2xl border border-store-border"
-                >
-                    <div className="flex flex-col md:flex-row gap-3 items-center">
-                        <div className="relative w-full md:w-96 group">
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                                <Search className="w-5 h-5 text-slate-400 group-focus-within:text-spotify transition-colors" />
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="جستجو نام، ایمیل، کد رهگیری..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-store-card border border-store-border text-white text-sm rounded-xl py-3.5 pr-12 pl-4 focus:outline-none focus:ring-2 focus:ring-spotify/50 transition-all placeholder:text-slate-500 shadow-inner"
-                            />
-                        </div>
-
-                        <div className="flex items-center gap-2 w-full md:w-auto">
-                            <div className="flex items-center gap-2 px-3 text-slate-400">
-                                <Filter className="w-4 h-4" />
-                                <span className="text-sm font-medium">پلن:</span>
-                            </div>
-                            <div className="flex gap-1 bg-store-card p-1.5 rounded-xl border border-store-border">
-                                {(["all", "individual", "family"] as const).map((type) => (
-                                    <button
-                                        key={type}
-                                        onClick={() => setActiveFilter(type)}
-                                        className={`px-4 cursor-pointer py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap
-                                            ${
-                                                activeFilter === type
-                                                    ? type === "individual"
-                                                        ? "bg-spotify/20 text-spotify-light shadow-sm"
-                                                        : type === "family"
-                                                          ? "bg-emerald-500/20 text-emerald-400 shadow-sm"
-                                                          : "bg-white/10 text-white shadow-sm"
-                                                    : "text-slate-400 hover:text-white hover:bg-store-hover"
-                                            }`}
-                                    >
-                                        {type === "all" ? "همه" : type === "individual" ? "شخصی" : "فمیلی"}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-slate-400 text-sm px-2">وضعیت:</span>
+                    <div className="grid grid-cols-2 gap-px bg-white/8 sm:grid-cols-3 xl:grid-cols-6">
                         {[
-                            { key: "all" as const, label: "همه" },
-                            { key: "legacy" as const, label: "قدیمی" },
-                            { key: "processing" as const, label: "در حال پردازش" },
-                            { key: "completed" as const, label: "تکمیل شده" },
-                        ].map(({ key, label }) => (
-                            <button
-                                key={key}
-                                onClick={() => setStatusFilter(key)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap border
-                                    ${
-                                        statusFilter === key
-                                            ? key === "all"
-                                                ? "bg-white/10 text-white border-white/20"
-                                                : key === "legacy"
-                                                  ? "bg-amber-500/10 text-amber-400 border-amber-500/25"
-                                                  : key === "processing"
-                                                    ? "bg-violet-500/10 text-violet-400 border-violet-500/25"
-                                                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/25"
-                                            : "text-slate-500 border-transparent hover:text-slate-300 hover:bg-store-card"
-                                    }`}
-                            >
-                                {label}
-                            </button>
+                            {
+                                label: "کل درآمد (تومان)",
+                                value: totalIncome.toLocaleString("fa-IR"),
+                                color: "text-emerald-400",
+                                icon: <TrendingUp className="h-4 w-4" />,
+                            },
+                            {
+                                label: "تخفیف کل",
+                                value: totalDiscount.toLocaleString("fa-IR"),
+                                color: "text-cyan-300",
+                                icon: <CircleDollarSign className="h-4 w-4" />,
+                            },
+                            {
+                                label: "کل سفارشات",
+                                value: totalOrders.toLocaleString("fa-IR"),
+                                color: "text-white",
+                                icon: <ShoppingBag className="h-4 w-4" />,
+                            },
+                            {
+                                label: "در حال پردازش",
+                                value: processingCount.toLocaleString("fa-IR"),
+                                color: "text-violet-300",
+                                icon: <Clock className="h-4 w-4" />,
+                            },
+                            {
+                                label: "تکمیل شده",
+                                value: completedCount.toLocaleString("fa-IR"),
+                                color: "text-emerald-400",
+                                icon: <CheckCircle2 className="h-4 w-4" />,
+                            },
+                            {
+                                label: "قدیمی",
+                                value: legacyCount.toLocaleString("fa-IR"),
+                                color: "text-amber-300",
+                                icon: <AlertCircle className="h-4 w-4" />,
+                            },
+                        ].map(({ label, value, color, icon }) => (
+                            <div key={label} className="min-w-0 bg-[#101311] p-4 sm:p-5">
+                                <div className="mb-3 flex items-center gap-2 text-xs font-bold text-slate-500">
+                                    {icon}
+                                    <span className="truncate">{label}</span>
+                                </div>
+                                <p className={`truncate text-lg font-black sm:text-xl ${color}`}>{value}</p>
+                            </div>
                         ))}
                     </div>
-                </motion.div>
+                </motion.header>
+
+                <nav
+                    className="grid grid-cols-3 gap-1 rounded-2xl border border-white/10 bg-[#101311] p-1.5"
+                    aria-label="بخش‌های پنل مدیریت"
+                >
+                    {[
+                        { key: "orders" as const, label: "سفارش‌ها", icon: ShoppingBag },
+                        { key: "pricing" as const, label: "قیمت پلن‌ها", icon: CircleDollarSign },
+                        { key: "discounts" as const, label: "کدهای تخفیف", icon: Tags },
+                    ].map(({ key, label, icon: SectionIcon }) => (
+                        <button
+                            key={key}
+                            type="button"
+                            onClick={() => setActiveSection(key)}
+                            aria-pressed={activeSection === key}
+                            className={`inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl px-2 text-xs font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 sm:text-sm ${
+                                activeSection === key
+                                    ? "bg-emerald-400 text-black"
+                                    : "text-slate-400 hover:bg-white/[0.05] hover:text-white"
+                            }`}
+                        >
+                            <SectionIcon className="h-4 w-4 shrink-0" />
+                            <span>{label}</span>
+                        </button>
+                    ))}
+                </nav>
+
+                {activeSection === "pricing" && (
+                    <PlanPricingManager initialPricing={initialPricing} adminSecret={adminSecret} />
+                )}
+
+                {activeSection === "discounts" && (
+                    <motion.section
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="overflow-hidden rounded-[28px] border border-white/10 bg-[#101311]"
+                        aria-labelledby="discount-title"
+                    >
+                        <div className="flex items-start gap-3.5 border-b border-white/8 bg-gradient-to-l from-sky-500/[0.07] via-transparent to-transparent p-5 sm:p-6">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-sky-400/20 bg-sky-400/10 text-sky-300">
+                                <Tags className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <h2 id="discount-title" className="text-lg font-black text-white sm:text-xl">
+                                    کدهای تخفیف
+                                </h2>
+                                <p className="mt-1 text-sm text-slate-400">ساخت، فعال/غیرفعال‌سازی و حذف کدها</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-5 p-4 sm:p-6">
+                            <div className="rounded-2xl border border-white/8 bg-black/20 p-4 sm:p-5">
+                                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+                                    <label className="block">
+                                        <span className="mb-2 block text-xs font-bold text-slate-400">کد تخفیف</span>
+                                        <input
+                                            value={discountForm.code}
+                                            onChange={(e) =>
+                                                setDiscountForm((p) => ({
+                                                    ...p,
+                                                    code: e.target.value.replace(/[^A-Za-z0-9]/g, ""),
+                                                }))
+                                            }
+                                            placeholder="مثلا NEW20"
+                                            dir="ltr"
+                                            autoComplete="off"
+                                            className="h-12 w-full rounded-xl border border-white/10 bg-[#151816] px-3 text-left text-sm font-bold text-white outline-none transition-colors placeholder:text-slate-600 focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/10"
+                                        />
+                                    </label>
+                                    <label className="block">
+                                        <span className="mb-2 block text-xs font-bold text-slate-400">نوع تخفیف</span>
+                                        <select
+                                            value={discountForm.type}
+                                            onChange={(e) =>
+                                                setDiscountForm((p) => ({
+                                                    ...p,
+                                                    type: e.target.value as DiscountType,
+                                                }))
+                                            }
+                                            className="h-12 w-full rounded-xl border border-white/10 bg-[#151816] px-3 text-sm text-white outline-none transition-colors focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/10"
+                                        >
+                                            <option value="percent">درصدی</option>
+                                            <option value="fixed">مبلغی</option>
+                                        </select>
+                                    </label>
+                                    <label className="block">
+                                        <span className="mb-2 block text-xs font-bold text-slate-400">مقدار</span>
+                                        <input
+                                            value={discountForm.value}
+                                            onChange={(e) => setDiscountForm((p) => ({ ...p, value: e.target.value }))}
+                                            type="number"
+                                            inputMode="numeric"
+                                            min="1"
+                                            className="h-12 w-full rounded-xl border border-white/10 bg-[#151816] px-3 text-sm text-white outline-none transition-colors focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/10"
+                                        />
+                                    </label>
+                                    <label className="block">
+                                        <span className="mb-2 block text-xs font-bold text-slate-400">حداکثر استفاده</span>
+                                        <input
+                                            value={discountForm.maxUses}
+                                            onChange={(e) => setDiscountForm((p) => ({ ...p, maxUses: e.target.value }))}
+                                            type="number"
+                                            inputMode="numeric"
+                                            min="1"
+                                            className="h-12 w-full rounded-xl border border-white/10 bg-[#151816] px-3 text-sm text-white outline-none transition-colors focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/10"
+                                        />
+                                    </label>
+                                    <label className="block">
+                                        <span className="mb-2 block text-xs font-bold text-slate-400">حداقل سفارش</span>
+                                        <input
+                                            value={discountForm.minOrderAmount}
+                                            onChange={(e) => setDiscountForm((p) => ({ ...p, minOrderAmount: e.target.value }))}
+                                            type="number"
+                                            inputMode="numeric"
+                                            min="0"
+                                            className="h-12 w-full rounded-xl border border-white/10 bg-[#151816] px-3 text-sm text-white outline-none transition-colors focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/10"
+                                        />
+                                    </label>
+                                </div>
+
+                                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+                                    <label className="block">
+                                        <span className="mb-2 block text-xs font-bold text-slate-400">تاریخ انقضا</span>
+                                        <input
+                                            value={discountForm.expiresAt}
+                                            onChange={(e) => setDiscountForm((p) => ({ ...p, expiresAt: e.target.value }))}
+                                            type="datetime-local"
+                                            className="h-12 w-full rounded-xl border border-white/10 bg-[#151816] px-3 text-sm text-white outline-none transition-colors focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/10"
+                                        />
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={handleCreateDiscountCode}
+                                        disabled={creatingDiscount}
+                                        className="mt-auto inline-flex h-12 min-w-40 cursor-pointer items-center justify-center rounded-xl bg-sky-400 px-5 text-sm font-black text-black transition-colors hover:bg-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        {creatingDiscount ? "در حال ثبت..." : "ثبت کد تخفیف"}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                {discountCodes.length === 0 ? (
+                                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 px-4 py-10 text-center text-sm text-slate-500">
+                                        هنوز کد تخفیفی ثبت نشده است.
+                                    </div>
+                                ) : (
+                                    discountCodes.map((item) => (
+                                        <article
+                                            key={item.code}
+                                            className="flex flex-col gap-4 rounded-2xl border border-white/8 bg-[#151816] p-4 transition-colors hover:border-white/15 md:flex-row md:items-center md:justify-between"
+                                        >
+                                            <div className="min-w-0">
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <span className="font-black text-white" dir="ltr">{item.code}</span>
+                                                    <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${
+                                                        item.active
+                                                            ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+                                                            : "border-slate-500/20 bg-slate-500/10 text-slate-400"
+                                                    }`}>
+                                                        {item.active ? "فعال" : "غیرفعال"}
+                                                    </span>
+                                                </div>
+                                                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs leading-6 text-slate-400">
+                                                    <span>{item.type === "percent" ? `${item.value}%` : `${item.value.toLocaleString("fa-IR")} تومان`}</span>
+                                                    <span>استفاده: {item.usedCount.toLocaleString("fa-IR")}{item.maxUses ? ` / ${item.maxUses.toLocaleString("fa-IR")}` : ""}</span>
+                                                    {item.minOrderAmount ? <span>حداقل {item.minOrderAmount.toLocaleString("fa-IR")} تومان</span> : null}
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2 md:flex">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleToggleDiscount(item.code, !item.active)}
+                                                    className="min-h-11 cursor-pointer rounded-xl border border-sky-400/20 bg-sky-400/10 px-4 text-xs font-bold text-sky-300 transition-colors hover:bg-sky-400/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60"
+                                                >
+                                                    {item.active ? "غیرفعال کن" : "فعال کن"}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDeleteDiscount(item.code)}
+                                                    className="min-h-11 cursor-pointer rounded-xl border border-rose-400/20 bg-rose-400/10 px-4 text-xs font-bold text-rose-300 transition-colors hover:bg-rose-400/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/60"
+                                                >
+                                                    حذف
+                                                </button>
+                                            </div>
+                                        </article>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </motion.section>
+                )}
+
+                {activeSection === "orders" && (
+                    <>
+                        <motion.section
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.25 }}
+                            className="rounded-[24px] border border-white/10 bg-[#101311] p-4 sm:p-5"
+                            aria-labelledby="orders-title"
+                        >
+                            <div className="mb-4 flex items-center justify-between gap-3">
+                                <div>
+                                    <h2 id="orders-title" className="text-lg font-black text-white">سفارش‌ها</h2>
+                                    <p className="mt-1 text-xs text-slate-500">
+                                        {filteredOrders.length.toLocaleString("fa-IR")} سفارش نمایش داده می‌شود
+                                    </p>
+                                </div>
+                                <Filter className="h-5 w-5 text-slate-500" />
+                            </div>
+
+                            <div className="grid gap-3 xl:grid-cols-[minmax(280px,1fr)_auto_auto] xl:items-end">
+                                <label className="block">
+                                    <span className="mb-2 block text-xs font-bold text-slate-400">جستجو در سفارش‌ها</span>
+                                    <div className="group relative">
+                                        <Search className="pointer-events-none absolute inset-y-0 right-4 my-auto h-5 w-5 text-slate-500 transition-colors group-focus-within:text-emerald-400" />
+                                        <input
+                                            type="search"
+                                            placeholder="جستجو نام، ایمیل، کد رهگیری..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="h-12 w-full rounded-xl border border-white/10 bg-[#151816] pr-12 pl-4 text-sm text-white outline-none transition-colors placeholder:text-slate-600 focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/10"
+                                        />
+                                    </div>
+                                </label>
+
+                                <div>
+                                    <span className="mb-2 block text-xs font-bold text-slate-400">پلن</span>
+                                    <div className="grid grid-cols-3 gap-1 rounded-xl border border-white/10 bg-[#151816] p-1">
+                                        {(["all", "individual", "family"] as const).map((type) => (
+                                            <button
+                                                key={type}
+                                                type="button"
+                                                onClick={() => setActiveFilter(type)}
+                                                aria-pressed={activeFilter === type}
+                                                className={`min-h-10 cursor-pointer whitespace-nowrap rounded-lg px-4 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 ${
+                                                    activeFilter === type
+                                                        ? "bg-white/10 text-white"
+                                                        : "text-slate-500 hover:bg-white/[0.04] hover:text-slate-300"
+                                                }`}
+                                            >
+                                                {type === "all" ? "همه" : type === "individual" ? "شخصی" : "فمیلی"}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <span className="mb-2 block text-xs font-bold text-slate-400">وضعیت</span>
+                                    <div className="grid grid-cols-2 gap-1 rounded-xl border border-white/10 bg-[#151816] p-1 sm:grid-cols-4">
+                                        {[
+                                            { key: "all" as const, label: "همه" },
+                                            { key: "legacy" as const, label: "قدیمی" },
+                                            { key: "processing" as const, label: "در حال پردازش" },
+                                            { key: "completed" as const, label: "تکمیل شده" },
+                                        ].map(({ key, label }) => (
+                                            <button
+                                                key={key}
+                                                type="button"
+                                                onClick={() => setStatusFilter(key)}
+                                                aria-pressed={statusFilter === key}
+                                                className={`min-h-10 cursor-pointer whitespace-nowrap rounded-lg px-3 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 ${
+                                                    statusFilter === key
+                                                        ? "bg-white/10 text-white"
+                                                        : "text-slate-500 hover:bg-white/[0.04] hover:text-slate-300"
+                                                }`}
+                                            >
+                                                {label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.section>
 
                 {/* ─── لیست سفارشات ─── */}
                 {filteredOrders.length === 0 ? (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-center py-32 bg-store-panel border border-store-border rounded-3xl"
+                        className="rounded-[28px] border border-dashed border-white/10 bg-[#101311] py-24 text-center"
                     >
-                        <div className="w-20 h-20 bg-store-card rounded-full flex items-center justify-center mx-auto mb-4 border border-store-border">
-                            <Search className="w-8 h-8 text-slate-500" />
+                        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04]">
+                            <Search className="h-7 w-7 text-slate-500" />
                         </div>
-                        <h3 className="text-xl font-bold text-slate-300 mb-2">نتیجه‌ای یافت نشد!</h3>
-                        <p className="text-slate-500">سفارشی با این مشخصات در سیستم ثبت نشده است.</p>
+                        <h3 className="mb-2 text-lg font-bold text-slate-300">نتیجه‌ای یافت نشد!</h3>
+                        <p className="text-sm text-slate-500">سفارشی با این مشخصات در سیستم ثبت نشده است.</p>
                     </motion.div>
                 ) : (
-                    <motion.div layout className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    <motion.div layout className="grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
                         <AnimatePresence mode="popLayout">
                             {filteredOrders.map((order) => {
                                 const isFamily = order.planType === "family";
@@ -952,23 +1089,23 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                     <motion.div
                                         key={order.id}
                                         layout
-                                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                        initial={{ opacity: 0, y: 12 }}
                                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-                                        transition={{ duration: 0.3 }}
-                                        className="group flex flex-col h-full bg-store-panel border border-store-border rounded-[1.5rem] overflow-hidden hover:border-store-hover transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+                                        exit={{ opacity: 0, y: 8 }}
+                                        transition={{ duration: 0.24 }}
+                                        className="group flex self-start flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[#101311] transition-colors duration-200 hover:border-white/20"
                                     >
                                         <div
-                                            className={`bg-gradient-to-b ${bgGradient} border-b ${borderTheme} p-5 flex justify-between items-center relative overflow-hidden`}
+                                            className={`relative flex flex-col gap-3 border-b bg-gradient-to-l p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 ${bgGradient} ${borderTheme}`}
                                         >
-                                            <div className="flex items-center gap-3 relative z-10">
+                                            <div className="relative z-10 flex min-w-0 items-center gap-3">
                                                 <div
-                                                    className={`p-2.5 rounded-xl bg-store-card border border-store-border ${themeColor}`}
+                                                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/25 ${themeColor}`}
                                                 >
                                                     <ProductIcon className="w-5 h-5" />
                                                 </div>
-                                                <div>
-                                                    <span className="block text-[11px] font-bold tracking-wider text-slate-400 mb-0.5">
+                                                <div className="min-w-0">
+                                                    <span className="block truncate text-[11px] font-bold tracking-wider text-slate-400 mb-0.5" dir="ltr">
                                                         ID: {(order.id || "").toUpperCase()}
                                                     </span>
                                                     <span className={`text-sm font-black ${themeColor}`}>
@@ -978,23 +1115,23 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                             </div>
 
                                             <div
-                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border ${status.color} ${status.bg} ${status.border}`}
+                                                className={`flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold ${status.color} ${status.bg} ${status.border}`}
                                             >
                                                 {status.icon}
                                                 {status.label}
                                             </div>
                                         </div>
 
-                                        <div className="p-5 space-y-4 flex-1">
-                                            <div className="bg-store-base p-4 rounded-2xl border border-store-border flex justify-between items-center shadow-inner">
-                                                <div className="flex items-center gap-2.5 text-slate-300 font-medium text-sm">
-                                                    <CreditCard className="w-4 h-4 text-slate-500" />
-                                                    <span className="truncate max-w-[120px]">
+                                        <div className="flex-1 space-y-4 p-4 sm:p-5">
+                                            <div className="flex min-h-[104px] flex-col justify-center gap-4 rounded-2xl border border-white/8 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                                <div className="flex min-w-0 items-center gap-2.5 text-sm font-medium text-slate-300">
+                                                    <CreditCard className="h-4 w-4 shrink-0 text-slate-500" />
+                                                    <span className="break-words font-bold">
                                                         {order.planTitle || `${order.durationMonths || "?"} ماه`}
                                                     </span>
                                                 </div>
 
-                                                <div className="flex flex-col items-end gap-1">
+                                                <div className="flex min-h-[62px] flex-col items-end justify-center gap-1">
                                                     {hasDiscount ? (
                                                         <>
                                                             <div className="text-[11px] text-slate-400 line-through">
@@ -1031,46 +1168,63 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-2.5 px-1">
+                                            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                                                 {[
                                                     {
-                                                        icon: <User className="w-4 h-4 text-slate-400" />,
+                                                        icon: <Clock className="h-4 w-4 text-slate-400" />,
+                                                        label: "مدت زمان سفارش",
+                                                        value: order.durationMonths
+                                                            ? `${order.durationMonths.toLocaleString("fa-IR")} ماه`
+                                                            : "ثبت نشده",
+                                                        dir: "rtl",
+                                                    },
+                                                    {
+                                                        icon: <User className="h-4 w-4 text-slate-400" />,
+                                                        label: "نام و نام خانوادگی",
                                                         value: order.fullNameEn,
                                                         dir: "ltr",
                                                     },
                                                     {
-                                                        icon: <Mail className="w-4 h-4 text-spotify-light" />,
+                                                        icon: <Mail className="h-4 w-4 text-spotify-light" />,
+                                                        label: "ایمیل اسپاتیفای",
                                                         value: order.spotifyEmail,
                                                         dir: "ltr",
                                                     },
                                                     {
-                                                        icon: <Calendar className="w-4 h-4 text-slate-400" />,
+                                                        icon: <Calendar className="h-4 w-4 text-slate-400" />,
+                                                        label: "تاریخ تولد",
                                                         value: order.dateOfBirth,
                                                         dir: "ltr",
                                                     },
                                                     {
-                                                        icon: <Lock className="w-4 h-4 text-slate-400" />,
+                                                        icon: <Lock className="h-4 w-4 text-slate-400" />,
+                                                        label: "رمز عبور",
                                                         value: order.password || "بدون رمز",
                                                         dir: "ltr",
                                                     },
                                                     {
-                                                        icon: <Hash className="w-4 h-4 text-slate-400" />,
-                                                        value: order.couponCode
-                                                            ? `کد تخفیف: ${order.couponCode}`
-                                                            : "بدون کد تخفیف",
+                                                        icon: <Hash className="h-4 w-4 text-slate-400" />,
+                                                        label: "کد تخفیف",
+                                                        value: order.couponCode || "بدون کد تخفیف",
                                                         dir: "rtl",
                                                     },
-                                                ].map(({ icon, value, dir }, i) => (
-                                                    <div key={i} className="flex items-center gap-3 text-sm">
-                                                        <div className="w-8 h-8 rounded-full bg-store-card flex items-center justify-center border border-store-border shrink-0">
+                                                    {
+                                                        icon: <Users className="h-4 w-4 text-slate-400" />,
+                                                        label: "جنسیت",
+                                                        value: order.gender === "man" ? "آقا" : order.gender === "woman" ? "خانم" : order.gender,
+                                                        dir: "rtl",
+                                                    },
+                                                ].map(({ icon, label, value, dir }) => (
+                                                    <div key={label} className="flex min-w-0 items-center gap-3 rounded-xl border border-white/5 bg-white/[0.025] p-3">
+                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/8 bg-black/20">
                                                             {icon}
                                                         </div>
-                                                        <span
-                                                            className="text-slate-300 truncate text-xs md:text-sm"
-                                                            dir={dir as any}
-                                                        >
-                                                            {value || "ثبت نشده"}
-                                                        </span>
+                                                        <div className="min-w-0">
+                                                            <p className="mb-1 text-[10px] font-medium text-slate-500">{label}</p>
+                                                            <p className="break-all text-[13px] font-medium text-slate-200" dir={dir as "rtl" | "ltr"}>
+                                                                {value || "ثبت نشده"}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -1078,10 +1232,12 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                             {order.receipt ? (
                                                 <div className="rounded-2xl border border-blue-500/20 overflow-hidden">
                                                     <button
+                                                        type="button"
                                                         onClick={() =>
                                                             setExpandedReceipt(receiptOpen ? null : order.id)
                                                         }
-                                                        className="w-full flex items-center justify-between px-4 py-3 bg-blue-500/10 text-blue-400 text-xs font-bold cursor-pointer hover:bg-blue-500/15 transition-colors"
+                                                        aria-expanded={receiptOpen}
+                                                        className="flex min-h-11 w-full cursor-pointer items-center justify-between bg-blue-500/10 px-4 py-3 text-xs font-bold text-blue-300 transition-colors hover:bg-blue-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-400/60"
                                                     >
                                                         <div className="flex items-center gap-2">
                                                             <Banknote className="w-4 h-4" />
@@ -1166,13 +1322,14 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                             )}
                                         </div>
 
-                                        <div className="px-4 py-3 bg-store-base border-t border-store-border space-y-2">
+                                        <div className="space-y-3 border-t border-white/8 bg-black/20 px-4 py-4">
                                             <div className="flex gap-1.5 flex-wrap">
                                                 {order.status !== "processing" && order.status !== "completed" && (
                                                     <button
+                                                        type="button"
                                                         onClick={() => handleStatusUpdate(order.id, "processing")}
                                                         disabled={isUpdating === order.id}
-                                                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold cursor-pointer bg-violet-500/10 text-violet-400 border border-violet-500/20 hover:bg-violet-500/20 transition-colors disabled:opacity-50"
+                                                        className="flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-violet-500/20 bg-violet-500/10 px-3 text-xs font-bold text-violet-300 transition-colors hover:bg-violet-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 disabled:opacity-50"
                                                     >
                                                         {isUpdating === order.id ? (
                                                             <span className="w-3.5 h-3.5 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
@@ -1185,9 +1342,10 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
 
                                                 {order.status !== "completed" && (
                                                     <button
+                                                        type="button"
                                                         onClick={() => handleStatusUpdate(order.id, "completed")}
                                                         disabled={isUpdating === order.id}
-                                                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold cursor-pointer bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                                                        className="flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 text-xs font-bold text-emerald-300 transition-colors hover:bg-emerald-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 disabled:opacity-50"
                                                     >
                                                         {isUpdating === order.id ? (
                                                             <span className="w-3.5 h-3.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
@@ -1199,7 +1357,7 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                                 )}
 
                                                 {order.status === "completed" && (
-                                                    <div className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-500/5 text-emerald-500/60 border border-emerald-500/10">
+                                                    <div className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border border-emerald-500/10 bg-emerald-500/5 px-3 text-xs font-bold text-emerald-500/60">
                                                         <CheckCircle2 className="w-3.5 h-3.5" />
                                                         پرداخت تأیید شده
                                                     </div>
@@ -1212,10 +1370,12 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                                                     <span>{parseDateSafe(order.createdAt)}</span>
                                                 </div>
                                                 <button
+                                                    type="button"
                                                     onClick={() => handleDelete(order.id)}
                                                     disabled={isDeleting === order.id}
-                                                    className="flex cursor-pointer items-center justify-center p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                                                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl text-rose-400 transition-colors hover:bg-rose-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/60 disabled:opacity-50"
                                                     title="حذف سفارش"
+                                                    aria-label={`حذف سفارش ${order.id}`}
                                                 >
                                                     {isDeleting === order.id ? (
                                                         <span className="w-3.5 h-3.5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
@@ -1230,6 +1390,8 @@ export default function ClientOrders({ orders }: { orders: Order[] }) {
                             })}
                         </AnimatePresence>
                     </motion.div>
+                )}
+                    </>
                 )}
             </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { use, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
     Clock,
@@ -32,8 +32,9 @@ type Plan = {
 
 const spotifyPaidTermsLink = "https://www.spotify.com/legal/paid-subscription-terms";
 
-export default function TermsPage() {
-    const [activePlan, setActivePlan] = useState<Plan["id"]>("personal");
+export default function TermsPage({ searchParams }: { searchParams: Promise<{ plan?: string }> }) {
+    const { plan } = use(searchParams);
+    const [activePlan, setActivePlan] = useState<Plan["id"]>(plan === "group" ? "group" : "personal");
 
     const plans: Plan[] = [
         {

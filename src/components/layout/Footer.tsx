@@ -1,7 +1,13 @@
+"use client";
+
 import { Send, ShieldUser } from "lucide-react";
+import { motion } from "framer-motion";
 import Image from "next/image";
+import { useState } from "react";
 
 export default function Footer() {
+    const [isAboutExpanded, setIsAboutExpanded] = useState(false);
+
     return (
         <footer className="border-t border-store-border bg-store-dark/50 mt-auto">
             <div className="container mx-auto px-4 py-8">
@@ -9,19 +15,48 @@ export default function Footer() {
                     {/* بخش درباره ما */}
                     <div className="space-y-4">
                         <h3 className="text-lg font-bold text-white">درباره ما</h3>
-                        <p className="text-slate-400 leading-relaxed text-justify max-w-4xl">
-                            اسپاتیفای امروز به‌عنوان یکی از محبوب‌ترین و شناخته‌شده‌ترین سرویس‌های پخش موسیقی آنلاین در
-                            جهان، تجربه‌ای متفاوت از شنیدن موسیقی، پادکست و محتوای صوتی را برای میلیون‌ها کاربر فراهم
-                            کرده است. دسترسی به آرشیوی گسترده از موسیقی‌های روز دنیا، کیفیت پخش بالا و امکانات متنوع،
-                            باعث شده اسپاتیفای به انتخاب اول بسیاری از کاربران در سراسر جهان تبدیل شود. با گسترش محبوبیت
-                            اسپاتیفای در میان کاربران ایرانی، همواره نیاز به روشی مطمئن، سریع و آسان برای تهیه اشتراک
-                            پرمیوم این سرویس وجود داشته است. سرویسی که به‌دلیل محدودیت‌های پرداخت بین‌المللی، تهیه
-                            مستقیم اشتراک پرمیوم آن برای بسیاری از کاربران داخل ایران با دشواری همراه بوده است. فروشگاه
-                            Get Spotify نیز با درک این نیاز شکل گرفته است تا امکان خرید آسان، مطمئن و سریع اشتراک پرمیوم
-                            اسپاتیفای را برای کاربران ایرانی فراهم کند. ما تلاش کرده‌ایم با ارائه پرداخت معتبر ارزی،
-                            فعال‌سازی سریع و پشتیبانی مناسب، تجربه‌ای ساده و بدون نگرانی را برای دسترسی به امکانات
-                            حرفه‌ای اسپاتیفای فراهم کنیم تا کاربران بتوانند بدون محدودیت، از دنیای موسیقی لذت ببرند.
-                        </p>
+                        <div className="space-y-2">
+                            <motion.div
+                                initial={false}
+                                animate={{ height: isAboutExpanded ? "auto" : 64 }}
+                                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                                className="max-w-4xl overflow-hidden"
+                                style={
+                                    isAboutExpanded
+                                        ? undefined
+                                        : {
+                                              WebkitMaskImage:
+                                                  "linear-gradient(to bottom, black 0%, black 45%, transparent 100%)",
+                                              maskImage:
+                                                  "linear-gradient(to bottom, black 0%, black 45%, transparent 100%)",
+                                          }
+                                }
+                            >
+                                <p className="text-slate-400 leading-relaxed text-justify">
+                                    اسپاتیفای امروز به‌عنوان یکی از محبوب‌ترین و شناخته‌شده‌ترین سرویس‌های پخش موسیقی
+                                    آنلاین در جهان، تجربه‌ای متفاوت از شنیدن موسیقی، پادکست و محتوای صوتی را برای میلیون‌ها
+                                    کاربر فراهم کرده است. دسترسی به آرشیوی گسترده از موسیقی‌های روز دنیا، کیفیت پخش بالا و
+                                    امکانات متنوع، باعث شده اسپاتیفای به انتخاب اول بسیاری از کاربران در سراسر جهان تبدیل
+                                    شود. با گسترش محبوبیت اسپاتیفای در میان کاربران ایرانی، همواره نیاز به روشی مطمئن، سریع
+                                    و آسان برای تهیه اشتراک پرمیوم این سرویس وجود داشته است. سرویسی که به‌دلیل محدودیت‌های
+                                    پرداخت بین‌المللی، تهیه مستقیم اشتراک پرمیوم آن برای بسیاری از کاربران داخل ایران با
+                                    دشواری همراه بوده است. فروشگاه Get Spotify نیز با درک این نیاز شکل گرفته است تا امکان
+                                    خرید آسان، مطمئن و سریع اشتراک پرمیوم اسپاتیفای را برای کاربران ایرانی فراهم کند. ما
+                                    تلاش کرده‌ایم با ارائه پرداخت معتبر ارزی، فعال‌سازی سریع و پشتیبانی مناسب، تجربه‌ای
+                                    ساده و بدون نگرانی را برای دسترسی به امکانات حرفه‌ای اسپاتیفای فراهم کنیم تا کاربران
+                                    بتوانند بدون محدودیت، از دنیای موسیقی لذت ببرند.
+                                </p>
+                            </motion.div>
+
+                            <button
+                                type="button"
+                                onClick={() => setIsAboutExpanded((expanded) => !expanded)}
+                                aria-expanded={isAboutExpanded}
+                                className="cursor-pointer font-medium text-[#1ED760] transition-colors hover:text-[#1fdf64]"
+                            >
+                                {isAboutExpanded ? "مشاهده کمتر" : "مشاهده بیشتر"}
+                            </button>
+                        </div>
                     </div>
 
                     {/* بخش لینک‌های سریع */}

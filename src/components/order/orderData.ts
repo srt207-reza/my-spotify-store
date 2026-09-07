@@ -8,7 +8,9 @@ const planPrefix: Record<PlanType, string> = {
 const makeTitle = (type: PlanType, months: number) =>
     `${planPrefix[type]} ${months.toLocaleString("fa-IR")} ماهه پرمیوم`;
 
-export const PRICING: Record<PlanType, Plan[]> = {
+export type PlanPricing = Record<PlanType, Plan[]>;
+
+export const PRICING: PlanPricing = {
     individual: [
         {
             id: "ind-1m",

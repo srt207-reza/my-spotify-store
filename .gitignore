@@ -21,6 +21,7 @@
 /build
 orders.json
 discount-codes.json
+plan-prices.json
 
 # misc
 .DS_Store

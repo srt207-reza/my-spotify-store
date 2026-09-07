@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import Image from "next/image";
 
 import type { FormData, Plan, PlanType, TouchedState } from "./orderTypes";
-import { PRICING } from "./orderData";
+import type { PlanPricing } from "./orderData";
 import { getAge, isPasswordValid, NAME_REGEX, EMAIL_REGEX } from "@/lib/orderValidation";
 
 import StepIndicator from "./shared/StepIndicator";
@@ -77,7 +77,7 @@ function calculateDiscount(price: number, code: DiscountCode) {
     };
 }
 
-export default function OrderForm() {
+export default function OrderForm({ initialPricing }: { initialPricing: PlanPricing }) {
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -131,7 +131,7 @@ export default function OrderForm() {
         if (currentProduct && currentPlanParam) {
             const requestedMonths = parseInt(currentPlanParam.replace(/[^0-9]/g, ""), 10);
             if (!Number.isNaN(requestedMonths)) {
-                matchedPlan = PRICING[currentProduct].find((p) => p.durationMonths === requestedMonths);
+                matchedPlan = initialPricing[currentProduct].find((p) => p.durationMonths === requestedMonths);
             }
         }
 
@@ -160,7 +160,7 @@ export default function OrderForm() {
         setOrderId("");
         setSubmittedStep3(false);
         setTouched(initialTouchedState);
-    }, [searchParams]);
+    }, [initialPricing, searchParams]);
 
     const fullNameValid = NAME_REGEX.test(formData.fullNameEn.trim());
     const emailValid = EMAIL_REGEX.test(formData.spotifyEmail.trim());
@@ -175,7 +175,7 @@ export default function OrderForm() {
     const handlePlanSelect = (planId: string) => {
         if (!selectedProduct) return;
 
-        const plan = PRICING[selectedProduct].find((p) => p.id === planId);
+        const plan = initialPricing[selectedProduct].find((p) => p.id === planId);
         if (!plan) return;
 
         setFormData((prev) => ({
@@ -307,6 +307,8 @@ export default function OrderForm() {
                     password: formData.password || "",
                     gender: formData.gender,
                     price: formData.price,
+                    planId: formData.planId,
+                    planTitle: formData.planTitle,
                     couponCode: couponCode.trim(),
                     receipt: receiptData || null,
                 }),
@@ -329,7 +331,7 @@ export default function OrderForm() {
 
     return (
         <div className="max-w-4xl mx-auto w-full">
-            <div className="text-center mb-8">
+            <div className={step === 5 ? "text-center" : "text-center mb-8"}>
                 {step <= 5 && !orderId && (
                     <StepIndicator
                         step={step}
@@ -391,6 +393,7 @@ export default function OrderForm() {
                 {step === 2 && (
                     <DurationStep
                         selectedProduct={selectedProduct}
+                        pricing={initialPricing}
                         formData={formData}
                         onSelectPlan={handlePlanSelect}
                         onBack={() => {
@@ -419,6 +422,7 @@ export default function OrderForm() {
                     <PreInvoiceStep
                         formData={formData}
                         selectedProduct={selectedProduct}
+                        pricing={initialPricing}
                         couponCode={couponCode}
                         discountAmount={discountAmount}
                         payablePrice={payablePrice || formData.price}
@@ -435,8 +439,8 @@ export default function OrderForm() {
                     <PaymentStep
                         orderId={orderId}
                         price={payablePrice || formData.price}
-                        onCopyCard={() => copyToClipboard("5041721212076674")}
-                        onCopySheba={() => copyToClipboard("IR950700010001110988147001")}
+                        onCopyCard={copyToClipboard}
+                        onCopySheba={copyToClipboard}
                         onBack={() => {
                             setOrderId("");
                             setStep(4);

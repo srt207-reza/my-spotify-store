@@ -91,7 +91,7 @@ export async function POST(req: Request) {
         const type = normalizeDiscountType(data.type);
         const value = parseNumber(data.value);
 
-        if (!code || !type || value <= 0) {
+        if (!code || !/^[A-Z0-9]+$/.test(code) || !type || value <= 0) {
             return NextResponse.json(
                 { success: false, message: "اطلاعات کد تخفیف نامعتبر است." },
                 { status: 400 },

@@ -220,12 +220,12 @@ export default function BirthDatePicker({ value, onChange }: BirthDatePickerProp
                 <span className="text-red-500">*</span>
             </label>
 
-            <div className="flex gap-2 w-full" dir="ltr">
+            <div className="flex gap-2 w-full" dir="rtl">
                 <CustomSelect
-                    value={year}
-                    onChange={setYear}
-                    options={yearOptions}
-                    placeholder="سال"
+                    value={day}
+                    onChange={setDay}
+                    options={dayOptions}
+                    placeholder="روز"
                 />
                 <CustomSelect
                     value={month}
@@ -234,10 +234,10 @@ export default function BirthDatePicker({ value, onChange }: BirthDatePickerProp
                     placeholder="ماه"
                 />
                 <CustomSelect
-                    value={day}
-                    onChange={setDay}
-                    options={dayOptions}
-                    placeholder="روز"
+                    value={year}
+                    onChange={setYear}
+                    options={yearOptions}
+                    placeholder="سال"
                 />
             </div>
         </div>

@@ -1,8 +1,13 @@
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import OrderForm from "@/components/order/OrderForm";
+import { readPlanPricing } from "@/lib/planPricingStore";
 
-export default function OrderPage() {
+export const dynamic = "force-dynamic";
+
+export default async function OrderPage() {
+    const pricing = await readPlanPricing();
+
     return (
         <div className="min-h-[70vh] flex items-center justify-center pb-10">
             <Suspense
@@ -12,7 +17,7 @@ export default function OrderPage() {
                     </div>
                 }
             >
-                <OrderForm />
+                <OrderForm initialPricing={pricing} />
             </Suspense>
         </div>
     );

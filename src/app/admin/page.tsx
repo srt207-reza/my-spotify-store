@@ -3,6 +3,8 @@ import path from "path";
 import ClientOrders from "./ClientOrders";
 import Link from "next/link";
 import { ShieldAlert, Home } from "lucide-react";
+import { readPlanPricing } from "@/lib/planPricingStore";
+import { ADMIN_SECRET } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +15,6 @@ type Props = {
 export default async function AdminPage(props: Props) {
     const searchParams = await props.searchParams;
     const secret = searchParams?.secret;
-
-    const ADMIN_SECRET = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3Q3";
 
     if (secret !== ADMIN_SECRET) {
         return (
@@ -64,11 +64,16 @@ export default async function AdminPage(props: Props) {
             const fileData = fs.readFileSync(filePath, "utf8");
             orders = JSON.parse(fileData);
 
-            orders.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            orders.sort(
+                (a: { createdAt: string }, b: { createdAt: string }) =>
+                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            );
         }
     } catch (error) {
         console.error("خطا در خواندن فایل سفارشات:", error);
     }
 
-    return <ClientOrders orders={orders} />;
+    const pricing = await readPlanPricing();
+
+    return <ClientOrders orders={orders} initialPricing={pricing} adminSecret={ADMIN_SECRET} />;
 }

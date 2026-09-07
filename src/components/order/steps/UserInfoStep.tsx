@@ -178,8 +178,36 @@ export default function UserInfoStep({
                 <p className="text-xs text-slate-500 mt-2">توجه: اشتراک دقیقاً روی همین ایمیل فعال خواهد شد.</p>
             </div>
 
-            <div dir="ltr">
+            <div dir="rtl">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div dir="rtl">
+                        <label className="flex items-center gap-2 text-sm text-slate-400 mb-2">
+                            <User className="w-4 h-4" /> نام <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            value={firstNameEn}
+                            maxLength={50}
+                            onFocus={() => setNameFocused(true)}
+                            onBlur={() => setNameFocused(false)}
+                            onChange={(e) => {
+                                setTouched((prev) => ({ ...prev, fullNameEn: true }));
+
+                                const nextFirst = capitalizeEnglishWords(normalizeNameInput(e.target.value));
+                                setFirstNameEn(nextFirst);
+                                syncFullName(nextFirst, lastNameEn);
+                            }}
+                            className="w-full border border-[#282828] bg-[#121212] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#1ED760]"
+                            placeholder="e.g. Mohammadreza (Only English Letters)"
+                            dir="ltr"
+                            autoComplete="given-name"
+                        />
+                        {showFirstNameRequiredError && <p className="text-xs mt-2 text-red-400">نام خالی است.</p>}
+                        {showFirstNameLanguageError && (
+                            <p className="text-xs mt-2 text-red-400">لطفاً مشخصات را به انگلیسی وارد بفرمایید.</p>
+                        )}
+                    </div>
+
                     <div dir="rtl">
                         <label className="flex items-center gap-2 text-sm text-slate-400 mb-2">
                             <User className="w-4 h-4" /> نام‌خانوادگی <span className="text-red-500">*</span>
@@ -212,34 +240,6 @@ export default function UserInfoStep({
                             <p className="text-xs mt-2 text-red-400">
                                 نام باید فقط با حروف انگلیسی و حداقل شامل نام و نام‌خانوادگی باشد.
                             </p>
-                        )}
-                    </div>
-
-                    <div dir="rtl">
-                        <label className="flex items-center gap-2 text-sm text-slate-400 mb-2">
-                            <User className="w-4 h-4" /> نام <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={firstNameEn}
-                            maxLength={50}
-                            onFocus={() => setNameFocused(true)}
-                            onBlur={() => setNameFocused(false)}
-                            onChange={(e) => {
-                                setTouched((prev) => ({ ...prev, fullNameEn: true }));
-
-                                const nextFirst = capitalizeEnglishWords(normalizeNameInput(e.target.value));
-                                setFirstNameEn(nextFirst);
-                                syncFullName(nextFirst, lastNameEn);
-                            }}
-                            className="w-full border border-[#282828] bg-[#121212] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#1ED760]"
-                            placeholder="e.g. Mohammadreza (Only English Letters)"
-                            dir="ltr"
-                            autoComplete="given-name"
-                        />
-                        {showFirstNameRequiredError && <p className="text-xs mt-2 text-red-400">نام خالی است.</p>}
-                        {showFirstNameLanguageError && (
-                            <p className="text-xs mt-2 text-red-400">لطفاً مشخصات را به انگلیسی وارد بفرمایید.</p>
                         )}
                     </div>
                 </div>

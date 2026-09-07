@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, ChevronDown, Loader2, Receipt, Send } from "lucide-react";
+import toast from "react-hot-toast";
 
 const IRANIAN_BANKS = [
     "ملی ایران",
@@ -119,10 +120,11 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
     const trackingCodeValid = trackingCode.trim().length >= 6;
     const sourceBankValid = sourceBank.trim().length > 0;
     const canSubmit = payerNameValid && trackingCodeValid && sourceBankValid;
+    const englishOrderId = normalizeDigits(orderId || "");
 
-    const telegramMessage = orderId
+    const telegramMessage = englishOrderId
         ? `سلام وقت‌بخیر
-من درخواست فعال‌سازی اشتراک پرمیوم اسپاتیفای را با کد پیگیری ${orderId} ثبت کردم.
+من درخواست فعال‌سازی اشتراک پرمیوم اسپاتیفای را با کد پیگیری ${englishOrderId} ثبت کردم.
 لطفاً در صورت اشتباه بودن اطلاعات حساب کاربری و یا اطلاعات پرداخت، از همین طریق به من اطلاع‌رسانی کنید.`
         : `سلام وقت‌بخیر
 من درخواست فعالسازی اشتراک پرمیوم اسپاتیفای را ثبت کردم.
@@ -130,6 +132,14 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
 لطفاً در صورت اشتباه بودن اطلاعات حساب کاربری و یا اطلاعات پرداخت، از همین طریق اطلاع‌رسانی بفرمایید.`;
 
     const supportUrl = `https://t.me/${SUPPORT_TELEGRAM_USERNAME}?text=${encodeURIComponent(telegramMessage)}`;
+
+    const handleCopyOrderId = async () => {
+        if (!englishOrderId) return;
+        try {
+            await navigator.clipboard.writeText(englishOrderId);
+            toast.success("کد سفارش با موفقیت کپی شد.");
+        } catch {}
+    };
 
     const handleSubmit = async () => {
         setTouched({
@@ -204,27 +214,35 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                         <p className="text-white font-bold text-lg sm:text-xl">
                             درخواست فعال‌سازی اشتراک پرمیوم اسپاتیفای با موفقیت ثبت شد!
                         </p>
-                        <p className="text-zinc-400 text-sm mt-2">
-                            سفارش شما در حال پردازش و پیگیری توسط همکاران بخش پشتیبانی می‌باشد، لطفاً جهت پیگیری سفارش
-                            بر روی گزینه ارتباط با پشتیبانی کلیک بفرمایید تا کد پیگیری سفارش به طور خودکار ارسال گردد.
+                        <p className="text-zinc-400 text-md mt-2">
+                            سفارش شما در حال پردازش و پیگیری توسط همکاران بخش پشتیبانی می‌باشد، لطفاً جهت پیگیری سفارش بر روی گزینه ارسال برای پشتیبانی کلیک بفرمایید تا کد پیگیری سفارش به طور خودکار ارسال گردد.
                         </p>
                     </div>
 
                     <div className="relative z-10 space-y-2">
-                        <p className="text-zinc-500 text-xs">کد پیگیری سفارش</p>
+                        <p className="text-zinc-500 text-md">کد سفارش</p>
 
-                        <motion.div
+                        <motion.button
+                            type="button"
+                            onClick={handleCopyOrderId}
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
+                            whileHover={{ scale: 1.04, y: -2, transition: { duration: 0.2, delay: 0 } }}
+                            whileTap={{ scale: 0.97, transition: { duration: 0.12, delay: 0 } }}
                             transition={{ delay: 0.25 }}
-                            className="inline-flex items-center gap-2 bg-[#1ED760]/10 border border-[#1ED760]/25 rounded-2xl px-5 py-3"
+                            className="inline-flex cursor-pointer items-center gap-2 bg-[#1ED760]/10 hover:bg-[#1ED760]/15 border border-[#1ED760]/25 hover:border-[#1ED760]/50 rounded-2xl px-5 py-3 transition-colors"
                         >
-                            <span className="font-mono text-[#1ED760] text-xl sm:text-2xl font-bold tracking-widest">
-                                {orderId || "در حال ساخت..."}
+                            <span
+                                dir="ltr"
+                                lang="en"
+                                className="text-[#1ED760] text-xl sm:text-2xl font-bold tracking-widest"
+                                style={{ fontFamily: "Arial, sans-serif", fontFeatureSettings: "normal" }}
+                            >
+                                {englishOrderId || "در حال ساخت..."}
                             </span>
-                        </motion.div>
+                        </motion.button>
 
-                        <p className="text-zinc-600 text-xs pt-1">این کد را جهت پیگیری نزد خود نگه دارید</p>
+                        {/* <p className="text-zinc-600 text-xs pt-1">این کد را جهت پیگیری نزد خود نگه دارید</p> */}
                     </div>
 
                     <motion.a
@@ -247,7 +265,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     animate="visible"
                     className="bg-[#181818]/80 border border-[#282828] rounded-3xl p-5 sm:p-6 space-y-5 relative text-right"
                     dir="rtl"
-                >ی
+                >
                     <motion.div
                         animate={{ scale: [1, 1.08, 1], opacity: [0.08, 0.16, 0.08] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -263,8 +281,8 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             <Receipt className="w-4 h-4 text-[#1ED760]" />
                         </div>
                         <div>
-                            <p className="text-white font-semibold text-sm sm:text-base">اطلاعات رسید پرداخت وجه</p>
-                            <p className="text-zinc-500 text-xs mt-0.5">
+                            <p className="text-white font-semibold text-base sm:text-lg">اطلاعات رسید پرداخت وجه</p>
+                            <p className="text-zinc-500 text-sm mt-0.5">
                                 لطفاً پس از پرداخت، اطلاعات رسید پرداخت وجه را در فرم زیر وارد نمایید.
                             </p>
                         </div>
@@ -275,7 +293,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                         variants={itemVariants}
                         className="relative z-10 space-y-1.5"
                     >
-                        <label className="text-zinc-300 text-sm font-medium flex items-center gap-1">
+                        <label className="text-zinc-300 text-[15px] font-medium flex items-center gap-1">
                             مشخصات واریزکننده <span className="text-red-400">*</span>
                         </label>
 
@@ -288,13 +306,12 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             inputMode="text"
                             autoComplete="name"
                             dir="rtl"
-                            className={`w-full bg-[#121212] border rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 text-sm outline-none transition-all duration-200
-                                ${
-                                    touched.payerName && (!payerNameValid || payerNameError)
-                                        ? "border-red-500/60"
-                                        : payerNameValid
-                                          ? "border-[#1ED760]/40 focus:border-[#1ED760]"
-                                          : "border-[#282828] focus:border-zinc-500"
+                            className={`w-full bg-[#121212] border rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 text-[15px] outline-none transition-all duration-200
+                                ${touched.payerName && (!payerNameValid || payerNameError)
+                                    ? "border-red-500/60"
+                                    : payerNameValid
+                                        ? "border-[#1ED760]/40 focus:border-[#1ED760]"
+                                        : "border-[#282828] focus:border-zinc-500"
                                 }`}
                         />
 
@@ -302,7 +319,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             <motion.p
                                 initial={{ opacity: 0, y: -4 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-red-400 text-xs"
+                                className="text-red-400 text-[13px]"
                             >
                                 {payerNameError || "فقط حروف فارسی مجاز است."}
                             </motion.p>
@@ -314,27 +331,26 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                         variants={itemVariants}
                         className="relative z-10 space-y-1.5"
                     >
-                        <label className="text-zinc-300 text-sm font-medium flex items-center gap-1">
-                            کد رهگیری تراکنش<span className="text-red-400">*</span>
+                        <label className="text-zinc-300 text-[15px] font-medium flex items-center gap-1">
+                            کد پیگیری تراکنش<span className="text-red-400">*</span>
                         </label>
 
                         <input
                             type="text"
                             inputMode="numeric"
                             pattern="[0-9۰-۹٠-٩]*"
-                            placeholder="کد رهگیری تراکنش"
+                            placeholder="1234567"
                             value={trackingCode}
                             onChange={(e) => handleTrackingCodeChange(e.target.value)}
                             onBlur={() => setTouched((p) => ({ ...p, trackingCode: true }))}
                             dir="ltr"
                             autoComplete="off"
-                            className={`w-full bg-[#121212] border rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 text-sm outline-none transition-all duration-200 text-right
-                                ${
-                                    touched.trackingCode && !trackingCodeValid
-                                        ? "border-red-500/60"
-                                        : trackingCodeValid
-                                          ? "border-[#1ED760]/40 focus:border-[#1ED760]"
-                                          : "border-[#282828] focus:border-zinc-500"
+                            className={`w-full bg-[#121212] border rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 text-[15px] outline-none transition-all duration-200 text-right
+                                ${touched.trackingCode && !trackingCodeValid
+                                    ? "border-red-500/60"
+                                    : trackingCodeValid
+                                        ? "border-[#1ED760]/40 focus:border-[#1ED760]"
+                                        : "border-[#282828] focus:border-zinc-500"
                                 }`}
                         />
 
@@ -342,7 +358,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             <motion.p
                                 initial={{ opacity: 0, y: -4 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-red-400 text-xs"
+                                className="text-red-400 text-[13px]"
                             >
                                 الزامی (حداقل ۶ رقم)
                             </motion.p>
@@ -354,7 +370,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                         variants={itemVariants}
                         className="relative z-20 space-y-1.5"
                     >
-                        <label className="text-zinc-300 text-sm font-medium flex items-center gap-1">
+                        <label className="text-zinc-300 text-[15px] font-medium flex items-center gap-1">
                             بانک مبدأ <span className="text-red-400">*</span>
                         </label>
 
@@ -362,13 +378,12 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             <button
                                 type="button"
                                 onClick={() => setBankOpen((o) => !o)}
-                                className={`w-full bg-[#121212] border cursor-pointer rounded-xl px-4 py-3 text-sm outline-none transition-all duration-200 flex items-center justify-between
-                                    ${
-                                        touched.sourceBank && !sourceBankValid
-                                            ? "border-red-500/60"
-                                            : sourceBankValid
-                                              ? "border-[#1ED760]/40"
-                                              : "border-[#282828]"
+                                className={`w-full bg-[#121212] border cursor-pointer rounded-xl px-4 py-3 text-[15px] outline-none transition-all duration-200 flex items-center justify-between
+                                    ${touched.sourceBank && !sourceBankValid
+                                        ? "border-red-500/60"
+                                        : sourceBankValid
+                                            ? "border-[#1ED760]/40"
+                                            : "border-[#282828]"
                                     }
                                     ${bankOpen ? "border-zinc-500" : ""}`}
                             >
@@ -400,11 +415,10 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                                                         setBankOpen(false);
                                                         setTouched((p) => ({ ...p, sourceBank: true }));
                                                     }}
-                                                    className={`w-full cursor-pointer text-right px-4 py-2.5 text-sm transition-colors
-                                                        ${
-                                                            sourceBank === bank
-                                                                ? "text-[#1ED760] bg-[#1ED760]/10"
-                                                                : "text-zinc-300 hover:bg-[#282828] hover:text-white"
+                                                    className={`w-full cursor-pointer text-right px-4 py-2.5 text-[15px] transition-colors
+                                                        ${sourceBank === bank
+                                                            ? "text-[#1ED760] bg-[#1ED760]/10"
+                                                            : "text-zinc-300 hover:bg-[#282828] hover:text-white"
                                                         }`}
                                                 >
                                                     {bank === "سایر" ? bank : `بانک ${bank}`}
@@ -420,7 +434,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             <motion.p
                                 initial={{ opacity: 0, y: -4 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-red-400 text-xs"
+                                className="text-red-400 text-[13px]"
                             >
                                 الزامی
                             </motion.p>
@@ -435,7 +449,7 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                         <button
                             type="button"
                             onClick={onBack}
-                            className="cursor-pointer rounded-xl border border-zinc-800 bg-zinc-900 px-6 py-3 text-zinc-300 transition-colors hover:border-zinc-700 hover:bg-zinc-800 sm:w-auto"
+                            className="cursor-pointer rounded-xl border border-zinc-800 bg-zinc-900 px-6 py-3 text-base sm:text-[17px] text-zinc-300 transition-colors hover:border-zinc-700 hover:bg-zinc-800 sm:w-auto"
                         >
                             بازگشت
                         </button>
@@ -446,11 +460,10 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                             whileTap={canSubmit && !loading && !localLoading ? { scale: 0.98 } : {}}
                             onClick={handleSubmit}
                             disabled={loading || localLoading}
-                            className={`relative w-full py-3.5 rounded-xl font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2 overflow-hidden
-                                ${
-                                    canSubmit && !loading && !localLoading
-                                        ? "bg-[#1ED760] text-black hover:bg-[#1fdf64] shadow-[0_0_20px_rgba(30,215,96,0.3)] cursor-pointer"
-                                        : "bg-[#282828] text-zinc-500 cursor-not-allowed"
+                            className={`relative w-full py-3.5 rounded-xl font-bold text-base sm:text-[17px] transition-all flex items-center justify-center gap-2 overflow-hidden
+                                ${canSubmit && !loading && !localLoading
+                                    ? "bg-[#1ED760] text-black hover:bg-[#1fdf64] shadow-[0_0_20px_rgba(30,215,96,0.3)] cursor-pointer"
+                                    : "bg-[#282828] text-zinc-500 cursor-not-allowed"
                                 }`}
                         >
                             {canSubmit && !loading && !localLoading && (

@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, CheckCircle2, Eye, EyeOff, Lock, Unlock, Tag } from "lucide-react";
 import type { FormData, PlanType } from "../orderTypes";
-import { PRICING } from "../orderData";
+import type { PlanPricing } from "../orderData";
 
 interface Props {
     formData: FormData;
     selectedProduct: PlanType | null;
+    pricing: PlanPricing;
     couponCode: string;
     discountAmount: number;
     payablePrice: number;
@@ -23,6 +24,7 @@ interface Props {
 export default function PreInvoiceStep({
     formData,
     selectedProduct,
+    pricing,
     couponCode,
     discountAmount,
     payablePrice,
@@ -44,7 +46,7 @@ export default function PreInvoiceStep({
     const displayGender = formData.gender ? genderMap[formData.gender] || formData.gender : "-";
 
     const currentPlan = selectedProduct
-        ? PRICING[selectedProduct].find((p) => p.durationMonths === formData.durationMonths)
+        ? pricing[selectedProduct].find((p) => p.durationMonths === formData.durationMonths)
         : undefined;
 
     const originalPrice = currentPlan?.originalPrice ?? formData.price;
@@ -145,7 +147,7 @@ export default function PreInvoiceStep({
                     <div className="flex flex-col gap-3 sm:flex-row">
                         <input
                             value={couponCode}
-                            onChange={(e) => setCouponCode(e.target.value)}
+                            onChange={(e) => setCouponCode(e.target.value.replace(/[^A-Za-z0-9]/g, ""))}
                             placeholder="مثلاً: NEW20"
                             className="flex-1 rounded-xl border border-[#2a2a2a] bg-[#0f0f0f] px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500/40"
                         />
@@ -185,7 +187,7 @@ export default function PreInvoiceStep({
                 <div className="flex items-center justify-between pt-4">
                     <span className="text-lg font-bold text-zinc-300">مبلغ قابل پرداخت:</span>
                     <div className="flex items-center gap-1.5 text-left">
-                        {discountAmount > 0 && (
+                        {originalPrice > finalPrice && (
                             <span className="text-sm text-zinc-500 line-through">
                                 {originalPrice.toLocaleString("fa-IR")}
                             </span>
@@ -214,7 +216,7 @@ export default function PreInvoiceStep({
                 <p className="text-sm text-zinc-300 leading-6 text-justify md:text-right">
                     با انتخاب این گزینه، تأیید می‌کنم که{" "}
                     <a
-                        href="/terms"
+                        href={`/terms?plan=${isFamily ? "group" : "personal"}`}
                         target="_blank"
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}

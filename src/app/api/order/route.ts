@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
+import { readPlanPricing } from "@/lib/planPricingStore";
 
 const dataFilePath = path.join(process.cwd(), "orders.json");
 const discountFilePath = path.join(process.cwd(), "discount-codes.json");
@@ -234,14 +235,6 @@ function sanitizeNewOrderPayload(data: CreateOrderPayload) {
     };
 }
 
-function upsertById(orders: SpotifyOrder[], nextOrder: SpotifyOrder): SpotifyOrder[] {
-    const idx = orders.findIndex((o) => o.id === nextOrder.id);
-    if (idx === -1) return [...orders, nextOrder];
-    const cloned = [...orders];
-    cloned[idx] = nextOrder;
-    return cloned;
-}
-
 function applyDiscount(price: number, code: DiscountCode) {
     if (!code.active) {
         return { ok: false as const, message: "این کد تخفیف غیرفعال است." };
@@ -359,6 +352,10 @@ export async function POST(req: Request) {
 
             const imported: SpotifyOrder[] = [];
             let skippedCount = 0;
+            let duplicateCount = 0;
+            const knownOrderIds = new Set(
+                orders.map((order) => normalizeText(order.id).toUpperCase()),
+            );
 
             for (const row of rows) {
                 const normalized = normalizeImportedOrder(row);
@@ -367,29 +364,35 @@ export async function POST(req: Request) {
                     continue;
                 }
 
+                const normalizedId = normalizeText(normalized.id).toUpperCase();
+                if (knownOrderIds.has(normalizedId)) {
+                    duplicateCount += 1;
+                    continue;
+                }
+
+                knownOrderIds.add(normalizedId);
                 imported.push(normalized);
             }
 
-            if (imported.length === 0) {
+            if (imported.length === 0 && duplicateCount === 0) {
                 return NextResponse.json(
                     { success: false, message: "هیچ ردیف معتبری برای ورود پیدا نشد." },
                     { status: 400 },
                 );
             }
 
-            let nextOrders = [...orders];
-            for (const item of imported) {
-                nextOrders = upsertById(nextOrders, item);
+            if (imported.length > 0) {
+                await writeOrders([...orders, ...imported]);
             }
-
-            await writeOrders(nextOrders);
 
             return NextResponse.json(
                 {
                     success: true,
                     message: "فایل اکسل با موفقیت وارد شد.",
                     importedCount: imported.length,
+                    duplicateCount,
                     skippedCount,
+                    importedOrders: imported,
                 },
                 { status: 200 },
             );
@@ -452,7 +455,21 @@ export async function POST(req: Request) {
             );
         }
 
-        const originalPrice = normalized.price || 0;
+        const pricing = await readPlanPricing();
+        const selectedPlan = pricing[normalized.planType].find((plan) =>
+            normalized.planId
+                ? plan.id === normalized.planId
+                : plan.durationMonths === normalized.durationMonths,
+        );
+
+        if (!selectedPlan) {
+            return NextResponse.json(
+                { success: false, message: "پلن انتخاب‌شده معتبر نیست." },
+                { status: 400 },
+            );
+        }
+
+        const originalPrice = selectedPlan.price;
         let discountAmount = 0;
         let finalPrice = originalPrice;
         let appliedCouponCode: string | undefined;
@@ -496,7 +513,7 @@ export async function POST(req: Request) {
             dateOfBirth: normalized.dateOfBirth,
             gender: normalized.gender || "",
             planType: normalized.planType,
-            durationMonths: normalized.durationMonths || 1,
+            durationMonths: selectedPlan.durationMonths,
             price: finalPrice,
             originalPrice,
             discountAmount,
@@ -510,8 +527,8 @@ export async function POST(req: Request) {
                   }
                 : undefined,
             createdAt: new Date().toISOString(),
-            planId: normalized.planId || undefined,
-            planTitle: normalized.planTitle || undefined,
+            planId: selectedPlan.id,
+            planTitle: selectedPlan.title,
         };
 
         orders.push(newOrder);

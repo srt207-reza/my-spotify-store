@@ -3,12 +3,13 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, CheckCircle2, BadgePercent } from "lucide-react";
 import type { FormData, PlanType } from "../orderTypes";
-import { PRICING } from "../orderData";
+import type { PlanPricing } from "../orderData";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 
 type Props = {
     selectedProduct: PlanType;
+    pricing: PlanPricing;
     formData: FormData;
     onSelectPlan: (planId: string) => void;
     onBack: () => void;
@@ -23,7 +24,7 @@ function calcSavings(original: number, price: number): number {
     return original - price;
 }
 
-export default function DurationStep({ selectedProduct, formData, onSelectPlan, onBack, onNext }: Props) {
+export default function DurationStep({ selectedProduct, pricing, formData, onSelectPlan, onBack, onNext }: Props) {
     const isFamily = selectedProduct === "family";
     useEffect(() => {
         window.scrollTo(0, 0,);
@@ -58,7 +59,7 @@ export default function DurationStep({ selectedProduct, formData, onSelectPlan, 
             </div>
 
             <div className="mx-auto grid w-full gap-3">
-                {PRICING[selectedProduct].map((plan, index) => {
+                {pricing[selectedProduct].map((plan, index) => {
                     const isSelected = formData.planId === plan.id;
                     const isDisabled = plan.disabled === true;
                     const hasDiscount = plan.originalPrice != null && plan.originalPrice > plan.price;
