@@ -169,10 +169,10 @@ export default function PaymentStep({
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.25, duration: 0.45 }}
-                            className="text-zinc-400 text-lg leading-relaxed mb-6 px-2"
+                            className="text-zinc-400 text-xl leading-relaxed mb-6 px-2"
                         >
                             جهت پرداخت وجه، لطفاً مبلغ{" "}
-                            <strong className="text-lg sm:text-xl text-[#1ED760]">
+                            <strong className="text-2xl sm:text-xl text-[#1ED760]">
                                 {price.toLocaleString("fa-IR")} تومان
                             </strong>{" "}
                             را به شماره کارت یا شماره شبا زیر واریز بفرمایید.

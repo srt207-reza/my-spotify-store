@@ -211,16 +211,16 @@ export default function ReceiptForm({ orderId, loading = false, onSubmit, onBack
                     </motion.div>
 
                     <div className="space-y-1 relative z-10">
-                        <p className="text-white font-bold text-lg sm:text-xl">
+                        <p className="text-white font-bold text-lg sm:text-2xl">
                             درخواست فعال‌سازی اشتراک پرمیوم اسپاتیفای با موفقیت ثبت شد!
                         </p>
-                        <p className="text-zinc-400 text-md mt-2">
-                            سفارش شما در حال پردازش و پیگیری توسط همکاران بخش پشتیبانی می‌باشد، لطفاً جهت پیگیری سفارش بر روی گزینه ارسال برای پشتیبانی کلیک بفرمایید تا کد پیگیری سفارش به طور خودکار ارسال گردد.
+                        <p className="text-zinc-400 text-lg mt-4">
+                            سفارش شما در حال پردازش و پیگیری توسط همکاران بخش پشتیبانی می‌باشد، لطفاً جهت پیگیری سفارش بر روی گزینه <span className="text-[#1ED760]">ارسال برای پشتیبانی</span> کلیک بفرمایید تا کد پیگیری سفارش به طور خودکار ارسال گردد.
                         </p>
                     </div>
 
                     <div className="relative z-10 space-y-2">
-                        <p className="text-zinc-500 text-md">کد سفارش</p>
+                        <p className="text-zinc-400 text-lg">کد سفارش</p>
 
                         <motion.button
                             type="button"
